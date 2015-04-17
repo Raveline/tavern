@@ -1,0 +1,94 @@
+import libtcodpy as libtcod
+from tavern.world.actions import Actions
+
+WOOD = 'wood'
+
+
+class WorldMap():
+    def __init__(self, width, height, tiles=None):
+        self.width = width
+        self.height = height
+        # A map-imitating fbm
+        self.background = self._build_background()
+        self.tiles = tiles
+        if not self.tiles:
+            self.tiles = self._build_tiles()
+
+    def __repr__(self):
+        return "World of size %d, %d" % (self.width, self.height)
+
+    def receive(self, event):
+        event_data = event.get('data')
+        if event_data.get('action') == Actions.BUILD:
+            self.build_tiles(event_data.get('area'))
+        elif event_data.get('action') == Actions.PUT:
+            self.add_object(event_data.get('area'),
+                            event_data.get('complement'))
+
+    def add_object(self, where, what):
+        print("Adding object")
+        pass
+
+    def _build_tiles(self):
+        return [[Tile(x, y, self.background[y][x])
+                for x in range(self.width)]
+                for y in range(self.height)]
+
+    def _build_background(self):
+        noise = libtcod.noise_new(2)
+        libtcod.noise_set_type(noise, libtcod.NOISE_SIMPLEX)
+        background = []
+        for y in range(self.width):
+            background.append([])
+            for x in range(self.height):
+                background[y].append(
+                    libtcod.noise_get_turbulence(noise,
+                                                 [y / 100.0, x / 100.0],
+                                                 32.0))
+        libtcod.noise_delete(noise)
+        return background
+
+    def build_tiles(self, rect):
+        """
+        Make tiles "built" and surround them by walls.
+        """
+        for y in range(rect.y, rect.y2 + 1):
+            for x in range(rect.x, rect.x2 + 1):
+                tile = self.tiles[y][x]
+                tile.built = True
+                tile.wall = False
+                tile.material = WOOD
+                self.set_neighboring_tiles_to_wall(x, y)
+
+    def set_neighboring_tiles_to_wall(self, x, y):
+        """
+        For each tiles around a built tile, make sure
+        those are wall if they are not built and not wall already.
+        """
+        for tile in self.get_neighboring_for(x, y):
+            if not tile.built:
+                tile.built = True
+                tile.wall = True
+
+    def get_neighboring_for(self, x, y):
+        return [self.tiles[y2][x2] for x2, y2
+                in [(x - 1, y - 1),
+                    (x, y - 1),
+                    (x + 1, y - 1),
+                    (x - 1, y),
+                    (x + 1, y),
+                    (x - 1, y + 1),
+                    (x, y + 1),
+                    (x + 1, y + 1)]
+                if x2 >= 0 and x2 < self.width
+                and y2 >= 0 and y2 < self.height]
+
+
+class Tile():
+    def __init__(self, x, y, background=0):
+        self.x = x
+        self.y = y
+        self.material = None
+        self.wall = False
+        self.built = False
+        self.background = background
