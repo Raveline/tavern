@@ -21,14 +21,14 @@ class WorldMap():
     def receive(self, event):
         event_data = event.get('data', {})
         area = event_data.get('area')
-        if event_data.get('action') == Actions.BUILD:
+        action = event_data.get('action')
+        if action == Actions.BUILD:
             self.apply_to_area(area, self.build)
-        elif event_data.get('action') == Actions.PUT:
+        elif action == Actions.PUT:
             self.apply_to_area(area, self.add_object,
                                event_data.get('complement'))
 
     def add_object(self, y, x, object_type):
-        print(object_type)
         tile = self.tiles[y][x]
         if tile.tile_object is None and tile.built:
             tile.tile_object = object_type
@@ -93,8 +93,8 @@ class WorldMap():
                     (x - 1, y + 1),
                     (x, y + 1),
                     (x + 1, y + 1)]
-                if x2 >= 0 and x2 < self.width
-                and y2 >= 0 and y2 < self.height]
+                if x2 >= 0 and x2 < self.width and
+                y2 >= 0 and y2 < self.height]
 
 
 class Tile():
