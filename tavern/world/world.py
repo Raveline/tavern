@@ -1,4 +1,5 @@
 import libtcodpy as libtcod
+from tavern.utils import bus
 from tavern.world.actions import Actions
 
 WOOD = 'wood'
@@ -18,16 +19,25 @@ class WorldMap():
         return "World of size %d, %d" % (self.width, self.height)
 
     def receive(self, event):
-        event_data = event.get('data')
+        event_data = event.get('data', {})
+        area = event_data.get('area')
         if event_data.get('action') == Actions.BUILD:
-            self.build_tiles(event_data.get('area'))
+            self.apply_to_area(area, self.build)
         elif event_data.get('action') == Actions.PUT:
-            self.add_object(event_data.get('area'),
-                            event_data.get('complement'))
+            self.apply_to_area(area, self.add_object,
+                               event_data.get('complement'))
 
-    def add_object(self, where, what):
-        print("Adding object")
-        pass
+    def add_object(self, y, x, object_type):
+        print(object_type)
+        tile = self.tiles[y][x]
+        if tile.tile_object is None and tile.built:
+            tile.tile_object = object_type
+            bus.bus.publish('Put %s in tile %d, %d' % (str(tile.tile_object),
+                                                       x, y))
+        elif tile.tile_object is not None:
+            bus.bus.publish('There is already an object here.')
+        elif not tile.built:
+            bus.bus.publish('The area is not built.')
 
     def _build_tiles(self):
         return [[Tile(x, y, self.background[y][x])
@@ -48,17 +58,20 @@ class WorldMap():
         libtcod.noise_delete(noise)
         return background
 
-    def build_tiles(self, rect):
+    def apply_to_area(self, rect, func, *args):
+        for y in range(rect.y, rect.y2 + 1):
+            for x in range(rect.x, rect.x2 + 1):
+                func(y, x, *args)
+
+    def build(self, y, x):
         """
         Make tiles "built" and surround them by walls.
         """
-        for y in range(rect.y, rect.y2 + 1):
-            for x in range(rect.x, rect.x2 + 1):
-                tile = self.tiles[y][x]
-                tile.built = True
-                tile.wall = False
-                tile.material = WOOD
-                self.set_neighboring_tiles_to_wall(x, y)
+        tile = self.tiles[y][x]
+        tile.built = True
+        tile.wall = False
+        tile.material = WOOD
+        self.set_neighboring_tiles_to_wall(x, y)
 
     def set_neighboring_tiles_to_wall(self, x, y):
         """
