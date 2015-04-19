@@ -46,11 +46,6 @@ class Game(object):
         bus.bus.subscribe(self, bus.NEW_STATE)
         bus.bus.subscribe(self, bus.PREVIOUS_STATE)
 
-        # Testing basic text box
-        box = make_textbox(10, 10, 40, 6, "Test", "A simple text")
-        menu = MenuState({}, box, self.state)
-        self.change_state(menu)
-
         self.receiver = self.cross
         self.continue_game = True
 
@@ -77,7 +72,11 @@ class Game(object):
             libtcod.console_flush()
 
     def build_state(self, tree):
-        return GameState(tree, self.cross, self.state)
+        if tree.get('type', '') == 'menu':
+            root_component = None  # build_root_component_from_dict(tree)
+            return MenuState({}, root_component, self.state)
+        else:
+            return GameState(tree, self.cross, self.state)
 
     def change_state(self, new_state):
         if self.state is not None:
