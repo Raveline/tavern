@@ -6,23 +6,28 @@ class Actions:
     PUT = 1
 
 
-door = TavernObject(Functions.ROOM_SEPARATOR,
+door = TavernObject('Door',
+                    Functions.ROOM_SEPARATOR,
                     0,
                     '=')
 
-chair = TavernObject(Functions.SITTING,
+chair = TavernObject('Chair',
+                     Functions.SITTING,
                      0,
                      'o')
 
-table = TavernObject(Functions.EATING,
+table = TavernObject('Table',
+                     Functions.EATING,
                      0,
                      '*')
 
-counter = TavernObject(Functions.ORDERING,
+counter = TavernObject('Counter',
+                       Functions.ORDERING,
                        0,
                        '+')
 
-beam = TavernObject(Functions.SUPPORT,
+beam = TavernObject('Beam',
+                    Functions.SUPPORT,
                     0,
                     '^')
 

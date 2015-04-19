@@ -7,7 +7,11 @@ class Functions:
 
 
 class TavernObject(object):
-    def __init__(self, function, price, character):
+    def __init__(self, name, function, price, character):
         self.function = function
         self.price = price
         self.character = character
+        self.name = name
+
+    def __repr__(self):
+        return self.name
