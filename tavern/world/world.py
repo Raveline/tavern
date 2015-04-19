@@ -80,6 +80,9 @@ class WorldMap():
         """
         Make tiles "built" and surround them by walls.
         """
+        if x == 0 or y == 0 or x == self.width - 1 or y == self.height - 1:
+            bus.bus.publish('Cannot build border-map tiles.')
+            return
         tile = self.tiles[y][x]
         tile.built = True
         tile.wall = False
