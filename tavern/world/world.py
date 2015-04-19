@@ -92,3 +92,4 @@ class Tile():
         self.wall = False
         self.built = False
         self.background = background
+        self.tile_object = None
