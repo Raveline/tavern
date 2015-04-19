@@ -52,5 +52,7 @@ def tile_to_colors(tile):
 def tile_to_char(tile):
     if tile.wall:
         return '#'
+    elif tile.tile_object is not None:
+        return tile.tile_object.character
     else:
         return ' '
