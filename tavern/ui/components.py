@@ -18,12 +18,15 @@ class RootComponent(object):
         Display a frame, a title and children components.
         Then blit on the console parameter.
         """
-        libtcod.console_print_frame(self.console.console,
-                                    self.console.x + 1,
-                                    self.console.y + 1,
-                                    self.console.w - 1,
-                                    self.console.h - 1, True)
-        libtcod.console_print_ex(self.console.console, 0, self.console.w / 2,
+        libtcod.console_set_default_foreground(self.console.console,
+                                               libtcod.white)
+        libtcod.console_hline(self.console.console, 0, 0, self.console.w)
+        libtcod.console_hline(self.console.console, 0,
+                              self.console.h - 1, self.console.w)
+        libtcod.console_vline(self.console.console, 0, 0, self.console.h)
+        libtcod.console_vline(self.console.console, self.console.w - 1,
+                              0, self.console.h)
+        libtcod.console_print_ex(self.console.console, self.console.w / 2, 0,
                                  libtcod.BKGND_SET,
                                  libtcod.CENTER,
                                  self.title)
