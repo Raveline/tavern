@@ -12,6 +12,9 @@ class GameState(object):
         self.action = self.tree.get('action', '')
         self.sub_object = None
 
+    def deactivate(self):
+        pass
+
     def activate(self):
         self.sub_object = None
 
@@ -29,17 +32,12 @@ class GameState(object):
                 self.sub_object = subobject
             return subobject
 
-        def previous_state(event_data):
-            if event_data == Inputs.ESCAPE and self.parent_state is not None:
-                bus.bus.publish(self.parent_state,
-                                bus.PREVIOUS_STATE)
-                return True
-
         event_data = event.get('data')
         if (event.get('type') == bus.INPUT_EVENT):
-            if not (pick_substate(event_data)
-                    or pick_subobject(event_data)
-                    or previous_state(event_data)) and self.navigator:
+            if not (pick_substate(event_data) or
+                    pick_subobject(event_data) or
+                    self._check_for_previous_state(event_data))\
+                    and self.navigator:
                 self.navigator.receive(event_data)
         elif (event.get('type') == bus.AREA_SELECT):
             bus.bus.publish({'area': event_data,
@@ -47,8 +45,34 @@ class GameState(object):
                              'complement': self.sub_object},
                             bus.WORLD_EVENT)
 
+    def _check_for_previous_state(self, event_data):
+        if event_data == Inputs.ESCAPE and self.parent_state is not None:
+            bus.bus.publish(self.parent_state,
+                            bus.PREVIOUS_STATE)
+            return True
+        return False
+
+    def display(self, console):
+        pass
+
     def __repr__(self):
         if self.sub_object:
             return "%s (%s)" % (self.name, self.sub_object)
         else:
             return self.name
+
+
+class MenuState(GameState):
+    def __init__(self, state_tree, root_component, parent_state=None):
+        super(MenuState, self).__init__(state_tree, None, parent_state)
+        self.root_component = root_component
+
+    def deactivate(self):
+        pass
+
+    def receive(self, event):
+        event_data = event.get('data')
+        self._check_for_previous_state(event_data)
+
+    def display(self, console):
+        self.root_component.display(console)

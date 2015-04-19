@@ -1,13 +1,14 @@
 import libtcodpy as libtcod
 import tavern.utils.bus as bus
-from tavern.utils.tcod_wrapper import Console
-from tavern.view.show_console import display, print_selection
-from tavern.utils.geom import Frame
-from tavern.ui.state import GameState
 from tavern.inputs.input import Inputs
 from tavern.receivers.navigators import Crosshair
-from tavern.world.world import WorldMap
+from tavern.utils.tcod_wrapper import Console
+from tavern.utils.geom import Frame
+from tavern.view.show_console import display, print_selection
+from tavern.ui.state import GameState, MenuState
 from tavern.ui.informer import Informer
+from tavern.ui.components import make_textbox
+from tavern.world.world import WorldMap
 from tavern.world.actions import action_tree
 
 
@@ -44,6 +45,12 @@ class Game(object):
         bus.bus.subscribe(self, bus.GAME_EVENT)
         bus.bus.subscribe(self, bus.NEW_STATE)
         bus.bus.subscribe(self, bus.PREVIOUS_STATE)
+
+        # Testing basic text box
+        box = make_textbox(10, 10, 40, 6, "Test", "A simple text")
+        menu = MenuState({}, box, self.state)
+        self.change_state(menu)
+
         self.receiver = self.cross
         self.continue_game = True
 
@@ -66,6 +73,7 @@ class Game(object):
                 print_selection(self.world_console.console, self.receiver)
             self.world_console.blit_on(0)
             self.text_console.blit_on(0)
+            self.state.display(0)
             libtcod.console_flush()
 
     def build_state(self, tree):
@@ -76,6 +84,7 @@ class Game(object):
             # Remove the old state from input receiving
             bus.bus.unsubscribe(self.state, bus.INPUT_EVENT)
             bus.bus.unsubscribe(self.state, bus.AREA_SELECT)
+            self.state.deactivate()
         self.state = new_state
         # Add the new state to input receiving
         bus.bus.subscribe(self.state, bus.INPUT_EVENT)
