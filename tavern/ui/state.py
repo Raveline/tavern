@@ -26,7 +26,7 @@ class GameState(object):
         def pick_subobject(event_data):
             subobject = self.tree.get('submenu', {}).get(event_data)
             if subobject:
-                self.sub_object = None
+                self.sub_object = subobject
             return subobject
 
         def previous_state(event_data):
@@ -48,4 +48,7 @@ class GameState(object):
                             bus.WORLD_EVENT)
 
     def __repr__(self):
-        return self.name
+        if self.sub_object:
+            return "%s (%s)" % (self.name, self.sub_object)
+        else:
+            return self.name
