@@ -42,6 +42,8 @@ def print_char(console, char, x, y, foreground):
 
 def tile_to_colors(tile):
     back = libtcod.white
+    if tile.wall:
+        back = libtcod.black
     if not tile.built:
         back = map_background_scale[int((tile.background + 1) * 100)]
     else:
