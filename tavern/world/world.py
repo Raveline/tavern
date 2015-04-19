@@ -1,6 +1,7 @@
 import libtcodpy as libtcod
 from tavern.utils import bus
 from tavern.world.actions import Actions
+from tavern.world.objects import Functions
 
 WOOD = 'wood'
 
@@ -29,15 +30,27 @@ class WorldMap():
                                event_data.get('complement'))
 
     def add_object(self, y, x, object_type):
+        def validate_object_location(tile, object_type):
+            if tile.tile_object is None and tile.built:
+                if object_type.function == Functions.ROOM_SEPARATOR:
+                    if len([t for t in self.get_neighboring_for(x, y)
+                            if t.wall]) > 0:
+                        return True
+                    else:
+                        bus.bus.publish('Door must be next to a wall, or in'
+                                        ' an exterior wall.')
+                else:
+                    return not tile.wall
+            elif tile.tile_object is not None:
+                bus.bus.publish('There is already an object here.')
+            elif not tile.built:
+                bus.bus.publish('The area is not built.')
+            return False
+
         tile = self.tiles[y][x]
-        if tile.tile_object is None and tile.built:
+        if object_type and validate_object_location(tile, object_type):
             tile.tile_object = object_type
-            bus.bus.publish('Put %s in tile %d, %d' % (str(tile.tile_object),
-                                                       x, y))
-        elif tile.tile_object is not None:
-            bus.bus.publish('There is already an object here.')
-        elif not tile.built:
-            bus.bus.publish('The area is not built.')
+            bus.bus.publish('Put %s' % str(tile.tile_object))
 
     def _build_tiles(self):
         return [[Tile(x, y, self.background[y][x])
