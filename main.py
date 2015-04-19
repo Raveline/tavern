@@ -7,7 +7,6 @@ from tavern.utils.geom import Frame
 from tavern.view.show_console import display, print_selection
 from tavern.ui.state import GameState, MenuState
 from tavern.ui.informer import Informer
-from tavern.ui.components import make_textbox
 from tavern.world.world import WorldMap
 from tavern.world.actions import action_tree
 
