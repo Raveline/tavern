@@ -30,6 +30,8 @@ class Scape(object):
                 self.finish_select()
             else:
                 self.enter_select()
+        if message == Inputs.ESCAPE:
+            self.finish_select()
         if movx != 0 or movy != 0:
             self.change_frame(movx, movy)
             if self.selection:
@@ -184,5 +186,4 @@ class Fillhair(Crosshair):
         pass
 
     def finish_select(self):
-        print("Finished filling")
         self.selection = []

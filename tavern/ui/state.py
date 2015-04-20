@@ -46,9 +46,16 @@ class GameState(object):
                             bus.WORLD_EVENT)
 
     def _check_for_previous_state(self, event_data):
-        if event_data == Inputs.ESCAPE and self.parent_state is not None:
-            bus.bus.publish(self.parent_state,
-                            bus.PREVIOUS_STATE)
+        """
+        Go to previous state if and only if :
+            - The escape key has been hit
+            - There is no current selection in the navigator
+            - There is a parent state
+        """
+        if event_data == Inputs.ESCAPE and\
+            not self.navigator.selection and\
+                self.parent_state is not None:
+            bus.bus.publish(self.parent_state, bus.PREVIOUS_STATE)
             return True
         return False
 
