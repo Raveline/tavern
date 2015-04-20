@@ -1,9 +1,13 @@
-from tavern.world.objects import Functions, TavernObject
+from tavern.world.objects import Functions, TavernObject, Rooms
+
+CROSSHAIR = 0
+FILLER = 1
 
 
 class Actions:
     BUILD = 0
     PUT = 1
+    ROOMS = 2
 
 
 door = TavernObject('Door',
@@ -37,11 +41,20 @@ objects_tree = {'d': door,
                 'o': counter,
                 'b': beam}
 
+room_types = {'t': Rooms.TAVERN,
+              's': Rooms.STORAGE,
+              'r': Rooms.ROOM}
 
 action_tree = {'name': 'Main mode',
                'b': {'action': Actions.BUILD,
                      'name': 'Building mode',
+                     'selector': CROSSHAIR,
                      'submenu': {}},
                'p': {'action': Actions.PUT,
                      'name': 'Object mode',
-                     'submenu': objects_tree}}
+                     'selector': CROSSHAIR,
+                     'submenu': objects_tree},
+               'r': {'action': Actions.ROOMS,
+                     'name': 'Room mode',
+                     'selector': FILLER,
+                     'submenu': room_types}}

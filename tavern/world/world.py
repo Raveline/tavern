@@ -1,7 +1,9 @@
+from collections import defaultdict
+
 import libtcodpy as libtcod
 from tavern.utils import bus
 from tavern.world.actions import Actions
-from tavern.world.objects import Functions
+from tavern.world.objects import Functions, Rooms
 
 WOOD = 'wood'
 
@@ -13,6 +15,7 @@ class WorldMap():
         # A map-imitating fbm
         self.background = self._build_background()
         self.tiles = tiles
+        self.rooms = defaultdict(list)
         if not self.tiles:
             self.tiles = self._build_tiles()
 
@@ -56,6 +59,26 @@ class WorldMap():
         return [[Tile(x, y, self.background[y][x])
                 for x in range(self.width)]
                 for y in range(self.height)]
+
+    def fill_from(self, x, y):
+        def fillable(tile):
+            return not tile.wall and\
+                tile.built and\
+                not tile.is_separating_tile()
+        fill_list = []
+        tile = self.tiles[y][x]
+        open_list = []
+        if fillable(tile):
+            open_list.append((x, y))
+        while open_list:
+            x_, y_ = open_list.pop()
+            fill_list.append((x_, y_))
+            tiles = self.get_immediate_neighboring_coords(x_, y_)
+            for t in tiles:
+                tile_ = self.tiles[t[1]][t[0]]
+                if fillable(tile_) and (t[0], t[1]) not in fill_list:
+                    open_list.append((t[0], t[1]))
+        return fill_list
 
     def _build_background(self):
         noise = libtcod.noise_new(2)
@@ -112,8 +135,17 @@ class WorldMap():
                 if x2 >= 0 and x2 < self.width and
                 y2 >= 0 and y2 < self.height]
 
+    def get_immediate_neighboring_coords(self, x, y):
+        return [(x2, y2) for x2, y2
+                in [(x, y - 1),
+                    (x - 1, y),
+                    (x + 1, y),
+                    (x, y + 1)]
+                if x2 >= 0 and x2 < self.width and
+                y2 >= 0 and y2 < self.height]
 
-class Tile():
+
+class Tile(object):
     def __init__(self, x, y, background=0):
         self.x = x
         self.y = y
@@ -122,3 +154,7 @@ class Tile():
         self.built = False
         self.background = background
         self.tile_object = None
+
+    def is_separating_tile(self):
+        return self.tile_object and\
+            self.tile_object.function == Functions.ROOM_SEPARATOR

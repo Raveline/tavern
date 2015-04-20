@@ -66,6 +66,9 @@ class Scape(object):
     def finish_select(self):
         self.selection = None
 
+    def set_coords(self, selector):
+        pass
+
 
 class Selection(object):
     def __init__(self, x, y):
@@ -96,17 +99,26 @@ class Selection(object):
                 'x2': self.x2,
                 'y2': self.y2}
 
+    def to_list_of_tiles(self):
+        return [(x, y) for x in range(self.x, self.x2 + 1)
+                for y in range(self.y, self.y2 + 1)]
+
     def __str__(self):
         return 'x : %d, y : %d, x2 : %d, y2 : %d' % (self.x, self.y, self.x2, self.y2)
 
 
 class Crosshair(Scape):
     def __init__(self, w, h, world_frame):
+        super(Crosshair, self).__init__(w, h, world_frame)
         self.crosshair = (0, 0)
         self.scape = Scape(w, h, world_frame)
         self.world_frame = world_frame
         self.compute_maximum()
         self.selection = None
+
+    def set_coords(self, selector):
+        self.selection = None
+        self.crosshair = (selector.getX(), selector.getY())
 
     def compute_maximum(self):
         self.maxX = self.world_frame.w - (self.scape.frame.w / 2)
@@ -126,10 +138,51 @@ class Crosshair(Scape):
         self.scape.change_focus(self)
 
     def to_local(self):
-        return self.getX() - self.scape.frame.x, self.getY() - self.scape.frame.y
+        return self.global_to_local(self.getX(), self.getY())
+
+    def global_to_local(self, x, y):
+        return x - self.scape.frame.x, y - self.scape.frame.y
 
     def rect_to_local(self):
         return (self.selection.x - self.scape.frame.x,
                 self.selection.y - self.scape.frame.y,
                 self.selection.x2 - self.scape.frame.x,
                 self.selection.y2 - self.scape.frame.y)
+
+    def get_selected_tiles(self):
+        if self.selection:
+            return self.selection.to_list_of_tiles()
+        else:
+            return [(self.getX(), self.getY())]
+
+
+class Fillhair(Crosshair):
+    def __init__(self, w, h, world_frame, func_filler):
+        super(Fillhair, self).__init__(w, h, world_frame)
+        self.selection = []
+        self.func_filler = func_filler
+
+    def rect_to_local(self):
+        return (self.selection.x - self.scape.frame.x,
+                self.selection.y - self.scape.frame.y,
+                self.selection.x2 - self.scape.frame.x,
+                self.selection.y2 - self.scape.frame.y)
+
+    def set_selected(self):
+        self.selection = self.func_filler(self.getX(), self.getY())
+
+    def enter_select(self):
+        self.set_selected()
+
+    def get_selected_tiles(self):
+        if self.selection:
+            return self.selection
+        else:
+            return super(Fillhair, self).get_selected_tiles()
+
+    def move_select(self):
+        pass
+
+    def finish_select(self):
+        print("Finished filling")
+        self.selection = []

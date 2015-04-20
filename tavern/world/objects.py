@@ -6,6 +6,12 @@ class Functions:
     SUPPORT = 4             # Support for floors
 
 
+class Rooms(object):
+    TAVERN = 0
+    STORAGE = 1
+    ROOM = 2
+
+
 class TavernObject(object):
     def __init__(self, name, function, price, character):
         self.function = function

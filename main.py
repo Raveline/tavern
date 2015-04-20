@@ -1,7 +1,7 @@
 import libtcodpy as libtcod
 import tavern.utils.bus as bus
 from tavern.inputs.input import Inputs
-from tavern.receivers.navigators import Crosshair
+from tavern.receivers.navigators import Crosshair, Fillhair
 from tavern.utils.tcod_wrapper import Console
 from tavern.utils.geom import Frame
 from tavern.view.show_console import display, print_selection
@@ -9,6 +9,7 @@ from tavern.ui.state import GameState, MenuState
 from tavern.ui.informer import Informer
 from tavern.world.world import WorldMap
 from tavern.world.actions import action_tree
+from tavern.world import actions
 
 
 MAP_WIDTH = 200
@@ -39,6 +40,8 @@ class Game(object):
 
         self.world_frame = Frame(0, 0, MAP_WIDTH, MAP_HEIGHT)
         self.cross = Crosshair(WIDTH, HEIGHT, self.world_frame)
+        self.filler = Fillhair(WIDTH, HEIGHT, self.world_frame,
+                               self.world_map.fill_from)
         self.state = None
         self.change_state(GameState(action_tree, self.cross))
         bus.bus.subscribe(self, bus.GAME_EVENT)
@@ -64,7 +67,8 @@ class Game(object):
             libtcod.console_clear(self.text_console.console)
             self.informer.display()
             if not blink:
-                print_selection(self.world_console.console, self.receiver)
+                print_selection(self.world_console.console,
+                                self.state.navigator)
             self.world_console.blit_on(0)
             self.text_console.blit_on(0)
             self.state.display(0)
@@ -75,7 +79,12 @@ class Game(object):
             root_component = None  # build_root_component_from_dict(tree)
             return MenuState({}, root_component, self.state)
         else:
-            return GameState(tree, self.cross, self.state)
+            if tree.get('selector', actions.CROSSHAIR) == actions.CROSSHAIR:
+                navigator = self.cross
+            elif tree.get('selector', actions.FILLER) == actions.FILLER:
+                navigator = self.filler
+            navigator.set_coords(self.state.navigator)
+            return GameState(tree, navigator, self.state)
 
     def change_state(self, new_state):
         if self.state is not None:

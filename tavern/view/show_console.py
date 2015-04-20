@@ -22,14 +22,10 @@ def display(grid, console):
 
 
 def print_selection(console, receiver):
-    if receiver.selection:
-        x1, y1, x2, y2 = receiver.rect_to_local()
-        for x in range(x1, x2 + 1):
-            for y in range(y1, y2 + 1):
-                print_char(console, 'x', x, y, libtcod.yellow)
-    else:
-        crossx, crossy = receiver.to_local()
-        print_char(console, 'x', crossx, crossy, libtcod.yellow)
+    display_list = receiver.get_selected_tiles()
+    for (x, y) in display_list:
+        x_, y_ = receiver.global_to_local(x, y)
+        print_char(console, 'x', x_, y_, libtcod.yellow)
 
 
 def display_text(console, text):
