@@ -3,7 +3,7 @@ from collections import defaultdict
 import libtcodpy as libtcod
 from tavern.utils import bus
 from tavern.world.actions import Actions
-from tavern.world.objects import Functions, Rooms
+from tavern.world.objects import Functions, Rooms, rooms_to_name
 
 WOOD = 'wood'
 
@@ -35,6 +35,14 @@ class WorldMap():
         elif action == Actions.PUT:
             self.apply_to_area(area, self.add_object,
                                event_data.get('complement'))
+        elif action == Actions.ROOMS:
+            self.add_room(area, event_data.get('complement'))
+
+    def add_room(self, tiles, room_type):
+        for (x, y) in tiles:
+            tile = self.tiles[y][x]
+            tile.room = room_type
+        self.rooms[room_type].append(tiles)
 
     def add_object(self, y, x, object_type):
         def validate_object_location(tile, object_type):
@@ -207,7 +215,29 @@ class Tile(object):
         self.built = False
         self.background = background
         self.tile_object = None
+        self.room_type = None
 
     def is_separating_tile(self):
         return self.tile_object and\
             self.tile_object.function == Functions.ROOM_SEPARATOR
+
+    def describe(self):
+        return ''.join([self.describe_nature(),
+                       ' --- ',
+                       self.describe_object()])
+
+    def describe_nature(self):
+        if self.wall:
+            return "Wall"
+        elif not self.built:
+            return "Outside"
+        elif self.room_type:
+            return rooms_to_name(self.room_type)
+        else:
+            return "Empty space"
+
+    def describe_object(self):
+        if self.tile_object:
+            return self.tile_object.name
+        else:
+            return ''

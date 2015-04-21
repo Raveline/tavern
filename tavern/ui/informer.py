@@ -11,7 +11,7 @@ class Informer(object):
         print(self.text)
 
     def display(self):
-        display_text(self.console.console, self.text)
+        display_text(self.console.console, self.text, 0, 1)
 
     def __repr__(self):
         return "Feedback"

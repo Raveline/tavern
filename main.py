@@ -4,7 +4,7 @@ from tavern.inputs.input import Inputs
 from tavern.receivers.navigators import Crosshair, Fillhair
 from tavern.utils.tcod_wrapper import Console
 from tavern.utils.geom import Frame
-from tavern.view.show_console import display, print_selection
+from tavern.view.show_console import display, print_selection, display_text
 from tavern.ui.state import GameState, MenuState
 from tavern.ui.informer import Informer
 from tavern.world.world import WorldMap
@@ -28,8 +28,8 @@ def main():
 class Game(object):
     def __init__(self):
         libtcod.console_init_root(WIDTH, HEIGHT, TITLE)
-        self.world_console = Console(0, 0, WIDTH, HEIGHT - 1)
-        self.text_console = Console(0, HEIGHT - 1, WIDTH, 1)
+        self.world_console = Console(0, 0, WIDTH, HEIGHT - 2)
+        self.text_console = Console(0, HEIGHT - 2, WIDTH, 2)
         self.inputs = Inputs(bus.bus)
 
         self.world_map = WorldMap(MAP_WIDTH, MAP_HEIGHT)
@@ -69,6 +69,7 @@ class Game(object):
             if not blink:
                 print_selection(self.world_console.console,
                                 self.state.navigator)
+            self.describe_area()
             self.world_console.blit_on(0)
             self.text_console.blit_on(0)
             self.state.display(0)
@@ -98,6 +99,11 @@ class Game(object):
         bus.bus.subscribe(self.state, bus.AREA_SELECT)
         bus.bus.publish('Current state : %s' % (self.state))
         self.state.activate()
+
+    def describe_area(self):
+        x, y = self.state.navigator.getX(), self.state.navigator.getY()
+        tile = self.world_map.tiles[y][x]
+        display_text(self.text_console.console, tile.describe(), 0, 0)
 
     def receive(self, event):
         event_data = event.get('data')

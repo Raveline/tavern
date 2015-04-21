@@ -11,6 +11,10 @@ class Rooms(object):
     STORAGE = 1
     ROOM = 2
 
+rooms_to_name = {Rooms.TAVERN: 'tavern',
+                 Rooms.STORAGE: 'storage',
+                 Rooms.ROOM: 'room'}
+
 
 class TavernObject(object):
     def __init__(self, name, function, price, character):

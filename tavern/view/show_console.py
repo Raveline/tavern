@@ -28,8 +28,8 @@ def print_selection(console, receiver):
         print_char(console, 'x', x_, y_, libtcod.yellow)
 
 
-def display_text(console, text):
-    libtcod.console_print(console, 0, 0, text)
+def display_text(console, text, x=0, y=0):
+    libtcod.console_print(console, x, y, text)
 
 
 def print_char(console, char, x, y, foreground):
