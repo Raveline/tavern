@@ -14,8 +14,12 @@ class WorldMap():
         self.height = height
         # A map-imitating fbm
         self.background = self._build_background()
+        # A 2D (soon to be 3D !) list of tiles
         self.tiles = tiles
+        # The rooms defined by the player
         self.rooms = defaultdict(list)
+        # Entry points to the tavern (main door)
+        self.entry_points = []
         if not self.tiles:
             self.tiles = self._build_tiles()
 
@@ -36,6 +40,15 @@ class WorldMap():
         def validate_object_location(tile, object_type):
             if tile.tile_object is None and tile.built:
                 if object_type.function == Functions.ROOM_SEPARATOR:
+                    if self.tiles[y][x].wall:
+                        # Wall. Door is only allowed if on exterior wall
+                        if self.is_an_outside_wall(x, y):
+                            self.entry_points.append((x, y))
+                            return True
+                        else:
+                            bus.bus.publish('Door to the outside must be on an'
+                                            ' exterior wall.')
+                            return False
                     if len([t for t in self.get_neighboring_for(x, y)
                             if t.wall]) > 0:
                         return True
@@ -61,6 +74,11 @@ class WorldMap():
                 for y in range(self.height)]
 
     def fill_from(self, x, y):
+        """
+        Filler function, mostly used to handle room definition.
+        Will give all tiles from a starting coord that make an
+        architectural unit - stopping at walls and doors.
+        """
         def fillable(tile):
             return not tile.wall and\
                 tile.built and\
@@ -81,6 +99,10 @@ class WorldMap():
         return fill_list
 
     def _build_background(self):
+        """
+        Make a background noise that will more or less look like
+        an old map.
+        """
         noise = libtcod.noise_new(2)
         libtcod.noise_set_type(noise, libtcod.NOISE_SIMPLEX)
         background = []
@@ -95,6 +117,10 @@ class WorldMap():
         return background
 
     def apply_to_area(self, rect, func, *args):
+        """
+        Apply the function func (with args if any) to every
+        tiles in the rect.
+        """
         for y in range(rect.y, rect.y2 + 1):
             for x in range(rect.x, rect.x2 + 1):
                 func(y, x, *args)
@@ -122,7 +148,29 @@ class WorldMap():
                 tile.built = True
                 tile.wall = True
 
+    def is_an_outside_wall(self, x, y):
+        """
+        Make sure a tile is a wall and that this wall gives to the exterior.
+        This means that the wall is next to a border, or connected to an
+        unbuilt tile.
+        (Note : this logic is flawed, since an enclosed unbuilt area
+        is possible.)
+        """
+        neighbors = self.get_immediate_neighboring_coords(x, y)
+        if len(neighbors) < 4:
+            return True
+        for (nx, ny) in neighbors:
+            tile = self.tiles[ny][nx]
+            if not tile.built:
+                return True
+        return False
+
     def get_neighboring_for(self, x, y):
+        """
+        Given a x, y coords get the 8 connected coords,
+        orthogonally or diagonnally, unless they are
+        outside the map.
+        """
         return [self.tiles[y2][x2] for x2, y2
                 in [(x - 1, y - 1),
                     (x, y - 1),
@@ -136,6 +184,11 @@ class WorldMap():
                 y2 >= 0 and y2 < self.height]
 
     def get_immediate_neighboring_coords(self, x, y):
+        """
+        Given a tile coordinate, get all orthogonal
+        neighbors coords of this tile if unless they
+        are outside the map.
+        """
         return [(x2, y2) for x2, y2
                 in [(x, y - 1),
                     (x - 1, y),
