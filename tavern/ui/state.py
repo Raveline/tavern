@@ -41,10 +41,12 @@ class GameState(object):
                     and self.navigator:
                 self.navigator.receive(event_data)
         elif (event.get('type') == bus.AREA_SELECT):
-            bus.bus.publish({'area': event_data,
-                             'action': self.action,
-                             'complement': self.sub_object},
-                            bus.WORLD_EVENT)
+            if not self.tree.get('subobject') or\
+                    (self.tree.get('subobject') and self.subobject):
+                bus.bus.publish({'area': event_data,
+                                 'action': self.action,
+                                 'complement': self.sub_object},
+                                bus.WORLD_EVENT)
 
     def _check_for_previous_state(self, event_data):
         """
