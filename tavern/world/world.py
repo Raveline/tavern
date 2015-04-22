@@ -41,7 +41,7 @@ class WorldMap():
     def add_room(self, tiles, room_type):
         for (x, y) in tiles:
             tile = self.tiles[y][x]
-            tile.room = room_type
+            tile.room_type = room_type
         self.rooms[room_type].append(tiles)
 
     def add_object(self, y, x, object_type):
@@ -230,8 +230,8 @@ class Tile(object):
             return "Wall"
         elif not self.built:
             return "Outside"
-        elif self.room_type:
-            return rooms_to_name(self.room_type)
+        elif self.room_type is not None:
+            return rooms_to_name[self.room_type]
         else:
             return "Empty space"
 
