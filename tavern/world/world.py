@@ -74,7 +74,6 @@ class WorldMap():
         tile = self.tiles[y][x]
         if object_type and validate_object_location(tile, object_type):
             tile.tile_object = object_type
-            bus.bus.publish('Put %s' % str(tile.tile_object))
 
     def _build_tiles(self):
         return [[Tile(x, y, self.background[y][x])

@@ -29,7 +29,8 @@ class GameState(object):
         def pick_subobject(event_data):
             subobject = self.tree.get('submenu', {}).get(event_data)
             if subobject:
-                self.sub_object = subobject
+                self.sub_object = subobject.get('subobject')
+                bus.bus.publish(str(self) + " : " + subobject.get('display'))
             return subobject
 
         event_data = event.get('data')

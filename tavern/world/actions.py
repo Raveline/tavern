@@ -35,15 +35,15 @@ beam = TavernObject('Beam',
                     0,
                     '^')
 
-objects_tree = {'d': door,
-                'c': chair,
-                't': table,
-                'o': counter,
-                'b': beam}
+objects_tree = {'d': {'display': 'Door', 'subobject': door},
+                'c': {'display': 'Chair', 'subobject': chair},
+                't': {'display': 'Table', 'subobject': table},
+                'o': {'display': 'Counter', 'subobject': counter},
+                'b': {'display': 'Beam', 'subobject': beam}}
 
-room_types = {'t': Rooms.TAVERN,
-              's': Rooms.STORAGE,
-              'r': Rooms.ROOM}
+room_types = {'t': {'display': 'Tavern', 'subobject': Rooms.TAVERN},
+              's': {'display': 'Storage', 'subobject': Rooms.STORAGE},
+              'r': {'display': 'Storage', 'subobject': Rooms.ROOM}}
 
 action_tree = {'name': 'Main mode',
                'b': {'action': Actions.BUILD,

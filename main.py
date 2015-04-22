@@ -97,7 +97,7 @@ class Game(object):
         # Add the new state to input receiving
         bus.bus.subscribe(self.state, bus.INPUT_EVENT)
         bus.bus.subscribe(self.state, bus.AREA_SELECT)
-        bus.bus.publish('Current state : %s' % (self.state))
+        bus.bus.publish(str(self.state))
         self.state.activate()
 
     def describe_area(self):
