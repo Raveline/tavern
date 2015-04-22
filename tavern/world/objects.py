@@ -9,11 +9,16 @@ class Functions:
 class Rooms(object):
     TAVERN = 0
     STORAGE = 1
-    ROOM = 2
+    KITCHEN = 2
+    MEETING_ROOM = 3
+    ROOM = 4
 
-rooms_to_name = {Rooms.TAVERN: 'tavern',
-                 Rooms.STORAGE: 'storage',
-                 Rooms.ROOM: 'room'}
+
+rooms_to_name = {Rooms.TAVERN: 'Tavern',
+                 Rooms.STORAGE: 'Storage',
+                 Rooms.KITCHEN: 'Kitchen',
+                 Rooms.MEETING_ROOM: 'Meeting room',
+                 Rooms.ROOM: 'Room'}
 
 
 class TavernObject(object):
