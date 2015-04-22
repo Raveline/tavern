@@ -32,6 +32,16 @@ def display_text(console, text, x=0, y=0):
     libtcod.console_print(console, x, y, text)
 
 
+def display_highlighted_text(console, text, x=0, y=0):
+    previous_back = libtcod.console_get_default_background()
+    previous_fore = libtcod.console_get_default_background()
+    libtcod.console_set_default_background(libtcod.white)
+    libtcod.console_set_default_foreground(libtcod.black)
+    libtcod.console_print(console, x, y, text)
+    libtcod.console_set_default_background(previous_back)
+    libtcod.console_set_default_foreground(previous_fore)
+
+
 def print_char(console, char, x, y, foreground):
     libtcod.console_put_char_ex(console, x, y, char, libtcod.black, foreground)
 
