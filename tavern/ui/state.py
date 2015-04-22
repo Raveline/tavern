@@ -41,12 +41,16 @@ class GameState(object):
                     and self.navigator:
                 self.navigator.receive(event_data)
         elif (event.get('type') == bus.AREA_SELECT):
-            if not self.tree.get('subobject') or\
-                    (self.tree.get('subobject') and self.subobject):
+            need_subobject = (bool(self.tree.get('submenu')) and
+                              self.sub_object is None)
+            if not need_subobject:
                 bus.bus.publish({'area': event_data,
                                  'action': self.action,
                                  'complement': self.sub_object},
                                 bus.WORLD_EVENT)
+            elif need_subobject:
+                keys = ['(' + k + ')' for k in self.tree.get('submenu').keys()]
+                bus.bus.publish('Pick between ' + ', '.join(keys))
 
     def _check_for_previous_state(self, event_data):
         """
@@ -66,10 +70,7 @@ class GameState(object):
         pass
 
     def __repr__(self):
-        if self.sub_object:
-            return "%s (%s)" % (self.name, self.sub_object)
-        else:
-            return self.name
+        return self.name
 
 
 class MenuState(GameState):
