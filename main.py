@@ -122,6 +122,5 @@ class Game(object):
     def __repr__(self):
         return "Main"
 
-
 if __name__ == "__main__":
     main()

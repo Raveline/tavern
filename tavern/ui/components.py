@@ -58,6 +58,17 @@ class TextBlocComponent(Component):
                                    self.w, 0, self.text)
 
 
+class DynamicTextComponent(Component):
+    def __init__(self, x, y, centered, source):
+        super(DynamicTextComponent, self).__init__(x, y)
+        self.centered = centered
+        self.source = source
+
+    def update(self, values):
+        func = display_text
+        self.text = values.get(self.source, '')
+
+
 class RowsComponent(Component):
     def __init__(self, x, y, w=0, h=0, is_selectable=False, contents=None):
         super(RowsComponent).__init__(x, y, w, h, is_selectable)
@@ -65,13 +76,21 @@ class RowsComponent(Component):
             contents = []
         self.contents = contents
         self.compute_widths()
+        self.buid_rows()
 
     def compute_widths(self):
         lens = [(len(col) for col in row) for row in self.contents]
         self.widths = [max(sizes) for sizes in lens]
 
+    def build_rows(self):
+        for idx, c in enumerate(self.contents):
+            self.children.append(ColumnedLine(self.x, self.y + idx,
+                                              self.is_selectable,
+                                              self.widths, c))
+
     def display(self, console):
-        libtcod.console_print
+        for c in self.children:
+            c.display(console)
 
 
 class ColumnedLine(Component):
