@@ -74,12 +74,20 @@ class GameState(object):
 
 
 class MenuState(GameState):
-    def __init__(self, state_tree, root_component, parent_state=None):
+    def __init__(self, state_tree, root_component, parent_state=None,
+                 data=None):
         super(MenuState, self).__init__(state_tree, None, parent_state)
         self.root_component = root_component
+        self.root_component.set_data(data)
+
+    def _check_for_previous_state(self, event_data):
+        if event_data == Inputs.ESCAPE:
+            bus.bus.publish(self.parent_state, bus.PREVIOUS_STATE)
+            return True
+        return False
 
     def deactivate(self):
-        pass
+        self.root_component.deactivate()
 
     def receive(self, event):
         event_data = event.get('data')

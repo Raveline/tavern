@@ -6,6 +6,7 @@ from tavern.utils.tcod_wrapper import Console
 from tavern.utils.geom import Frame
 from tavern.view.show_console import display, print_selection, display_text
 from tavern.ui.state import GameState, MenuState
+from tavern.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
 from tavern.world.world import WorldMap
 from tavern.world.actions import action_tree
@@ -66,10 +67,11 @@ class Game(object):
                     self.world_console.console)
             libtcod.console_clear(self.text_console.console)
             self.informer.display()
-            if not blink:
-                print_selection(self.world_console.console,
-                                self.state.navigator)
-            self.describe_area()
+            if self.state.navigator:
+                if not blink:
+                    print_selection(self.world_console.console,
+                                    self.state.navigator)
+                self.describe_area()
             self.world_console.blit_on(0)
             self.text_console.blit_on(0)
             self.state.display(0)
@@ -77,8 +79,10 @@ class Game(object):
 
     def build_state(self, tree):
         if tree.get('type', '') == 'menu':
-            root_component = None  # build_root_component_from_dict(tree)
-            return MenuState({}, root_component, self.state)
+            context = {'width': self.world_console.w,
+                       'height': self.world_console.h}
+            root_component = build_menu(context, tree.get('content'), True)
+            return MenuState({}, root_component, self.state, tree.get('data'))
         else:
             if tree.get('selector', actions.CROSSHAIR) == actions.CROSSHAIR:
                 navigator = self.cross

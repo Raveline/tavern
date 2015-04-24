@@ -1,6 +1,6 @@
 import libtcodpy as libtcod
-from tavern.utils.tcod_wrapper import Console, display_highlighted_text
-from tavern.utils.tcod_wrapper import display_text
+from tavern.utils.tcod_wrapper import Console
+from tavern.view.show_console import display_highlighted_text, display_text
 
 
 class Component(object):
@@ -15,6 +15,13 @@ class Component(object):
             children = []
         self.children = children
 
+    def set_data(self, data):
+        pass
+
+    def update(self, values):
+        for child in self.children:
+            child.update(values)
+
 
 class RootComponent(Component):
     """ A component with an attached console."""
@@ -24,7 +31,7 @@ class RootComponent(Component):
         self.title = title
 
     def deactivate(self):
-        libtcod.console_delete(self.console)
+        libtcod.console_delete(self.console.console)
 
     def display(self, console):
         """
@@ -47,6 +54,10 @@ class RootComponent(Component):
             child.display(self.console.console)
         self.console.blit_on(console)
 
+    def set_data(self, data):
+        for child in self.children:
+            child.set_data(data)
+
 
 class TextBlocComponent(Component):
     def __init__(self, x, y, w, text):
@@ -63,10 +74,14 @@ class DynamicTextComponent(Component):
         super(DynamicTextComponent, self).__init__(x, y)
         self.centered = centered
         self.source = source
+        self.text = ''
 
-    def update(self, values):
-        func = display_text
-        self.text = values.get(self.source, '')
+    def set_data(self, data):
+        self.data = data
+        self.text = data.get(self.source, '')
+
+    def display(self, console):
+        display_text(console, self.text, self.x, self.y)
 
 
 class RowsComponent(Component):

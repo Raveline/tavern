@@ -45,6 +45,17 @@ room_types = {'t': {'display': 'Tavern', 'subobject': Rooms.TAVERN},
               's': {'display': 'Storage', 'subobject': Rooms.STORAGE},
               'r': {'display': 'Storage', 'subobject': Rooms.ROOM}}
 
+supplies_menu = {'type': 'RootComponent',
+                 'template': 'centered 5',
+                 'title': 'Supplies',
+                 'children': [
+                     {'type': 'DynamicText',
+                      'x': 5,
+                      'y': 1,
+                      'centered': True,
+                      'source': 'test'}]
+                 }
+
 action_tree = {'name': 'Main mode',
                'b': {'action': Actions.BUILD,
                      'name': 'Building mode',
@@ -57,4 +68,8 @@ action_tree = {'name': 'Main mode',
                'r': {'action': Actions.ROOMS,
                      'name': 'Room mode',
                      'selector': FILLER,
-                     'submenu': room_types}}
+                     'submenu': room_types},
+               's': {'type': 'menu',
+                     'content': supplies_menu,
+                     'data': {'test': 'This is a test display'}}
+               }
