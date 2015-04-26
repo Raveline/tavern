@@ -4,6 +4,7 @@ import libtcodpy as libtcod
 from tavern.utils import bus
 from tavern.world.actions import Actions
 from tavern.world.objects import Functions, Rooms, rooms_to_name
+from tavern.world.store import StorageSystem
 
 WOOD = 'wood'
 
@@ -20,6 +21,8 @@ class WorldMap():
         self.rooms = defaultdict(list)
         # Entry points to the tavern (main door)
         self.entry_points = []
+        # Storage
+        self.store = StorageSystem
         if not self.tiles:
             self.tiles = self._build_tiles()
 
@@ -42,7 +45,9 @@ class WorldMap():
         for (x, y) in tiles:
             tile = self.tiles[y][x]
             tile.room_type = room_type
-        self.rooms[room_type].append(tiles)
+        self.rooms[room_type] += tiles
+        if room_type == Rooms.STORAGE:
+            self.store.add_cells(len(tiles))
 
     def add_object(self, y, x, object_type):
         def validate_object_location(tile, object_type):
@@ -223,7 +228,7 @@ class Tile(object):
     def describe(self):
         return ''.join([self.describe_nature(),
                        ' --- ',
-                       self.describe_object()])
+                        self.describe_object()])
 
     def describe_nature(self):
         if self.wall:
