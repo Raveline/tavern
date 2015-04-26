@@ -53,7 +53,19 @@ supplies_menu = {'type': 'RootComponent',
                       'x': 5,
                       'y': 1,
                       'centered': True,
-                      'source': 'test'}]
+                      'source': 'test'},
+                     {'type': 'Ruler',
+                      'x': 5,
+                      'y': 2,
+                      'w': '80%',
+                      'source': 'ruler_test'
+                      },
+                     {'type': 'Ruler',
+                      'x': 5,
+                      'y': 3,
+                      'w': '80%',
+                      'source': 'ruler_test'
+                      }]
                  }
 
 action_tree = {'name': 'Main mode',
@@ -71,5 +83,9 @@ action_tree = {'name': 'Main mode',
                      'submenu': room_types},
                's': {'type': 'menu',
                      'content': supplies_menu,
-                     'data': {'test': 'This is a test display'}}
+                     'data': {'test': 'This is a test display',
+                              'ruler_test': {'minimum': 0,
+                                             'maximum': 10,
+                                             'current': 5}
+                              }}
                }

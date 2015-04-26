@@ -1,36 +1,142 @@
+from __future__ import division
+
 import libtcodpy as libtcod
+from tavern.inputs.input import Inputs
+from tavern.utils import bus
 from tavern.utils.tcod_wrapper import Console
 from tavern.view.show_console import display_highlighted_text, display_text
 
 
+class ComponentEvent(object):
+    PREVIOUS = 'previous'
+    NEXT = 'next'
+
+
 class Component(object):
-    def __init__(self, x, y, w=0, h=0, is_selectable=False, children=None):
+    """
+    An abstract class for ui & menu components
+    """
+    def __init__(self, x, y, w=0, h=0, is_selectable=False):
         self.x = x
         self.y = y
-        self.w = 0
-        self.h = 0
+        self.w = w
+        self.h = h
         self.is_selectable = is_selectable
         self.focused = False
-        if children is None:
-            children = []
-        self.children = children
 
     def set_data(self, data):
         pass
+
+    def receive(self, event_data):
+        if event_data == Inputs.UP:
+            self.update_selected_index(-1)
+        elif event_data == Inputs.DOWN:
+            self.update_selected_index(1)
+        elif event_data == Inputs.LEFT:
+            self.left()
+        elif event_data == Inputs.RIGHT:
+            self.right()
+        elif event_data == Inputs.ENTER:
+            self.enter()
+
+    def left(self):
+        pass
+
+    def right(self):
+        pass
+
+    def enter(self):
+        pass
+
+    def send_next(self):
+        bus.bus.publish(ComponentEvent.NEXT, bus.MENU_EVENT)
+
+    def send_previous(self):
+        bus.bus.publish(ComponentEvent.PREVIOUS, bus.MENU_EVENT)
+
+    def update_selected_index(self, by):
+        self.leave_focus()
+        if by > 0:
+            self.send_next()
+        else:
+            self.send_previous()
+
+    def enter_focus(self):
+        """
+        Receiving focus.
+        """
+        self.focused = True
+
+    def leave_focus(self):
+        """Losing focus."""
+        self.focused = False
+
+
+class ContainerComponent(Component):
+    """
+    An abstract class for containers who contain others.
+    """
+    def __init__(self, x, y, w=0, h=0, is_selectable=False, children=None):
+        super(ContainerComponent, self).__init__(x, y, w, h, is_selectable)
+        if children is None:
+            children = []
+        self.selected_index = 0
+        self.set_children(children)
+
+    def set_children(self, children):
+        self.children = children
+        self.selectable_children = [c for c in self.children
+                                    if c.is_selectable]
+
+    def get_selected(self):
+        return self.selectable_children[self.selected_index]
+
+    def receive(self, event_data):
+        if event_data == ComponentEvent.NEXT:
+            self.update_selected_index(1)
+        elif event_data == ComponentEvent.PREVIOUS:
+            self.update_selected_index(-1)
+        else:
+            self.get_selected().receive(event_data)
+            # We then reset the data setter, so that every
+            # component is updated.
+            self.set_data(self.data)
+
+    def update_selected_index(self, by):
+        self.get_selected().leave_focus()
+        self.selected_index += by
+        if self.selected_index < 0:
+            self.selected_index = 0
+            self.leave_focus()
+            self.send_previous()
+        elif self.selected_index >= len(self.selectable_children):
+            self.selected_index = len(self.selectable_children) - 1
+            self.leave_focus()
+            self.send_next()
+        else:
+            self.get_selected().enter_focus()
 
     def update(self, values):
         for child in self.children:
             child.update(values)
 
+    def enter_focus(self):
+        bus.bus.subscribe(self, bus.MENU_EVENT)
 
-class RootComponent(Component):
-    """ A component with an attached console."""
+    def leave_focus(self):
+        bus.bus.unsubscribe(self, bus.MENU_EVENT)
+
+
+class RootComponent(ContainerComponent):
+    """A component with an attached console."""
     def __init__(self, x, y, w, h, title, children):
         super(RootComponent, self).__init__(x, y, w, h, False, children)
         self.console = Console(x, y, w, h)
         self.title = title
+        bus.bus.subscribe(self, bus.MENU_EVENT)
 
     def deactivate(self):
+        bus.bus.unsubscribe(self, bus.MENU_EVENT)
         libtcod.console_delete(self.console.console)
 
     def display(self, console):
@@ -38,6 +144,7 @@ class RootComponent(Component):
         Display a frame, a title and children components.
         Then blit on the console parameter.
         """
+        libtcod.console_clear(self.console.console)
         libtcod.console_set_default_foreground(self.console.console,
                                                libtcod.white)
         libtcod.console_hline(self.console.console, 0, 0, self.console.w)
@@ -46,17 +153,33 @@ class RootComponent(Component):
         libtcod.console_vline(self.console.console, 0, 0, self.console.h)
         libtcod.console_vline(self.console.console, self.console.w - 1,
                               0, self.console.h)
-        libtcod.console_print_ex(self.console.console, self.console.w / 2, 0,
-                                 libtcod.BKGND_SET,
-                                 libtcod.CENTER,
+        libtcod.console_print_ex(self.console.console, int(self.console.w / 2),
+                                 0, libtcod.BKGND_SET, libtcod.CENTER,
                                  self.title)
         for child in self.children:
             child.display(self.console.console)
         self.console.blit_on(console)
 
+    def set_children(self, children):
+        super(RootComponent, self).set_children(children)
+        self.selectable_children[0].enter_focus()
+
     def set_data(self, data):
+        self.data = data
         for child in self.children:
             child.set_data(data)
+
+    def update_selected_index(self, by):
+        self.get_selected().leave_focus()
+        self.selected_index += by
+        if self.selected_index < 0:
+            self.selected_index = len(self.selectable_children) - 1
+        elif self.selected_index >= len(self.selectable_children):
+            self.selected_index = 0
+        self.get_selected().enter_focus()
+
+    def __str__(self):
+        return "RootComponent"
 
 
 class TextBlocComponent(Component):
@@ -84,7 +207,7 @@ class DynamicTextComponent(Component):
         display_text(console, self.text, self.x, self.y)
 
 
-class RowsComponent(Component):
+class RowsComponent(ContainerComponent):
     def __init__(self, x, y, w=0, h=0, is_selectable=False, contents=None):
         super(RowsComponent).__init__(x, y, w, h, is_selectable)
         if contents is None:
@@ -114,16 +237,70 @@ class ColumnedLine(Component):
             widths = []
         if contents is None:
             contents = []
-        super(ColumnedLine, super).__init__(x, y, sum(widths), 1, is_selectable)
+        super(ColumnedLine, self).__init__(x, y, sum(widths), 1, is_selectable)
 
     def display(self, console):
         current_x = self.x
         func = display_text
-        if self.focus:
+        if self.focused:
             func = display_highlighted_text
         for idx, elem in enumerate(self.contents):
             func(console, elem, current_x, self.y)
             current_x += self.widths[idx]
+
+
+class Button(Component):
+    def __init__(self, x, y, w, text, event, event_type):
+        super(Button, self).__init__(x, y, w, 1, True)
+        self.text = text
+        self.event = event
+        self.event_type = event_type
+
+    def display(self, console):
+        func = display_text
+        if self.focused:
+            func = display_highlighted_text
+        func(console, self.text, self.x, self.y)
+
+    def enter(self):
+        bus.bus.publish(self.event, self.event_type)
+
+
+class Ruler(Component):
+    def __init__(self, x, y, w, source):
+        super(Ruler, self).__init__(x, y, w, 1, True)
+        self.source = source
+        self.value = 0
+
+    def set_data(self, data):
+        self.data = data
+        pertinent = self.data.get(self.source)
+        self.minimum = pertinent.get('minimum')
+        self.maximum = pertinent.get('maximum')
+        self.value = pertinent.get('current')
+
+    def left(self, unit=1):
+        self.value -= unit
+        if self.value < self.minimum:
+            self.value = self.minimum
+        self.data[self.source]['current'] = self.value
+
+    def right(self, unit=1):
+        self.value += unit
+        if self.value > self.maximum:
+            self.value = self.maximum
+        self.data[self.source]['current'] = self.value
+
+    def display(self, console):
+        scale_unit = (self.maximum - self.minimum) / self.w
+        selected_area = int(self.value / scale_unit)
+        front_color = libtcod.white
+        if self.focused:
+            front_color = libtcod.green
+        for x in range(self.x, self.x + selected_area):
+            libtcod.console_put_char_ex(console, x, self.y,
+                                        libtcod.CHAR_BLOCK1, front_color,
+                                        libtcod.black)
 
 
 def make_textbox(x, y, w, h, title, text):

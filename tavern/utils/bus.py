@@ -8,9 +8,11 @@ GAME_EVENT = 4
 WORLD_EVENT = 5
 NEW_STATE = 6
 PREVIOUS_STATE = 7
+MENU_EVENT = 8
 
-EVENTS_NAMES = ['Input event', 'Player action', 'Feedback event', 'Game event',
-                'State event']
+EVENTS_NAMES = ['Input event', 'Area select', 'Player action', 'Feedback event',
+                'Game event', 'World event', 'New state', 'Previous state',
+                'Menu event']
 
 
 class Bus(object):
@@ -30,8 +32,18 @@ class Bus(object):
     def publish(self, event, event_type=FEEDBACK_EVENT):
         event = {'type': event_type,
                  'data': event}
-        for receiver in self.events.get(event_type):
-            receiver.receive(event)
+        self.display_event(event)
+        # For event type, act like a stack
+        if event_type == MENU_EVENT:
+            self.events.get(event_type)[-1].receive(event.get('data'))
+        # In any other case, publish for every listener
+        else:
+            for receiver in self.events.get(event_type):
+                receiver.receive(event)
+
+    def display_event(self, event):
+        print('Event fired. Type %s - data : %s'
+              % (EVENTS_NAMES[event['type']], event['data']))
 
     def __str__(self):
         representation = []

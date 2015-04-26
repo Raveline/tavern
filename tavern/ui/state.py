@@ -91,7 +91,8 @@ class MenuState(GameState):
 
     def receive(self, event):
         event_data = event.get('data')
-        self._check_for_previous_state(event_data)
+        if not self._check_for_previous_state(event_data):
+            self.root_component.receive(event_data)
 
     def display(self, console):
         self.root_component.display(console)

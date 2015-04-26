@@ -1,5 +1,6 @@
 from tavern.ui.components import (
-    TextBlocComponent, RowsComponent, DynamicTextComponent, RootComponent)
+    TextBlocComponent, RowsComponent, DynamicTextComponent, RootComponent,
+    Button, Ruler)
 
 
 class MenuBuildingException(Exception):
@@ -16,6 +17,9 @@ def build_menu(context, menu_description, root=False):
     type menu_description : Dict
     """
     children = None
+    if root:
+        _, _, w, _ = read_dimensions(context, menu_description)
+        context['parent_width'] = w
     if menu_description.get('children'):
         children = []
         for elem in menu_description['children']:
@@ -27,22 +31,31 @@ def build_component(context, comp_desc, children=None, root=False):
         component = None
         x, y, w, h = read_dimensions(context, comp_desc)
         is_selectable = comp_desc.get('selectable', False)
+        comp_type = comp_desc.get('type')
         if root:
             title = comp_desc.get('title', '')
             component = RootComponent(x, y, w, h, title, children)
-        elif comp_desc.get('type') == 'TextBlocComponent':
+        elif comp_type == 'TextBlocComponent':
             content = comp_desc.get('content', '')
             component = TextBlocComponent(comp_desc, x, y, w, content)
-        elif comp_desc.get('type') == 'RowsComponent':
+        elif comp_type == 'RowsComponent':
             content = comp_desc.get('content', '[]')
             component = RowsComponent(x, y, w, h, is_selectable, content)
-        elif comp_desc.get('type') == 'DynamicText':
+        elif comp_type == 'DynamicText':
             content = comp_desc.get('content')
             is_centered = comp_desc.get('centered', False)
             source = comp_desc.get('source', None)
             component = DynamicTextComponent(x, y, is_centered, source)
+        elif comp_type == 'Button':
+            text = comp_desc.get('text')
+            event = comp_desc.get('event')
+            event_type = comp_desc.get('even_type')
+            component = Button(x, y, w, text, event, event_type)
+        elif comp_type == 'Ruler':
+            source = comp_desc.get('source')
+            component = Ruler(x, y, w, source)
         elif children is not None:
-            component.children = children
+            component.set_children(children)
         return component
 
 
@@ -68,5 +81,10 @@ def read_dimensions(context, tree):
         x = tree.get('x')
         y = tree.get('y')
         w = tree.get('w', 0)
+        if isinstance(w, str):
+            # Width has been given in percentage. Convert.
+            percent = int(w[:w.find('%')]) / 100.0
+            parent_width = context.get('parent_width')
+            w = int(percent * parent_width)
         h = tree.get('h', 0)
     return x, y, w, h
