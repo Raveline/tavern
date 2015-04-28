@@ -12,5 +12,5 @@ class CallbackDict(dict):
         self.callback = callback
 
     def __setitem__(self, key, value):
-        super(CallbackDict, self).__setitem__(key, value)
-        self.callback()
+        if self.callback(key, self[key], value):
+            super(CallbackDict, self).__setitem__(key, value)

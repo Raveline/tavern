@@ -7,6 +7,10 @@ from tavern.utils.tcod_wrapper import Console
 from tavern.view.show_console import display_highlighted_text, display_text
 
 
+class ComponentException(Exception):
+    pass
+
+
 class ComponentEvent(object):
     PREVIOUS = 'previous'
     NEXT = 'next'
@@ -182,9 +186,9 @@ class RootComponent(ContainerComponent):
         return "RootComponent"
 
 
-class TextBlocComponent(Component):
+class TextBloc(Component):
     def __init__(self, x, y, w, text):
-        super(TextBlocComponent, self).__init__(x, y, w)
+        super(TextBloc, self).__init__(x, y, w)
         self.text = text
 
     def display(self, console):
@@ -192,9 +196,18 @@ class TextBlocComponent(Component):
                                    self.w, 0, self.text)
 
 
-class DynamicTextComponent(Component):
+class StaticText(Component):
+    def __init__(self, x, y, text):
+        super(StaticText, self).__init__(x, y)
+        self.text = text
+
+    def display(self, console):
+        display_text(console, self.text, self.x, self.y)
+
+
+class DynamicText(Component):
     def __init__(self, x, y, centered, source):
-        super(DynamicTextComponent, self).__init__(x, y)
+        super(DynamicText, self).__init__(x, y)
         self.centered = centered
         self.source = source
         self.text = ''
@@ -275,9 +288,13 @@ class Ruler(Component):
     def set_data(self, data):
         self.data = data
         pertinent = self.data.get(self.source)
-        self.minimum = pertinent.get('minimum')
-        self.maximum = pertinent.get('maximum')
-        self.value = pertinent.get('current')
+        if pertinent:
+            self.minimum = pertinent.get('minimum')
+            self.maximum = pertinent.get('maximum')
+            self.value = pertinent.get('current')
+        else:
+            raise ComponentException('Data %s has no source key : %s.'
+                                     % (str(data), self.source))
 
     def left(self, unit=1):
         self.value -= unit
@@ -293,6 +310,8 @@ class Ruler(Component):
 
     def display(self, console):
         scale_unit = (self.maximum - self.minimum) / self.w
+        if scale_unit == 0:
+            return
         selected_area = int(self.value / scale_unit)
         front_color = libtcod.white
         if self.focused:
@@ -304,6 +323,6 @@ class Ruler(Component):
 
 
 def make_textbox(x, y, w, h, title, text):
-    tbc = TextBlocComponent(1, 1, w - 1, text)
+    tbc = TextBloc(1, 1, w - 1, text)
     root_component = RootComponent(x, y, w, h, title, [tbc])
     return root_component

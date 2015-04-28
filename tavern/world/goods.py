@@ -16,7 +16,7 @@ class Goods:
         self.goods_type = goods_type
         self.buying_price = buying_price
         self.selling_price = selling_price
-        self.store_cell_cost = goods_type_to_store_cell_cost(self.goods_type)
+        self.store_cell_cost = goods_type_to_store_cell_cost[self.goods_type]
 
     def __str__(self):
         return self.name

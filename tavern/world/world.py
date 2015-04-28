@@ -10,7 +10,8 @@ WOOD = 'wood'
 
 
 class WorldMap():
-    def __init__(self, width, height, tiles=None):
+    def __init__(self, width, height, cash=1000, tiles=None):
+        # Dimensions
         self.width = width
         self.height = height
         # A map-imitating fbm
@@ -22,7 +23,9 @@ class WorldMap():
         # Entry points to the tavern (main door)
         self.entry_points = []
         # Storage
-        self.store = StorageSystem
+        self.store = StorageSystem()
+        # Money
+        self.cash = cash
         if not self.tiles:
             self.tiles = self._build_tiles()
 

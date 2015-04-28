@@ -1,5 +1,7 @@
 from tavern.utils import bus
+from tavern.utils.callbackdict import CallbackDict
 from tavern.inputs.input import Inputs
+from tavern.world.goods import DRINKS
 NEW_STATE = 0
 
 
@@ -78,6 +80,9 @@ class MenuState(GameState):
                  data=None):
         super(MenuState, self).__init__(state_tree, None, parent_state)
         self.root_component = root_component
+        self.set_data(data)
+
+    def set_data(self, data):
         self.root_component.set_data(data)
 
     def _check_for_previous_state(self, event_data):
@@ -96,3 +101,52 @@ class MenuState(GameState):
 
     def display(self, console):
         self.root_component.display(console)
+
+
+class StoreMenuState(MenuState):
+    def __init__(self, state_tree, root_component,
+                 parent_state=None, world=None):
+        self.world = world
+        self.initial_data = {}
+        super(StoreMenuState, self).__init__(
+            state_tree, root_component, parent_state, self.build_data()
+        )
+
+    def build_data(self):
+        data = {}
+        store = self.world.store
+        cash = self.world.cash
+        available_room = store.current_available_cells()
+        # Currently, we will do this only for drinks, but chances are
+        # this will need to be abstracted
+        for goods in DRINKS:
+            quantity = store.amount_of(goods)
+            storable = store.cell_to_goods_quantity(available_room, goods)
+            affordable = cash / goods.buying_price
+            data[goods.name] = {
+                'minimum': self.initial_data.get('minimum', quantity),
+                'current': quantity,
+                'maximum': min(storable, affordable)}
+        data['storage'] = str(available_room)
+        data['cash'] = str(cash)
+        if not self.initial_data:
+            self.initial_data = data.copy()
+        return CallbackDict(self.callback, data)
+
+    def name_to_goods(self, key):
+        goods = self.world.store.store.keys()
+        with_name = [g for g in goods if g.name == key]
+        return with_name[0]
+
+    def callback(self, key, old_value, new_value):
+        good = self.name_to_goods(key)
+        # Cancelling sale
+        if new_value < old_value:
+            repayment = (old_value - new_value) * good.price
+            self.world.cash += repayment
+        # Buying
+        elif new_value > old_value:
+            payment = (new_value - old_value) * good.price
+            self.world.cash -= payment
+        self.set_data(self.build_data())
+        return True

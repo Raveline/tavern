@@ -49,24 +49,28 @@ supplies_menu = {'type': 'RootComponent',
                  'template': 'centered 5',
                  'title': 'Supplies',
                  'children': [
-                     {'type': 'DynamicText',
-                      'x': 5,
+                     {'type': 'StaticText',
+                      'x': 1,
                       'y': 1,
-                      'centered': True,
-                      'source': 'test'},
-                     {'type': 'Ruler',
-                      'x': 5,
+                      'content': 'Cash :'},
+                     {'type': 'DynamicText',
+                      'x': 20,
+                      'y': 1,
+                      'source': 'cash'},
+                     {'type': 'StaticText',
+                      'x': 1,
                       'y': 2,
-                      'w': '80%',
-                      'source': 'ruler_test'
-                      },
-                     {'type': 'Ruler',
-                      'x': 5,
-                      'y': 3,
-                      'w': '80%',
-                      'source': 'ruler_test'
-                      }]
-                 }
+                      'content': 'Storage room :'},
+                     {'type': 'DynamicText',
+                      'x': 20,
+                      'y': 2,
+                      'source': 'storage'},
+                     {'type': 'Foreach',
+                      'source': 'goods.supplies',
+                      'do': [{'type': 'Ruler',
+                              'x': 5,
+                              'w': '80%'}]
+                      }]}
 
 action_tree = {'name': 'Main mode',
                'b': {'action': Actions.BUILD,
@@ -82,10 +86,6 @@ action_tree = {'name': 'Main mode',
                      'selector': FILLER,
                      'submenu': room_types},
                's': {'type': 'menu',
-                     'content': supplies_menu,
-                     'data': {'test': 'This is a test display',
-                              'ruler_test': {'minimum': 0,
-                                             'maximum': 10,
-                                             'current': 5}
-                              }}
+                     'menu_type': 'StoreMenu',
+                     'content': supplies_menu}
                }

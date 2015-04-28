@@ -5,9 +5,10 @@ from tavern.receivers.navigators import Crosshair, Fillhair
 from tavern.utils.tcod_wrapper import Console
 from tavern.utils.geom import Frame
 from tavern.view.show_console import display, print_selection, display_text
-from tavern.ui.state import GameState, MenuState
+from tavern.ui.state import GameState, MenuState, StoreMenuState
 from tavern.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
+from tavern.world.context import Context
 from tavern.world.world import WorldMap
 from tavern.world.actions import action_tree
 from tavern.world import actions
@@ -16,8 +17,6 @@ from tavern.world import actions
 MAP_WIDTH = 200
 MAP_HEIGHT = 200
 
-WIDTH = 80
-HEIGHT = 60
 TITLE = 'The Tavern'
 
 
@@ -28,9 +27,12 @@ def main():
 
 class Game(object):
     def __init__(self):
-        libtcod.console_init_root(WIDTH, HEIGHT, TITLE)
-        self.world_console = Console(0, 0, WIDTH, HEIGHT - 2)
-        self.text_console = Console(0, HEIGHT - 2, WIDTH, 2)
+        self.context = Context()
+        width = self.context.width
+        height = self.context.height
+        libtcod.console_init_root(width, height, TITLE)
+        self.world_console = Console(0, 0, width, height - 2)
+        self.text_console = Console(0, height - 2, width, 2)
         self.inputs = Inputs(bus.bus)
 
         self.world_map = WorldMap(MAP_WIDTH, MAP_HEIGHT)
@@ -40,8 +42,8 @@ class Game(object):
         bus.bus.subscribe(self.informer, bus.FEEDBACK_EVENT)
 
         self.world_frame = Frame(0, 0, MAP_WIDTH, MAP_HEIGHT)
-        self.cross = Crosshair(WIDTH, HEIGHT, self.world_frame)
-        self.filler = Fillhair(WIDTH, HEIGHT, self.world_frame,
+        self.cross = Crosshair(width, height, self.world_frame)
+        self.filler = Fillhair(width, height, self.world_frame,
                                self.world_map.fill_from)
         self.state = None
         self.change_state(GameState(action_tree, self.cross))
@@ -79,10 +81,14 @@ class Game(object):
 
     def build_state(self, tree):
         if tree.get('type', '') == 'menu':
-            context = {'width': self.world_console.w,
-                       'height': self.world_console.h}
+            context = self.context.to_context_dict()
             root_component = build_menu(context, tree.get('content'), True)
-            return MenuState({}, root_component, self.state, tree.get('data'))
+            clazz = MenuState
+            data = tree.get('data')
+            if tree.get('menu_type') == 'StoreMenu':
+                clazz = StoreMenuState
+                data = self.world_map
+            return clazz({}, root_component, self.state, data)
         else:
             if tree.get('selector', actions.CROSSHAIR) == actions.CROSSHAIR:
                 navigator = self.cross

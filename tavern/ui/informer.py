@@ -8,7 +8,6 @@ class Informer(object):
 
     def receive(self, event):
         self.text = event.get('data')
-        print(self.text)
 
     def display(self):
         display_text(self.console.console, self.text, 0, 1)

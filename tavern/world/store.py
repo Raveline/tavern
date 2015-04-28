@@ -7,9 +7,12 @@ class StorageException(Exception):
 
 
 class StorageSystem(object):
-    def __init__(self):
+    def __init__(self, initial_goods=None):
         self.cells = 0
         self.store = defaultdict(int)
+        if initial_goods is None:
+            initial_goods = {}
+        self.store = defaultdict(int, initial_goods)
 
     def add_cells(self, quantity):
         self.cells += quantity
@@ -70,6 +73,13 @@ class StorageSystem(object):
         cell occupancy.
         """
         return amount * goods.store_cell_cost
+
+    def cell_to_goods_quantity(self, cells, goods):
+        """
+        Translate the amount of <cells> to a quantity of
+        <goods>.
+        """
+        return cells / goods.store_cell_cost
 
     def current_occupied_cells(self):
         current_occupied_cells = 0

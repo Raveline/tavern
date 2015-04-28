@@ -1,10 +1,6 @@
 from tavern.ui.components import (
-    TextBlocComponent, RowsComponent, DynamicTextComponent, RootComponent,
-    Button, Ruler)
-
-
-class MenuBuildingException(Exception):
-    pass
+    StaticText, TextBloc, RowsComponent, DynamicText, RootComponent,
+    Button, Ruler, ComponentException)
 
 
 def build_menu(context, menu_description, root=False):
@@ -23,21 +19,26 @@ def build_menu(context, menu_description, root=False):
     if menu_description.get('children'):
         children = []
         for elem in menu_description['children']:
-            children.append(build_menu(context, elem))
+            children += (build_menu(context, elem))
     return build_component(context, menu_description, children, root)
 
 
 def build_component(context, comp_desc, children=None, root=False):
         component = None
         x, y, w, h = read_dimensions(context, comp_desc)
+        context['last_y'] = y
         is_selectable = comp_desc.get('selectable', False)
         comp_type = comp_desc.get('type')
         if root:
             title = comp_desc.get('title', '')
             component = RootComponent(x, y, w, h, title, children)
-        elif comp_type == 'TextBlocComponent':
+            return component
+        elif comp_type == 'TextBloc':
             content = comp_desc.get('content', '')
-            component = TextBlocComponent(comp_desc, x, y, w, content)
+            component = TextBloc(x, y, w, content)
+        elif comp_type == 'StaticText':
+            content = comp_desc.get('content', '')
+            component = StaticText(x, y, content)
         elif comp_type == 'RowsComponent':
             content = comp_desc.get('content', '[]')
             component = RowsComponent(x, y, w, h, is_selectable, content)
@@ -45,7 +46,7 @@ def build_component(context, comp_desc, children=None, root=False):
             content = comp_desc.get('content')
             is_centered = comp_desc.get('centered', False)
             source = comp_desc.get('source', None)
-            component = DynamicTextComponent(x, y, is_centered, source)
+            component = DynamicText(x, y, is_centered, source)
         elif comp_type == 'Button':
             text = comp_desc.get('text')
             event = comp_desc.get('event')
@@ -54,9 +55,21 @@ def build_component(context, comp_desc, children=None, root=False):
         elif comp_type == 'Ruler':
             source = comp_desc.get('source')
             component = Ruler(x, y, w, source)
-        elif children is not None:
+        elif comp_type == 'Foreach':
+            source = comp_desc.get('source').split('.')
+            iterable = context
+            for path in source:
+                iterable = iterable[path]
+            components = []
+            do_desc = comp_desc.get('do')
+            for elem in iterable:
+                for to_do in do_desc:
+                    to_do['source'] = elem.name
+                    components += build_component(context, to_do)
+            return components
+        if children is not None:
             component.set_children(children)
-        return component
+        return [component]
 
 
 def read_dimensions(context, tree):
@@ -68,9 +81,9 @@ def read_dimensions(context, tree):
                 padding = int(template[len('centered '):])
                 padding_percent = padding / 100.0
             except ValueError:
-                raise MenuBuildingException('Centered template must be followed'
-                                            ' by an integer giving the padding'
-                                            ' percentage. E.g., "centered 10"')
+                raise ComponentException('Centered template must be followed'
+                                         ' by an integer giving the padding'
+                                         ' percentage. E.g., "centered 10"')
             width = context.get('width')
             height = context.get('height')
             x = int(width * padding_percent)
@@ -79,7 +92,7 @@ def read_dimensions(context, tree):
             h = height - (2 * y)
     else:
         x = tree.get('x')
-        y = tree.get('y')
+        y = tree.get('y', context.get('last_y', 0) + 1)
         w = tree.get('w', 0)
         if isinstance(w, str):
             # Width has been given in percentage. Convert.
