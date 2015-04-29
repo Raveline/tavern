@@ -9,6 +9,7 @@ WORLD_EVENT = 5
 NEW_STATE = 6
 PREVIOUS_STATE = 7
 MENU_EVENT = 8
+MENU_MODEL_EVENT = 9
 
 EVENTS_NAMES = ['Input event', 'Area select', 'Player action', 'Feedback event',
                 'Game event', 'World event', 'New state', 'Previous state',

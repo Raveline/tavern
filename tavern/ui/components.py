@@ -295,7 +295,6 @@ class Ruler(Component):
         self.value = 0
 
     def set_data(self, data):
-        self.data = data
         pertinent = self.data.get(self.source)
         if pertinent:
             self.minimum = pertinent.get('minimum')
@@ -305,17 +304,22 @@ class Ruler(Component):
             raise ComponentException('Data %s has no source key : %s.'
                                      % (str(data), self.source))
 
+    def publish_change(self):
+        bus.bus.publish({'source': self.source,
+                         'new_value': self.value},
+                        bus.MENU_MODEL_EVENT)
+
     def left(self, unit=1):
         self.value -= unit
         if self.value < self.minimum:
             self.value = self.minimum
-        self.data[self.source]['current'] = self.value
+        self.publish_change()
 
     def right(self, unit=1):
         self.value += unit
         if self.value > self.maximum:
             self.value = self.maximum
-        self.data[self.source]['current'] = self.value
+        self.publish_change()
 
     def display(self, console):
         size_min = len(str(self.minimum))

@@ -79,10 +79,12 @@ class MenuState(GameState):
     def __init__(self, state_tree, root_component, parent_state=None,
                  data=None):
         super(MenuState, self).__init__(state_tree, None, parent_state)
+        bus.bus.subscribe(self, bus.MENU_MODEL_EVENT)
         self.root_component = root_component
         self.set_data(data)
 
     def set_data(self, data):
+        self.data = data
         self.root_component.set_data(data)
 
     def _check_for_previous_state(self, event_data):
@@ -94,10 +96,26 @@ class MenuState(GameState):
     def deactivate(self):
         self.root_component.deactivate()
 
+    def update_data_dict(self, source, new):
+        data = self.data
+        path = source.split('.')
+        for s in path[:-1]:
+            data = data.get(s)
+        data[path[-1]] = new
+        return data
+
+    def update_data(self, source, new):
+        data = self.update_data_dict(self, source, new)
+        self.set_data(data)
+
     def receive(self, event):
         event_data = event.get('data')
-        if not self._check_for_previous_state(event_data):
-            self.root_component.receive(event_data)
+        if event.get('type') == bus.MENU_MODEL_EVENT:
+            self.update_data(event_data.get('source'),
+                             event_data.get('new_value'))
+        else:
+            if not self._check_for_previous_state(event_data):
+                self.root_component.receive(event_data)
 
     def display(self, console):
         self.root_component.display(console)
@@ -132,15 +150,16 @@ class StoreMenuState(MenuState):
         data['cash'] = str(cash)
         if not self.initial_data:
             self.initial_data = data.copy()
-        return CallbackDict(self.callback, data)
+        return data
 
     def name_to_goods(self, key):
         goods = self.world.store.store.keys()
         with_name = [g for g in goods if g.name == key]
         return with_name[0]
 
-    def callback(self, key, old_value, new_value):
-        good = self.name_to_goods(key)
+    def update_data(self, source, new):
+        good = self.name_to_goods(source[0])
+        # Replace these by a Command pattern
         # Cancelling sale
         if new_value < old_value:
             repayment = (old_value - new_value) * good.price
