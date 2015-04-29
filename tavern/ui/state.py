@@ -123,7 +123,8 @@ class StoreMenuState(MenuState):
             quantity = store.amount_of(goods)
             storable = store.cell_to_goods_quantity(available_room, goods)
             affordable = cash / goods.buying_price
-            data[goods.name] = {
+            data[goods] = goods.name
+            data[goods.name + ".store"] = {
                 'minimum': self.initial_data.get('minimum', quantity),
                 'current': quantity,
                 'maximum': min(storable, affordable)}

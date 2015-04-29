@@ -214,7 +214,8 @@ class DynamicText(Component):
 
     def set_data(self, data):
         self.data = data
-        self.text = data.get(self.source, '')
+        # We cast to string to be able to display objects
+        self.text = str(data.get(self.source, ''))
 
     def display(self, console):
         display_text(console, self.text, self.x, self.y)

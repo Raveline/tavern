@@ -66,7 +66,11 @@ def build_component(context, comp_desc, children=None, root=False):
             do_desc = comp_desc.get('do')
             for elem in iterable:
                 for to_do in do_desc:
-                    to_do['source'] = elem.name
+                    source_builder = to_do.get('source_builder')
+                    if source_builder:
+                        to_do['source'] = '.'.join([str(elem), source_builder])
+                    else:
+                        to_do['source'] = elem
                     components += build_component(context, to_do)
             return components
         if children is not None:

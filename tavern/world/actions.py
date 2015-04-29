@@ -71,7 +71,10 @@ supplies_menu = {'type': 'RootComponent',
                       'y': 3},
                      {'type': 'Foreach',
                       'source': 'goods.supplies',
-                      'do': [{'type': 'Ruler',
+                      'do': [{'type': 'DynamicText',
+                              'x': 5},
+                             {'type': 'Ruler',
+                              'source_builder': 'store',
                               'x': 5,
                               'w': '80%'}]
                       }]}
