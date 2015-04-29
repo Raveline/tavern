@@ -318,14 +318,21 @@ class Ruler(Component):
         self.data[self.source]['current'] = self.value
 
     def display(self, console):
-        scale_unit = (self.maximum - self.minimum) / self.w
+        size_min = len(str(self.minimum))
+        size_max = len(str(self.maximum))
+        ruler_width = self.w - (size_min + size_max)
+        scale_unit = (self.maximum - self.minimum) / ruler_width
         if scale_unit == 0:
-            return
-        selected_area = int(self.value / scale_unit)
-        front_color = libtcod.white
+            selected_area = 1
+        else:
+            selected_area = int(self.value / scale_unit)
         if self.focused:
             front_color = libtcod.green
-        for x in range(self.x, self.x + selected_area):
+        else:
+            front_color = libtcod.white
+        display_text(console, str(self.minimum), self.x, self.y)
+        display_text(console, str(self.maximum), self.w - size_max, self.y)
+        for x in range(self.x + size_min, self.x + selected_area):
             libtcod.console_put_char_ex(console, x, self.y,
                                         libtcod.CHAR_BLOCK1, front_color,
                                         libtcod.black)
