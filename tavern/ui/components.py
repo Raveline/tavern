@@ -279,6 +279,14 @@ class Button(Component):
         bus.bus.publish(self.event, self.event_type)
 
 
+class Line(Component):
+    def __init__(self, x, y, w):
+        super(Line, self).__init__(x, y, w, 1)
+
+    def display(self, console):
+        libtcod.console_hline(console, self.x, self.y, self.w)
+
+
 class Ruler(Component):
     def __init__(self, x, y, w, source):
         super(Ruler, self).__init__(x, y, w, 1, True)

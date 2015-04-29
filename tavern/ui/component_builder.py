@@ -1,6 +1,6 @@
 from tavern.ui.components import (
     StaticText, TextBloc, RowsComponent, DynamicText, RootComponent,
-    Button, Ruler, ComponentException)
+    Button, Ruler, Line, ComponentException)
 
 
 def build_menu(context, menu_description, root=False):
@@ -42,6 +42,8 @@ def build_component(context, comp_desc, children=None, root=False):
         elif comp_type == 'RowsComponent':
             content = comp_desc.get('content', '[]')
             component = RowsComponent(x, y, w, h, is_selectable, content)
+        elif comp_type == 'Line':
+            component = Line(x, y, w)
         elif comp_type == 'DynamicText':
             content = comp_desc.get('content')
             is_centered = comp_desc.get('centered', False)
