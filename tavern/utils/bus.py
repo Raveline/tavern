@@ -13,7 +13,7 @@ MENU_MODEL_EVENT = 9
 
 EVENTS_NAMES = ['Input event', 'Area select', 'Player action', 'Feedback event',
                 'Game event', 'World event', 'New state', 'Previous state',
-                'Menu event']
+                'Menu event', 'Menu model event']
 
 
 class Bus(object):
