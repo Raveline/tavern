@@ -26,7 +26,8 @@ def build_menu(context, menu_description, root=False):
 def build_component(context, comp_desc, children=None, root=False):
         component = None
         x, y, w, h = read_dimensions(context, comp_desc)
-        context['last_y'] = y
+        if comp_desc.get('eat_line', True):
+            context['last_y'] = y
         is_selectable = comp_desc.get('selectable', False)
         comp_type = comp_desc.get('type')
         if root:
