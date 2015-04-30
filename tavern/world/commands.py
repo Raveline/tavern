@@ -14,9 +14,9 @@ class BuyCommand(object):
 
     def execute(self, world):
         if not self.cancel:
-            world.cash += self.money_value
+            world.cash -= self.money_value
             world.store.add(self.goods, self.quantity)
         else:
             # Cancel a buy
-            world.cash -= self.money_value
+            world.cash += self.money_value
             world.store.take(self.goods, self.quantity)
