@@ -8,12 +8,13 @@ class Command(object):
 class BuyCommand(object):
     def __init__(self, goods, quantity, cancel=False):
         self.goods = goods
-        self.quantity = quantity
+        self.quantity = abs(quantity)
         self.money_value = goods.buying_price
         self.cancel = cancel
 
     def execute(self, world):
         if not self.cancel:
+            # Do the buy
             world.cash -= self.money_value
             world.store.add(self.goods, self.quantity)
         else:
