@@ -1,6 +1,7 @@
 from tavern.utils import bus
-from tavern.utils.callbackdict import CallbackDict
+from tavern.utils.dict_path import read_path_dict
 from tavern.inputs.input import Inputs
+from tavern.world.commands import BuyCommand
 from tavern.world.goods import DRINKS
 NEW_STATE = 0
 
@@ -141,8 +142,8 @@ class StoreMenuState(MenuState):
             quantity = store.amount_of(goods)
             storable = store.cell_to_goods_quantity(available_room, goods)
             affordable = cash / goods.buying_price
-            data[goods] = goods.name
-            data[goods.name + ".store"] = {
+            data[goods.name] = {
+                'obj': goods,
                 'minimum': self.initial_data.get('minimum', quantity),
                 'current': quantity,
                 'maximum': min(storable, affordable)}
@@ -157,16 +158,16 @@ class StoreMenuState(MenuState):
         with_name = [g for g in goods if g.name == key]
         return with_name[0]
 
-    def update_data(self, source, new):
-        good = self.name_to_goods(source[0])
+    def update_data(self, source, new_value):
+        goods = read_path_dict(self.data, self.source.split('.')[0] + ".obj")
+        old_value = read_path_dict(self.data, source)
+        quantity_diff = new_value - old_value
         # Replace these by a Command pattern
-        # Cancelling sale
-        if new_value < old_value:
-            repayment = (old_value - new_value) * good.price
-            self.world.cash += repayment
         # Buying
-        elif new_value > old_value:
-            payment = (new_value - old_value) * good.price
-            self.world.cash -= payment
+        if quantity_diff > 0:
+            command = BuyCommand(goods, quantity_diff)
+        # Cancelling sale
+        else:
+            command = BuyCommand(goods, quantity_diff, True)
+        command.execute(self.world)
         self.set_data(self.build_data())
-        return True

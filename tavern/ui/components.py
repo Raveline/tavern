@@ -3,6 +3,7 @@ from __future__ import division
 import libtcodpy as libtcod
 from tavern.inputs.input import Inputs
 from tavern.utils import bus
+from tavern.utils.dict_path import read_path_dict
 from tavern.utils.tcod_wrapper import Console
 from tavern.view.show_console import display_highlighted_text, display_text
 
@@ -215,7 +216,7 @@ class DynamicText(Component):
     def set_data(self, data):
         self.data = data
         # We cast to string to be able to display objects
-        self.text = str(data.get(self.source, ''))
+        self.text = str(read_path_dict(data, self.source))
 
     def display(self, console):
         display_text(console, self.text, self.x, self.y)
@@ -295,7 +296,7 @@ class Ruler(Component):
         self.value = 0
 
     def set_data(self, data):
-        pertinent = self.data.get(self.source)
+        pertinent = read_path_dict(data, self.source)
         if pertinent:
             self.minimum = pertinent.get('minimum')
             self.maximum = pertinent.get('maximum')

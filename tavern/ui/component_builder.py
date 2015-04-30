@@ -70,7 +70,9 @@ def build_component(context, comp_desc, children=None, root=False):
                     if source_builder:
                         to_do['source'] = '.'.join([str(elem), source_builder])
                     else:
-                        to_do['source'] = elem
+                        to_do['source'] = str(elem)
+                        if to_do.get('type') == 'StaticText':
+                            to_do['content'] = to_do['source']
                     components += build_component(context, to_do)
             return components
         if children is not None:
