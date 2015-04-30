@@ -162,12 +162,12 @@ class StoreMenuState(MenuState):
         goods = read_path_dict(self.data, source + ".obj")
         old_value = read_path_dict(self.data, source + ".current")
         quantity_diff = new_value - old_value
-        # Replace these by a Command pattern
-        # Buying
-        if quantity_diff > 0:
-            command = BuyCommand(goods, quantity_diff)
-        # Cancelling sale
-        else:
-            command = BuyCommand(goods, quantity_diff, True)
-        command.execute(self.world)
-        self.set_data(self.build_data())
+        if quantity_diff != 0:
+            # Buying
+            if quantity_diff > 0:
+                command = BuyCommand(goods, quantity_diff)
+            # Cancelling sale
+            else:
+                command = BuyCommand(goods, quantity_diff, True)
+            command.execute(self.world)
+            self.set_data(self.build_data())
