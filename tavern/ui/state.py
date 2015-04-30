@@ -141,7 +141,7 @@ class StoreMenuState(MenuState):
         for goods in DRINKS:
             quantity = store.amount_of(goods)
             storable = store.cell_to_goods_quantity(available_room, goods)
-            affordable = cash / goods.buying_price
+            affordable = int(cash / goods.buying_price)
             data[goods.name] = {
                 'obj': goods,
                 'minimum': self.initial_data.get('minimum', quantity),
@@ -159,8 +159,8 @@ class StoreMenuState(MenuState):
         return with_name[0]
 
     def update_data(self, source, new_value):
-        goods = read_path_dict(self.data, self.source.split('.')[0] + ".obj")
-        old_value = read_path_dict(self.data, source)
+        goods = read_path_dict(self.data, source + ".obj")
+        old_value = read_path_dict(self.data, source + ".current")
         quantity_diff = new_value - old_value
         # Replace these by a Command pattern
         # Buying

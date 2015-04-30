@@ -72,19 +72,19 @@ class StorageSystem(object):
         Translate the <amount> of this brand of <goods> to
         cell occupancy.
         """
-        return amount * goods.store_cell_cost
+        return math.ceil(amount * goods.store_cell_cost)
 
     def cell_to_goods_quantity(self, cells, goods):
         """
         Translate the amount of <cells> to a quantity of
         <goods>.
         """
-        return cells / goods.store_cell_cost
+        return math.ceil(cells / goods.store_cell_cost)
 
     def current_occupied_cells(self):
         current_occupied_cells = 0
         for goods, amount in self.store.iteritems():
-            occupancy = math.ceil(self.goods_quantity_to_cell)
+            occupancy = self.goods_quantity_to_cell(goods, amount)
             current_occupied_cells += occupancy
         return current_occupied_cells
 
