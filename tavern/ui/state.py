@@ -95,6 +95,7 @@ class MenuState(GameState):
         return False
 
     def deactivate(self):
+        bus.bus.unsubscribe(self, bus.MENU_MODEL_EVENT)
         self.root_component.deactivate()
 
     def update_data_dict(self, source, new):
