@@ -1,7 +1,7 @@
 import libtcodpy as libtcod
 import tavern.utils.bus as bus
 from tavern.inputs.input import Inputs
-from tavern.receivers.navigators import Crosshair, Fillhair
+from tavern.receivers.navigators import Crosshair, Fillhair, Selection
 from tavern.utils.tcod_wrapper import Console
 from tavern.utils.geom import Frame
 from tavern.view.show_console import display, print_selection, display_text
@@ -26,6 +26,20 @@ def main():
 
 
 class Game(object):
+    def test_bootstrap(self):
+        def build_area(x, y, x2, y2):
+            area = Selection(x, y)
+            area.x2 = x2
+            area.y2 = y2
+            return area
+        # Build a storage area
+        bus.bus.publish({'action': 0,
+                         'area': build_area(2, 2, 5, 5)}, bus.WORLD_EVENT)
+        bus.bus.publish({'action': 2,
+                         'area': self.world_map.fill_from(3, 3),
+                         'complement': 1},
+                        bus.WORLD_EVENT)
+
     def __init__(self):
         self.context = Context()
         width = self.context.width
@@ -58,6 +72,7 @@ class Game(object):
         libtcod.sys_set_fps(60)
         counter = 0
         blink = False
+        self.test_bootstrap()
         while self.continue_game:
             counter += libtcod.sys_get_last_frame_length()
             if counter >= .2:
