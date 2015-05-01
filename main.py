@@ -78,7 +78,7 @@ class Game(object):
         display_list = [crea for crea in self.world_map.creatures
                         if self.receiver.scape.frame.contains(crea.x, crea.y)]
         display_creatures(self.world_console.console, display_list,
-                          self.state.navigator.global_to_local)
+                          self.cross.global_to_local)
 
     def display_text(self):
         libtcod.console_clear(self.text_console.console)
@@ -99,9 +99,13 @@ class Game(object):
 
     def loop(self):
         libtcod.sys_set_fps(40)
+        # Couting elapsed milliseconds
         counter = 0
+        # Flag : should the cursor be blinking ?
         blink = False
+        # Flag : should tick happen during this loop ?
         tick = False
+        # ONLY FOR TESTING PURPOSE, REMOVE
         self.test_bootstrap()
         while self.continue_game:
             counter += libtcod.sys_get_last_frame_length()

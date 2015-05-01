@@ -71,6 +71,12 @@ class Scape(object):
     def set_coords(self, selector):
         pass
 
+    def to_local(self):
+        return self.global_to_local(self.getX(), self.getY())
+
+    def global_to_local(self, x, y):
+        return x - self.scape.frame.x, y - self.scape.frame.y
+
 
 class Selection(object):
     def __init__(self, x, y):
@@ -138,12 +144,6 @@ class Crosshair(Scape):
     def change_frame(self, x, y):
         self.crosshair = (self.getX() + x, self.getY() + y)
         self.scape.change_focus(self)
-
-    def to_local(self):
-        return self.global_to_local(self.getX(), self.getY())
-
-    def global_to_local(self, x, y):
-        return x - self.scape.frame.x, y - self.scape.frame.y
 
     def rect_to_local(self):
         return (self.selection.x - self.scape.frame.x,
