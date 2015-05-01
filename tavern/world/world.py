@@ -3,6 +3,7 @@ from collections import defaultdict
 import libtcodpy as libtcod
 from tavern.utils import bus
 from tavern.world.actions import Actions
+from tavern.people.characters import Publican
 from tavern.world.objects import Functions, Rooms, rooms_to_name
 from tavern.world.store import StorageSystem
 
@@ -26,11 +27,16 @@ class WorldMap():
         self.store = StorageSystem()
         # Money
         self.cash = cash
+        # Creatures
+        self.creatures = []
         if not self.tiles:
             self.tiles = self._build_tiles()
 
     def __repr__(self):
         return "World of size %d, %d" % (self.width, self.height)
+
+    def add_creature(self, creature):
+        self.creatures.append(creature)
 
     def receive(self, event):
         event_data = event.get('data', {})
@@ -38,6 +44,8 @@ class WorldMap():
         action = event_data.get('action')
         if action == Actions.BUILD:
             self.apply_to_area(area, self.build)
+            if not self.creatures:
+                self.add_creature(Publican(area.x, area.y))
         elif action == Actions.PUT:
             self.apply_to_area(area, self.add_object,
                                event_data.get('complement'))
