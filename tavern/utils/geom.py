@@ -6,6 +6,10 @@ class Frame(object):
         self.w = w
         self.h = h
 
+    def contains(self, x, y):
+        return x >= self.x and x <= self.x + self.w\
+            and y >= self.y and y <= self.y + self.h
+
     def clip(self, other_frame):
         """Fit this frame in another, bigger one, making sure it doesn't
         "spill out".

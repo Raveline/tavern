@@ -5,6 +5,7 @@ from tavern.receivers.navigators import Crosshair, Fillhair, Selection
 from tavern.utils.tcod_wrapper import Console
 from tavern.utils.geom import Frame
 from tavern.view.show_console import display, print_selection, display_text
+from tavern.view.show_console import display_creatures
 from tavern.ui.state import GameState, MenuState, StoreMenuState
 from tavern.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
@@ -68,6 +69,28 @@ class Game(object):
         self.receiver = self.cross
         self.continue_game = True
 
+    def display_background(self):
+        display(self.clip_world(self.world_map.tiles,
+                                self.receiver.scape.frame),
+                self.world_console.console)
+
+    def display_characters(self):
+        display_list = [crea for crea in self.world_map.creatures
+                        if self.receiver.scape.frame.contains(crea.x, crea.y)]
+        display_creatures(self.world_console.console, display_list,
+                          self.state.navigator.global_to_local)
+
+    def display_text(self):
+        libtcod.console_clear(self.text_console.console)
+        self.informer.display()
+
+    def display_navigation(self, blink):
+        if self.state.navigator:
+            if not blink:
+                print_selection(self.world_console.console,
+                                self.state.navigator)
+            self.describe_area()
+
     def loop(self):
         libtcod.sys_set_fps(60)
         counter = 0
@@ -78,17 +101,11 @@ class Game(object):
             if counter >= .2:
                 blink = not blink
                 counter = 0
+            self.display_background()
+            self.display_characters()
+            self.display_text()
+            self.display_navigation(blink)
             self.inputs.poll()
-            display(self.clip_world(self.world_map.tiles,
-                                    self.receiver.scape.frame),
-                    self.world_console.console)
-            libtcod.console_clear(self.text_console.console)
-            self.informer.display()
-            if self.state.navigator:
-                if not blink:
-                    print_selection(self.world_console.console,
-                                    self.state.navigator)
-                self.describe_area()
             self.world_console.blit_on(0)
             self.text_console.blit_on(0)
             self.state.display(0)

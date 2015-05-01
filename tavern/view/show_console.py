@@ -35,6 +35,18 @@ def print_selection(console, receiver):
         print_char(console, 'x', x_, y_, libtcod.yellow)
 
 
+def display_creatures(console, creatures, func):
+    """Display on the console a list of creatures whose coords will be
+    put to local using the function given as parameter."""
+    for c in creatures:
+        x, y = func(c.x, c.y)
+        color_front = libtcod.white
+        color_back = libtcod.console_get_char_background(console, x, y)
+        to_display = c.char
+        libtcod.console_put_char_ex(console, x, y,
+                                    to_display, color_front, color_back)
+
+
 def display_text(console, text, x=0, y=0):
     libtcod.console_print_ex(console, x, y,
                              libtcod.BKGND_SET, libtcod.LEFT, text)
