@@ -327,11 +327,16 @@ class Ruler(Component):
         size_min = len(str(self.minimum))
         size_max = len(str(self.maximum))
         ruler_width = self.w - (size_min + size_max)
-        scale_unit = (self.maximum - self.minimum) / ruler_width
-        if scale_unit == 0:
-            selected_area = 1
+        max2 = ruler_width
+        min2 = size_min
+        dividor = (self.maximum - self.minimum)
+
+        if dividor != 0 and self.value > 0:
+            pos = (max2 - min2) / dividor * (self.value - self.maximum) + max2
+            pos = int(math.floor(pos))
         else:
-            selected_area = int(math.floor(self.value / scale_unit))
+            pos = 1
+
         if self.focused:
             front_color = libtcod.green
         else:
@@ -339,8 +344,8 @@ class Ruler(Component):
         display_text(console, str(self.minimum), self.x, self.y)
         display_text(console, str(self.maximum), self.w - size_max, self.y)
         begin_ruler = self.x + size_min
-        end_ruler = begin_ruler + selected_area
-        for x in range(begin_ruler, end_ruler + 1):
+        end_ruler = min(begin_ruler + pos, ruler_width)
+        for x in range(begin_ruler, end_ruler):
             libtcod.console_put_char_ex(console, x, self.y,
                                         libtcod.CHAR_BLOCK1, front_color,
                                         libtcod.black)
