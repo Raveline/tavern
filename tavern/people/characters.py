@@ -1,3 +1,5 @@
+import random
+from tavern.world.objects import Rooms
 from tavern.people.tasks import Walking, Wandering
 
 
@@ -28,19 +30,19 @@ class Creature(object):
 
     def tick(self, world_map):
         if not self.current_activity:
-            self.find_activity()
+            self.find_activity(world_map)
         if self.current_activity:
             self.current_activity.tick(world_map, self)
             if self.current_activity.finished:
                 self.current_activity = None
-            self.find_activity()
+            self.find_activity(world_map)
 
     def move(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
 
-    def find_activity(self):
+    def find_activity(self, world_map):
         # If we had a to-do list, go on the next item
         if self.activity_list:
             self.current_activity = self.activity_list[-1]
@@ -66,7 +68,15 @@ class Publican(Creature):
     def __str__(self):
         return ' --- '.join(["You", super(Publican, self).__str__()])
 
-    def find_activity(self):
-        super(Publican, self).find_activity()
-        if not self.current_activity:
+    def find_activity(self, world_map):
+        super(Publican, self).find_activity(world_map)
+        if self.current_activity:
+            return
+        # Am I in the tavern ?
+        tav = world_map.find_closest_room(self.x, self.y, Rooms.TAVERN)
+        in_tavern = tav and (self.x, self.y) in tav
+        if tav and not in_tavern:
+            x, y = random.choice(tav)
+            self.add_activity(Walking(world_map, self, x, y))
+        else:
             self.add_activity(Wandering())

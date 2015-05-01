@@ -98,7 +98,7 @@ class TavernMap():
         for (x, y) in tiles:
             tile = self.tiles[y][x]
             tile.room_type = room_type
-        self.rooms[room_type] += tiles
+        self.rooms[room_type].append(tiles)
 
     def add_object(self, y, x, object_type):
         def validate_object_location(tile, object_type):
@@ -275,7 +275,7 @@ class TavernMap():
 
     def path_from_to(self, x, y, x2, y2):
         path = libtcod.path_new_using_map(self.path_map)
-        libtcod.path_compute(x, y, x2, y2)
+        libtcod.path_compute(path, x, y, x2, y2)
         return path
 
     def __coords_to_distance(self, coords, x, y):
@@ -332,7 +332,7 @@ class Tile(object):
     def is_walkable(self):
         return not self.wall and self.built and\
             (not self.tile_object or
-             (self.tile_object and self.tile_object.blocks))
+             (self.tile_object and not self.tile_object.blocks))
 
     def is_separating_tile(self):
         return self.tile_object and\

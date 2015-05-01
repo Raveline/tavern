@@ -33,23 +33,20 @@ class Wandering(Task):
 class Walking(Task):
     def __init__(self, world_map, creature, x, y):
         super(Walking, self).__init__()
-        self.path = None
-        self.path_length = None
-
-    def set_path_to(self, world_map, x, y):
-        self.path = world_map.path_from_to(self.x, self.y, x, y)
+        self.path = world_map.path_from_to(creature.x, creature.y, x, y)
         self.path_length = libtcod.path_size(self.path)
 
     def tick(self, world_map, creature):
-        if self.tick_time >= self.path_length:
+        if self.tick_time < self.path_length:
             x, y = libtcod.path_get(self.path, self.tick_time)
-            if self.world_map.tiles[y][x].blocks:
+            if not world_map.tiles[y][x].is_walkable():
                 # Path is not walkable anymore !
                 self.end_path()
             else:
                 creature.move(x, y, 0)
         else:
             self.end_path()
+        super(Walking, self).tick(world_map, creature)
 
     def end_path(self):
         libtcod.path_delete(self.path)

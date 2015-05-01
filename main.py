@@ -9,6 +9,7 @@ from tavern.view.show_console import display_creatures
 from tavern.ui.state import GameState, MenuState, StoreMenuState
 from tavern.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
+from tavern.world.actions import door
 from tavern.world.context import Context
 from tavern.world.world import Tavern
 from tavern.world.actions import action_tree
@@ -39,6 +40,23 @@ class Game(object):
         bus.bus.publish({'action': 2,
                          'area': self.tavern.tavern_map.fill_from(3, 3),
                          'complement': 1},
+                        bus.WORLD_EVENT)
+        # build a corridor to a tavern room
+        bus.bus.publish({'action': 0,
+                         'area': build_area(5, 3, 9, 4)}, bus.WORLD_EVENT)
+        bus.bus.publish({'action': 1,
+                         'area': build_area(8, 3, 8, 3),
+                         'complement': door}, bus.WORLD_EVENT)
+        bus.bus.publish({'action': 1,
+                         'area': build_area(8, 4, 8, 4),
+                         'complement': door}, bus.WORLD_EVENT)
+
+        # Build the tavern room
+        bus.bus.publish({'action': 0,
+                         'area': build_area(9, 2, 12, 12)}, bus.WORLD_EVENT)
+        bus.bus.publish({'action': 2,
+                         'area': self.tavern.tavern_map.fill_from(9, 9),
+                         'complement': 0},
                         bus.WORLD_EVENT)
 
     def __init__(self):
@@ -109,7 +127,7 @@ class Game(object):
         self.test_bootstrap()
         while self.continue_game:
             counter += libtcod.sys_get_last_frame_length()
-            if counter >= .3:
+            if counter >= .4:
                 blink = not blink
                 tick = True
                 counter = 0
