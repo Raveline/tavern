@@ -1,5 +1,6 @@
 from __future__ import division
 
+import math
 import libtcodpy as libtcod
 from tavern.inputs.input import Inputs
 from tavern.utils import bus
@@ -330,14 +331,16 @@ class Ruler(Component):
         if scale_unit == 0:
             selected_area = 1
         else:
-            selected_area = int(self.value / scale_unit)
+            selected_area = int(math.floor(self.value / scale_unit))
         if self.focused:
             front_color = libtcod.green
         else:
             front_color = libtcod.white
         display_text(console, str(self.minimum), self.x, self.y)
         display_text(console, str(self.maximum), self.w - size_max, self.y)
-        for x in range(self.x + size_min, self.x + selected_area):
+        begin_ruler = self.x + size_min
+        end_ruler = begin_ruler + selected_area
+        for x in range(begin_ruler, end_ruler + 1):
             libtcod.console_put_char_ex(console, x, self.y,
                                         libtcod.CHAR_BLOCK1, front_color,
                                         libtcod.black)
