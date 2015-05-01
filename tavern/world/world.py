@@ -40,7 +40,7 @@ class WorldMap():
 
     def tick(self):
         for crea in self.creatures:
-            crea.wander(self)
+            crea.tick(self)
 
     def receive(self, event):
         event_data = event.get('data', {})

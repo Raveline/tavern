@@ -18,9 +18,16 @@ class Creature(object):
         self.z = 0
         self.current_activity = None
         self.color = color
+        # For how long did this creature kept doing the same thing ?
+        self.current_activity_tick_time = 0
 
     def set_activity(self, activity):
         self.activity = activity
+
+    def tick(self, world_map):
+        if self.current_activity_tick_time > 3:
+            self.wander(world_map)
+        self.current_activity_tick_time += 1
 
     def wander(self, world_map):
         x, y, z = random.choice(world_map.get_legit_moves_from(
