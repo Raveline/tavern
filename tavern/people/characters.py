@@ -3,8 +3,12 @@ import random
 
 class Creature(object):
     """The abstract notion of a living thing."""
+    COLOR_EMPLOYEE = 0
+    COLOR_ELVEN = 1
+    COLOR_DWARVES = 2
+    COLOR_HUMAN = 3
 
-    def __init__(self, char, level):
+    def __init__(self, char, level, color):
         # The character that will represent this creature
         self.char = char
         # The level of the creature, from 1 to 20
@@ -13,6 +17,7 @@ class Creature(object):
         self.y = 0
         self.z = 0
         self.current_activity = None
+        self.color = color
 
     def set_activity(self, activity):
         self.activity = activity
@@ -37,6 +42,6 @@ class Employee(Creature):
 class Publican(Creature):
     """The avatar of the player."""
     def __init__(self, x, y):
-        super(Publican, self).__init__('@', 1)
+        super(Publican, self).__init__('@', 1, Creature.COLOR_EMPLOYEE)
         self.x = x
         self.y = y
