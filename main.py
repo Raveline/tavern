@@ -10,7 +10,7 @@ from tavern.ui.state import GameState, MenuState, StoreMenuState
 from tavern.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
 from tavern.world.context import Context
-from tavern.world.world import WorldMap
+from tavern.world.world import Tavern
 from tavern.world.actions import action_tree
 from tavern.world import actions
 
@@ -37,7 +37,7 @@ class Game(object):
         bus.bus.publish({'action': 0,
                          'area': build_area(2, 2, 5, 5)}, bus.WORLD_EVENT)
         bus.bus.publish({'action': 2,
-                         'area': self.world_map.fill_from(3, 3),
+                         'area': self.tavern.tavern_map.fill_from(3, 3),
                          'complement': 1},
                         bus.WORLD_EVENT)
 
@@ -50,8 +50,8 @@ class Game(object):
         self.text_console = Console(0, height - 2, width, 2)
         self.inputs = Inputs(bus.bus)
 
-        self.world_map = WorldMap(MAP_WIDTH, MAP_HEIGHT)
-        bus.bus.subscribe(self.world_map, bus.WORLD_EVENT)
+        self.tavern = Tavern(MAP_WIDTH, MAP_HEIGHT)
+        bus.bus.subscribe(self.tavern, bus.WORLD_EVENT)
 
         self.informer = Informer(self.text_console)
         bus.bus.subscribe(self.informer, bus.FEEDBACK_EVENT)
@@ -59,7 +59,7 @@ class Game(object):
         self.world_frame = Frame(0, 0, MAP_WIDTH, MAP_HEIGHT)
         self.cross = Crosshair(width, height, self.world_frame)
         self.filler = Fillhair(width, height, self.world_frame,
-                               self.world_map.fill_from)
+                               self.tavern.tavern_map.fill_from)
         self.state = None
         self.change_state(GameState(action_tree, self.cross))
         bus.bus.subscribe(self, bus.GAME_EVENT)
@@ -70,12 +70,12 @@ class Game(object):
         self.continue_game = True
 
     def display_background(self):
-        display(self.clip_world(self.world_map.tiles,
+        display(self.clip_world(self.tavern.tavern_map.tiles,
                                 self.receiver.scape.frame),
                 self.world_console.console)
 
     def display_characters(self):
-        display_list = [crea for crea in self.world_map.creatures
+        display_list = [crea for crea in self.tavern.creatures
                         if self.receiver.scape.frame.contains(crea.x, crea.y)]
         display_creatures(self.world_console.console, display_list,
                           self.cross.global_to_local)
@@ -89,9 +89,9 @@ class Game(object):
             if not blink:
                 print_selection(self.world_console.console,
                                 self.state.navigator)
-            cre = self.world_map.creature_at(self.state.navigator.getX(),
-                                             self.state.navigator.getY(),
-                                             0)
+            cre = self.tavern.creature_at(self.state.navigator.getX(),
+                                          self.state.navigator.getY(),
+                                          0)
             if cre:
                 self.describe_creature(cre)
             else:
@@ -114,7 +114,7 @@ class Game(object):
                 tick = True
                 counter = 0
             if tick:
-                self.world_map.tick()
+                self.tavern.tick()
             self.display_background()
             self.display_characters()
             self.display_text()
@@ -134,7 +134,7 @@ class Game(object):
             data = tree.get('data')
             if tree.get('menu_type') == 'StoreMenu':
                 clazz = StoreMenuState
-                data = self.world_map
+                data = self.tavern
             return clazz({}, root_component, self.state, data)
         else:
             if tree.get('selector', actions.CROSSHAIR) == actions.CROSSHAIR:
@@ -159,7 +159,7 @@ class Game(object):
 
     def describe_area(self):
         x, y = self.state.navigator.getX(), self.state.navigator.getY()
-        tile = self.world_map.tiles[y][x]
+        tile = self.tavern.tavern_map.tiles[y][x]
         display_text(self.text_console.console, tile.describe(), 0, 0)
 
     def describe_creature(self, c):

@@ -10,7 +10,57 @@ from tavern.world.store import StorageSystem
 WOOD = 'wood'
 
 
-class WorldMap():
+class Tavern(object):
+    """The abstract entity of a tavern, meaning its physical
+    manifestation (the TavernMap), its financial situation (cash),
+    its storage situation (StorageSystem) the people inside (creatures).
+    """
+    def __init__(self, width, height, cash=1000, tiles=None):
+        self.tavern_map = TavernMap(width, height, tiles)
+        # Storage
+        self.store = StorageSystem()
+        # Money
+        self.cash = cash
+        # Creatures
+        self.creatures = []
+
+    def add_creature(self, creature):
+        self.creatures.append(creature)
+
+    def tick(self):
+        for crea in self.creatures:
+            crea.tick(self.tavern_map)
+
+    def receive(self, event):
+        event_data = event.get('data')
+        area = event_data.get('area')
+        action = event_data.get('action')
+        # Building tiles
+        if action == Actions.BUILD:
+            self.tavern_map.apply_to_area(area, self.tavern_map.build)
+            if not self.creatures:
+                self.add_creature(Publican(area.x, area.y))
+        # Putting objects
+        elif action == Actions.PUT:
+            self.tavern_map.apply_to_area(area, self.tavern_map.add_object,
+                                          event_data.get('complement'))
+        # Creating a room
+        elif action == Actions.ROOMS:
+            complement = event_data.get('complement')
+            self.tavern_map.add_room(area, complement)
+            if complement == Rooms.STORAGE:
+                self.store.add_cells(len(area))
+
+    def creature_at(self, x, y, z):
+        cre = [c for c in self.creatures
+               if c.x == x and c.y == y and c.z == z]
+        if cre:
+            return cre[0]
+
+
+class TavernMap():
+    """The map of a tavern, describing where things are,
+    its rooms, entry points, etc."""
     def __init__(self, width, height, cash=1000, tiles=None):
         # Dimensions
         self.width = width
@@ -23,46 +73,19 @@ class WorldMap():
         self.rooms = defaultdict(list)
         # Entry points to the tavern (main door)
         self.entry_points = []
-        # Storage
-        self.store = StorageSystem()
-        # Money
-        self.cash = cash
-        # Creatures
-        self.creatures = []
         if not self.tiles:
             self.tiles = self._build_tiles()
 
-    def __repr__(self):
-        return "World of size %d, %d" % (self.width, self.height)
-
-    def add_creature(self, creature):
-        self.creatures.append(creature)
-
-    def tick(self):
-        for crea in self.creatures:
-            crea.tick(self)
-
-    def receive(self, event):
-        event_data = event.get('data', {})
-        area = event_data.get('area')
-        action = event_data.get('action')
-        if action == Actions.BUILD:
-            self.apply_to_area(area, self.build)
-            if not self.creatures:
-                self.add_creature(Publican(area.x, area.y))
-        elif action == Actions.PUT:
-            self.apply_to_area(area, self.add_object,
-                               event_data.get('complement'))
-        elif action == Actions.ROOMS:
-            self.add_room(area, event_data.get('complement'))
+    def _build_tiles(self):
+        return [[Tile(x, y, self.background[y][x])
+                for x in range(self.width)]
+                for y in range(self.height)]
 
     def add_room(self, tiles, room_type):
         for (x, y) in tiles:
             tile = self.tiles[y][x]
             tile.room_type = room_type
         self.rooms[room_type] += tiles
-        if room_type == Rooms.STORAGE:
-            self.store.add_cells(len(tiles))
 
     def add_object(self, y, x, object_type):
         def validate_object_location(tile, object_type):
@@ -95,11 +118,6 @@ class WorldMap():
         if object_type and validate_object_location(tile, object_type):
             tile.tile_object = object_type
 
-    def _build_tiles(self):
-        return [[Tile(x, y, self.background[y][x])
-                for x in range(self.width)]
-                for y in range(self.height)]
-
     def fill_from(self, x, y):
         """
         Filler function, mostly used to handle room definition.
@@ -124,12 +142,6 @@ class WorldMap():
                 if fillable(tile_) and (t[0], t[1]) not in fill_list:
                     open_list.append((t[0], t[1]))
         return fill_list
-
-    def creature_at(self, x, y, z):
-        cre = [c for c in self.creatures
-               if c.x == x and c.y == y and c.z == z]
-        if cre:
-            return cre[0]
 
     def _build_background(self):
         """
@@ -241,6 +253,9 @@ class WorldMap():
                     (x, y + 1)]
                 if x2 >= 0 and x2 < self.width and
                 y2 >= 0 and y2 < self.height]
+
+    def __repr__(self):
+        return "Tavern map of size %d, %d" % (self.width, self.height)
 
 
 class Tile(object):
