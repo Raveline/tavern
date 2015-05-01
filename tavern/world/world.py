@@ -38,6 +38,10 @@ class WorldMap():
     def add_creature(self, creature):
         self.creatures.append(creature)
 
+    def tick(self):
+        for crea in self.creatures:
+            crea.wander(self)
+
     def receive(self, event):
         event_data = event.get('data', {})
         area = event_data.get('area')

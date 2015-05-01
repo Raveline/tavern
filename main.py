@@ -92,15 +92,19 @@ class Game(object):
             self.describe_area()
 
     def loop(self):
-        libtcod.sys_set_fps(60)
+        libtcod.sys_set_fps(40)
         counter = 0
         blink = False
+        tick = False
         self.test_bootstrap()
         while self.continue_game:
             counter += libtcod.sys_get_last_frame_length()
-            if counter >= .2:
+            if counter >= .3:
                 blink = not blink
+                tick = True
                 counter = 0
+            if tick:
+                self.world_map.tick()
             self.display_background()
             self.display_characters()
             self.display_text()
@@ -110,6 +114,7 @@ class Game(object):
             self.text_console.blit_on(0)
             self.state.display(0)
             libtcod.console_flush()
+            tick = False
 
     def build_state(self, tree):
         if tree.get('type', '') == 'menu':
