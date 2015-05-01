@@ -1,3 +1,9 @@
+import math
+
+
+def manhattan(x, y, x2, y2):
+    return math.abs((x2 - x) + (y2 - y))
+
 
 class Frame(object):
     def __init__(self, x, y, w, h):

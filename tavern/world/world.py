@@ -2,6 +2,7 @@ from collections import defaultdict
 
 import libtcodpy as libtcod
 from tavern.utils import bus
+from tavern.utils.geom import manhattan
 from tavern.world.actions import Actions
 from tavern.people.characters import Publican
 from tavern.world.objects import Functions, Rooms, rooms_to_name
@@ -77,6 +78,8 @@ class TavernMap():
             self.tiles = self._build_tiles()
         # Pathfinding utility
         self.path_map = self._build_path_map()
+        # A dict of all objects currently in use, by types
+        self.used_objects_coords = defaultdict(list)
 
     def _build_path_map(self):
         path_map = libtcod.map_new(self.width, self.height)
@@ -127,7 +130,8 @@ class TavernMap():
         tile = self.tiles[y][x]
         if object_type and validate_object_location(tile, object_type):
             tile.tile_object = object_type
-            libtcod.map_set_properties(self.path_map, x, y, False, tile.blocks)
+            libtcod.map_set_properties(self.path_map, x, y,
+                                       False, tile.is_walkable())
 
     def fill_from(self, x, y):
         """
@@ -273,6 +277,45 @@ class TavernMap():
         path = libtcod.path_new_using_map(self.path_map)
         libtcod.path_compute(x, y, x2, y2)
         return path
+
+    def __coords_to_distance(self, coords, x, y):
+        """
+        Given a set of coords, find the one that is the closest to x, y
+        (using manhattan distance).
+        """
+        return [manhattan(x, y, xc, yc) for xc, yc in coords]
+
+    def find_closest_room(self, x, y, room_type):
+        """Given x and y, find the closest room_type given
+        from this set of coords. Return all coords of the closest
+        room."""
+        rooms = self.rooms.get(room_type)
+        if not rooms:
+            return
+        elif len(rooms) > 1:
+            best_case = min(self.__coords_to_distance(rooms[0], x, y))
+            best_case_room = rooms[0]
+            for r in rooms[1:]:
+                case = min(self.__coords_to_distance(rooms[0], x, y))
+                if case < best_case:
+                    best_case = case
+                    best_case_room = r
+            return best_case_room
+        else:
+            return rooms[0]
+
+    def find_closest_object_to(self, x, y, object_type):
+        """Given an object type and a set of coords,
+        search for the object of this type the closest to
+        the set of coords. Return the coords of this object."""
+        unusable = self.used_objects_coords.get(object_type)
+        objects = [((x, y) for x in enumerate(lines)
+                    if self.tiles[y][x].object_type == object_type) and
+                   (x, y) not in unusable
+                   for idy, lines in enumerate(self.tiles)]
+        distances = self.__coords_to_distance(objects, x, y)
+        closest = min(distances)
+        return distances.index(closest)
 
 
 class Tile(object):
