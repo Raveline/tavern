@@ -22,11 +22,12 @@ rooms_to_name = {Rooms.TAVERN: 'Tavern',
 
 
 class TavernObject(object):
-    def __init__(self, name, function, price, character):
+    def __init__(self, name, function, price, character, blocks=False):
         self.function = function
         self.price = price
         self.character = character
         self.name = name
+        self.blocks = blocks
 
     def __repr__(self):
         return self.name

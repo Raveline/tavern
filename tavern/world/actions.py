@@ -23,17 +23,20 @@ chair = TavernObject('Chair',
 table = TavernObject('Table',
                      Functions.EATING,
                      0,
-                     '*')
+                     '*',
+                     True)
 
 counter = TavernObject('Counter',
                        Functions.ORDERING,
                        0,
-                       '+')
+                       '+',
+                       True)
 
 beam = TavernObject('Beam',
                     Functions.SUPPORT,
                     0,
-                    '^')
+                    '^',
+                    True)
 
 objects_tree = {'d': {'display': 'Door', 'subobject': door},
                 'c': {'display': 'Chair', 'subobject': chair},

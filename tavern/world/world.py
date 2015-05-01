@@ -180,13 +180,8 @@ class WorldMap():
                 return True
         return False
 
-    def get_neighboring_for(self, x, y):
-        """
-        Given a x, y coords get the 8 connected coords,
-        orthogonally or diagonnally, unless they are
-        outside the map.
-        """
-        return [self.tiles[y2][x2] for x2, y2
+    def get_neighboring_coords_for(self, x, y):
+        return [(x2, y2) for x2, y2
                 in [(x - 1, y - 1),
                     (x, y - 1),
                     (x + 1, y - 1),
@@ -197,6 +192,23 @@ class WorldMap():
                     (x + 1, y + 1)]
                 if x2 >= 0 and x2 < self.width and
                 y2 >= 0 and y2 < self.height]
+
+    def get_legit_moves_from(self, x, y, z):
+        """
+        Return the tiles one can move from x, y and z.
+        """
+        return [(x2, y2, z) for (x2, y2) in
+                self.get_neighboring_coords_for(x, y)
+                if self.tiles[y2][x2].is_walkable()]
+
+    def get_neighboring_for(self, x, y):
+        """
+        Given a x, y coords get the 8 connected coords,
+        orthogonally or diagonnally, unless they are
+        outside the map.
+        """
+        return [self.tiles[y2][x2] for x2, y2
+                in self.get_neighboring_coords_for(x, y)]
 
     def get_immediate_neighboring_coords(self, x, y):
         """
@@ -223,6 +235,11 @@ class Tile(object):
         self.background = background
         self.tile_object = None
         self.room_type = None
+
+    def is_walkable(self):
+        return not self.wall and self.built and\
+            (not self.tile_object or
+             (self.tile_object and self.tile_object.blocks))
 
     def is_separating_tile(self):
         return self.tile_object and\
