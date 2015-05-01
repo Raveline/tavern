@@ -75,6 +75,16 @@ class TavernMap():
         self.entry_points = []
         if not self.tiles:
             self.tiles = self._build_tiles()
+        # Pathfinding utility
+        self.path_map = self._build_path_map()
+
+    def _build_path_map(self):
+        path_map = libtcod.map_new(self.width, self.height)
+        for idy, line in enumerate(self.tiles):
+            for idx, tile in enumerate(line):
+                libtcod.map_set_properties(path_map, idx, idy, False,
+                                           tile.is_walkable())
+        return path_map
 
     def _build_tiles(self):
         return [[Tile(x, y, self.background[y][x])
@@ -117,6 +127,7 @@ class TavernMap():
         tile = self.tiles[y][x]
         if object_type and validate_object_location(tile, object_type):
             tile.tile_object = object_type
+            libtcod.map_set_properties(self.path_map, x, y, False, tile.blocks)
 
     def fill_from(self, x, y):
         """
@@ -182,6 +193,7 @@ class TavernMap():
         tile.wall = False
         tile.material = WOOD
         self.set_neighboring_tiles_to_wall(x, y)
+        libtcod.map_set_properties(self.path_map, x, y, False, True)
 
     def set_neighboring_tiles_to_wall(self, x, y):
         """
@@ -256,6 +268,11 @@ class TavernMap():
 
     def __repr__(self):
         return "Tavern map of size %d, %d" % (self.width, self.height)
+
+    def path_from_to(self, x, y, x2, y2):
+        path = libtcod.path_new_using_map(self.path_map)
+        libtcod.path_compute(x, y, x2, y2)
+        return path
 
 
 class Tile(object):

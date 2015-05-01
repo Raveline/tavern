@@ -1,4 +1,4 @@
-import random
+from tavern.people.tasks import Walking, Wandering
 
 
 class Creature(object):
@@ -17,45 +17,46 @@ class Creature(object):
         self.y = 0
         self.z = 0
         self.current_activity = None
+        self.activity_list = []
         self.color = color
-        # For how long did this creature kept doing the same thing ?
-        self.current_activity_tick_time = 0
 
     def set_activity(self, activity):
-        self.activity = activity
+        if self.activity_list:
+            self.activity_list.append(activity)
+        else:
+            self.current_activity = activity
 
     def tick(self, world_map):
-        if self.current_activity_tick_time > 3:
-            self.wander(world_map)
-            self.current_activity_tick_time = 0
-        self.current_activity_tick_time += 1
-
-    def wander(self, world_map):
-        if random.randint(0, 2) == 0:
-            x, y, z = random.choice(world_map.get_legit_moves_from(
-                self.x, self.y, self.z))
-            self.move(x, y, z)
+        if not self.current_activity:
+            self.find_activity()
+        if self.current_activity:
+            self.current_activity.tick(world_map, self)
+            if self.current_activity.finished:
+                self.current_activity = None
+            self.find_activity()
 
     def move(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
 
+    def find_activity(self):
+        # If we had a to-do list, go on the next item
+        if self.activity_list:
+            self.current_activity = self.activity_list[-1]
+            self.activity_list = self.activity_list[:-1]
 
-class Employee(Creature):
-    """An employee of the Tavern."""
-    IDLE = 0
-    SERVING_BAR = 1
+    def add_activity(self, activity):
+        self.activity_list.append(activity)
 
     def __str__(self):
-        return activity_names[self.current_activity]
+        if self.current_activity:
+            return str(self.current_activity)
+        else:
+            return "Doing nothing"
 
-activity_names = {None: 'Doing nothing',
-                  Employee.IDLE: 'Resting',
-                  Employee.SERVING_BAR: 'Serving customers'}
 
-
-class Publican(Employee):
+class Publican(Creature):
     """The avatar of the player."""
     def __init__(self, x, y):
         super(Publican, self).__init__('@', 1, Creature.COLOR_EMPLOYEE)
@@ -64,3 +65,8 @@ class Publican(Employee):
 
     def __str__(self):
         return ' --- '.join(["You", super(Publican, self).__str__()])
+
+    def find_activity(self):
+        super(Publican, self).find_activity()
+        if not self.current_activity:
+            self.add_activity(Wandering())
