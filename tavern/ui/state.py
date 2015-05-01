@@ -149,7 +149,7 @@ class StoreMenuState(MenuState):
                 'obj': goods,
                 'minimum': minimum,
                 'current': quantity,
-                'maximum': min(storable, affordable)}
+                'maximum': quantity + min(storable, affordable)}
         data['storage'] = str(available_room)
         data['cash'] = str(cash)
         if not self.initial_data:
