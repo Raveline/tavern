@@ -125,6 +125,12 @@ class WorldMap():
                     open_list.append((t[0], t[1]))
         return fill_list
 
+    def creature_at(self, x, y, z):
+        cre = [c for c in self.creatures
+               if c.x == x and c.y == y and c.z == z]
+        if cre:
+            return cre[0]
+
     def _build_background(self):
         """
         Make a background noise that will more or less look like

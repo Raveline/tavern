@@ -89,7 +89,13 @@ class Game(object):
             if not blink:
                 print_selection(self.world_console.console,
                                 self.state.navigator)
-            self.describe_area()
+            cre = self.world_map.creature_at(self.state.navigator.getX(),
+                                             self.state.navigator.getY(),
+                                             0)
+            if cre:
+                self.describe_creature(cre)
+            else:
+                self.describe_area()
 
     def loop(self):
         libtcod.sys_set_fps(40)
@@ -151,6 +157,9 @@ class Game(object):
         x, y = self.state.navigator.getX(), self.state.navigator.getY()
         tile = self.world_map.tiles[y][x]
         display_text(self.text_console.console, tile.describe(), 0, 0)
+
+    def describe_creature(self, c):
+        display_text(self.text_console.console, str(c), 0, 0)
 
     def receive(self, event):
         event_data = event.get('data')

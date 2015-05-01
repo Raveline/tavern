@@ -27,12 +27,14 @@ class Creature(object):
     def tick(self, world_map):
         if self.current_activity_tick_time > 3:
             self.wander(world_map)
+            self.current_activity_tick_time = 0
         self.current_activity_tick_time += 1
 
     def wander(self, world_map):
-        x, y, z = random.choice(world_map.get_legit_moves_from(
-            self.x, self.y, self.z))
-        self.move(x, y, z)
+        if random.randint(0, 2) == 0:
+            x, y, z = random.choice(world_map.get_legit_moves_from(
+                self.x, self.y, self.z))
+            self.move(x, y, z)
 
     def move(self, x, y, z):
         self.x = x
@@ -45,10 +47,20 @@ class Employee(Creature):
     IDLE = 0
     SERVING_BAR = 1
 
+    def __str__(self):
+        return activity_names[self.current_activity]
 
-class Publican(Creature):
+activity_names = {None: 'Doing nothing',
+                  Employee.IDLE: 'Resting',
+                  Employee.SERVING_BAR: 'Serving customers'}
+
+
+class Publican(Employee):
     """The avatar of the player."""
     def __init__(self, x, y):
         super(Publican, self).__init__('@', 1, Creature.COLOR_EMPLOYEE)
         self.x = x
         self.y = y
+
+    def __str__(self):
+        return ' --- '.join(["You", super(Publican, self).__str__()])
