@@ -4,12 +4,19 @@ import tavern.world.world as world
 materials_to_colors = {world.WOOD: libtcod.darker_sepia}
 
 
-def __get_color_scale():
-    return libtcod.color_gen_map([libtcod.dark_grey, libtcod.darkest_grey],
-                                 [0, 200])
+def __get_color_scale(first, last, size):
+    return libtcod.color_gen_map([first, last],
+                                 [0, size])
 
 
-map_background_scale = __get_color_scale()
+map_background_scale = __get_color_scale(libtcod.dark_grey,
+                                         libtcod.darkest_grey, 200)
+elvens_background_scale = __get_color_scale(libtcod.lighter_green,
+                                            libtcod.darker_green, 20)
+dwarvens_background_scale = __get_color_scale(libtcod.lighter_yellow,
+                                              libtcod.darker_yellow, 20)
+humans_background_scale = __get_color_scale(libtcod.lighter_azure,
+                                            libtcod.darker_azure, 20)
 
 
 def display(grid, console):
