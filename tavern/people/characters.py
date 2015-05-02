@@ -1,6 +1,6 @@
 import random
-from tavern.world.objects import Rooms
-from tavern.people.tasks import Walking, Wandering
+from tavern.world.objects import Rooms, Functions
+from tavern.people.tasks import Walking, Wandering, Serving
 
 
 class Creature(object):
@@ -23,7 +23,7 @@ class Creature(object):
         self.color = color
 
     def set_activity(self, activity):
-        if self.activity_list:
+        if self.current_activity is not None:
             self.activity_list.append(activity)
         else:
             self.current_activity = activity
@@ -33,9 +33,15 @@ class Creature(object):
             self.find_activity(world_map)
         if self.current_activity:
             self.current_activity.tick(world_map, self)
+            if self.current_activity.failed:
+                print("TASK FAILED !!!")
+                # Empty the activity list
+                self.activity_list = []
+                self.current_activity.finished = True
             if self.current_activity.finished:
+                print("Finished !")
                 self.current_activity = None
-            self.find_activity(world_map)
+                self.find_activity(world_map)
 
     def move(self, x, y, z):
         self.x = x
@@ -44,6 +50,7 @@ class Creature(object):
 
     def find_activity(self, world_map):
         # If we had a to-do list, go on the next item
+        print("Looking for activity in %s" % self.current_activity)
         if self.activity_list:
             self.current_activity = self.activity_list[-1]
             self.activity_list = self.activity_list[:-1]
@@ -78,5 +85,20 @@ class Publican(Creature):
         if tav and not in_tavern:
             x, y = random.choice(tav)
             self.add_activity(Walking(world_map, self, x, y))
-        else:
-            self.add_activity(Wandering())
+        elif in_tavern:
+            # We want to find a counter to attend
+            counter = world_map.find_closest_object(self.x, self.y,
+                                                    Functions.ORDERING,
+                                                    True)
+            if counter:
+                print("FOUND COUNTER. GOING FOR IT")
+                # We have a counter ! Now let us find the tile that is the
+                # closest to a wall around this counter.
+                x, y = world_map.find_closest_to_wall_neighbour(counter[0],
+                                                                counter[1])
+                print("Going to %d, %d" % (x, y))
+                self.set_activity(Walking(world_map, self, x, y))
+                self.set_activity(Serving(self, Functions.ORDERING))
+            else:
+                print("COULD NOT FIND COUNTER; WILL WANDER")
+                self.add_activity(Wandering())

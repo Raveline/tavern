@@ -36,8 +36,11 @@ class Tavern(object):
         event_data = event.get('data')
         area = event_data.get('area')
         action = event_data.get('action')
+        command = event_data.get('command')
+        if command:
+            command.execute(self)
         # Building tiles
-        if action == Actions.BUILD:
+        elif action == Actions.BUILD:
             self.tavern_map.apply_to_area(area, self.tavern_map.build)
             if not self.creatures:
                 self.add_creature(Publican(area.x, area.y))
@@ -80,6 +83,8 @@ class TavernMap():
         self.path_map = self._build_path_map()
         # A dict of all objects currently in use, by types
         self.used_objects_coords = defaultdict(list)
+        # A dict of all objects currently being attended to by employees
+        self.attended_objects_coords = defaultdict(list)
 
     def _build_path_map(self):
         path_map = libtcod.map_new(self.width, self.height)
@@ -304,18 +309,65 @@ class TavernMap():
         else:
             return rooms[0]
 
-    def find_closest_object_to(self, x, y, object_type):
+    def find_closest_to_wall_neighbour(self, x, y):
+        """Given a tile a coordinates x,y, find an empty neighbour
+        that is the closest to a wall. Returns a set of coordinate.
+        (This is used for pub counters)."""
+        legit = [(xc, yc) for xc, yc
+                 in self.get_immediate_neighboring_coords(x, y)
+                 if self.tiles[yc][xc].is_walkable()]
+        if not legit:
+            return None
+        potentials = {}
+        for px, py in legit:
+            dirx, diry = (px - x), (py - y)
+            potentials[(px, py)] = self.distance_to_a_wall(px, py, dirx, diry)
+        minimum = potentials.values()[0]
+        result = potentials.keys()[0]
+        for k, v in potentials.iteritems():
+            if v < minimum:
+                minimum = v
+                result = k
+        return result
+
+    def distance_to_a_wall(self, x, y, dirx, diry):
+        """Count the distance in tiles to a wall from the coords
+        x, y going in the direction dirx, diry."""
+        if self.tiles[y][x].wall or not self.tiles[y][x].built:
+            return 0
+        found_wall = False
+        counter = 0
+        while not found_wall:
+            x += dirx
+            y += diry
+            if self.tiles[y][x].wall:
+                return counter
+            counter += 1
+
+    def find_closest_object(self, x, y, function, to_attend=True):
         """Given an object type and a set of coords,
         search for the object of this type the closest to
-        the set of coords. Return the coords of this object."""
-        unusable = self.used_objects_coords.get(object_type)
-        objects = [((x, y) for x in enumerate(lines)
-                    if self.tiles[y][x].object_type == object_type) and
-                   (x, y) not in unusable
-                   for idy, lines in enumerate(self.tiles)]
-        distances = self.__coords_to_distance(objects, x, y)
-        closest = min(distances)
-        return distances.index(closest)
+        the set of coords. We will not return the coordinates
+        of an object in use.
+        To differentiate between USAGE by patron, and ATTENDING by
+        employees, the last parameter gives a flag to identify
+        if we're looking from the point of view of a patron or the
+        point of view of an employee.
+        Return the coords of this object."""
+        if to_attend:
+            unusable = self.attended_objects_coords[function]
+        else:
+            unusable = self.used_objects_coords[function]
+        objects = []
+        for idy, line in enumerate(self.tiles):
+            for idx, tile in enumerate(line):
+                if tile.has_object_with_function(function)\
+                        and tile not in unusable:
+                    objects.append((idx, idy))
+        if objects:
+            distances = self.__coords_to_distance(objects, x, y)
+            closest = min(distances)
+            return objects[distances.index(closest)]
 
 
 class Tile(object):
@@ -334,9 +386,11 @@ class Tile(object):
             (not self.tile_object or
              (self.tile_object and not self.tile_object.blocks))
 
+    def has_object_with_function(self, function):
+        return self.tile_object and self.tile_object.function == function
+
     def is_separating_tile(self):
-        return self.tile_object and\
-            self.tile_object.function == Functions.ROOM_SEPARATOR
+        return self.has_object_with_function(Functions.ROOM_SEPARATOR)
 
     def describe(self):
         return ''.join([self.describe_nature(),
