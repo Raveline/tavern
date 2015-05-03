@@ -86,6 +86,7 @@ supplies_menu = {'type': 'RootComponent',
                       }]}
 
 action_tree = {'name': 'Main mode',
+               'pauses_game': False,
                'b': {'action': Actions.BUILD,
                      'name': 'Building mode',
                      'selector': CROSSHAIR,

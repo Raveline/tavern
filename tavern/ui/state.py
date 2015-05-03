@@ -14,6 +14,8 @@ class GameState(object):
         self.name = self.tree.get('name', '')
         self.action = self.tree.get('action', '')
         self.sub_object = None
+        # By default, every state pauses game but the main one
+        self.pauses_game = state_tree.get('pauses_game', True)
 
     def deactivate(self):
         pass

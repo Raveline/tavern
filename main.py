@@ -151,7 +151,7 @@ class Game(object):
                 blink = not blink
                 tick = True
                 counter = 0
-            if tick:
+            if tick and not self.state.pauses_game:
                 self.tavern.tick()
                 self.customers.tick()
             self.display_background()
