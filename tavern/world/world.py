@@ -28,12 +28,18 @@ class Tavern(object):
     def add_creature(self, creature):
         self.creatures.append(creature)
 
+    def remove_creature(self, creature):
+        self.creatures.remove(creature)
+
     def tick(self):
         for crea in self.creatures:
             crea.tick(self.tavern_map)
 
     def receive(self, event):
         event_data = event.get('data')
+        if event.get('type') == bus.CUSTOMER_EVENT:
+            self.add_creature(event_data.get('customer'))
+            return
         area = event_data.get('area')
         action = event_data.get('action')
         command = event_data.get('command')
@@ -85,6 +91,31 @@ class TavernMap():
         self.used_objects_coords = defaultdict(list)
         # A dict of all objects currently being attended to by employees
         self.attended_objects_coords = defaultdict(list)
+        # A dict of all objects attended to, but currently taken
+        self.busy_attended_objects_coords = defaultdict(list)
+        # Seats (coords) that can be used
+        self.available_seating = []
+        # Seats (coords) that cannot be used because they are taken
+        self.used_seating = []
+
+    def can_serve_at(self, service, x, y):
+        return (x, y) in self.attended_objects_coords.get(service)
+
+    def take_seat(self, x, y):
+        self.used_seating.append((x, y))
+
+    def take_busy_attended(self, function, x, y):
+        self.attended_objects_coords.get(function).remove((x, y))
+        self.busy_attended_objects_coords.get(function).append((x, y))
+
+    def free_busy_attended(self, function, x, y):
+        self.busy_attended_objects_coords.get(function).remove((x, y))
+        self.attended_objects_coords.get(function).append((x, y))
+
+    def open_seat(self, x, y):
+        if (x, y) in self.used_seating:
+            self.used_seating.remove((x, y))
+        self.available_seating.append((x, y))
 
     def _build_path_map(self):
         path_map = libtcod.map_new(self.width, self.height)
@@ -112,6 +143,8 @@ class TavernMap():
                     if self.tiles[y][x].wall:
                         # Wall. Door is only allowed if on exterior wall
                         if self.is_an_outside_wall(x, y):
+                            self.tiles[y][x].wall = False
+                            self.tiles[y][x].built = True
                             self.entry_points.append((x, y))
                             return True
                         else:
@@ -137,6 +170,8 @@ class TavernMap():
             tile.tile_object = object_type
             libtcod.map_set_properties(self.path_map, x, y,
                                        False, tile.is_walkable())
+            if object_type.function == Functions.SITTING:
+                self.open_seat(x, y)
 
     def fill_from(self, x, y):
         """
@@ -285,10 +320,19 @@ class TavernMap():
 
     def __coords_to_distance(self, coords, x, y):
         """
-        Given a set of coords, find the one that is the closest to x, y
+        Given a list of coords, compute the distances to a set of (x, y)
         (using manhattan distance).
         """
         return [manhattan(x, y, xc, yc) for xc, yc in coords]
+
+    def find_closest_in(self, coords, x, y):
+        """
+        Given a list of coords, find and return the one that is the closest
+        to the set (x, y).
+        """
+        distances = self.__coords_to_distance(coords, x, y)
+        closest = min(distances)
+        return coords[distances.index(closest)]
 
     def find_closest_room(self, x, y, room_type):
         """Given x and y, find the closest room_type given
@@ -356,18 +400,21 @@ class TavernMap():
         Return the coords of this object."""
         if to_attend:
             unusable = self.attended_objects_coords[function]
+            inlist = self.list_tiles_with_objects(function, unusable)
         else:
-            unusable = self.used_objects_coords[function]
-        objects = []
+            inlist = self.attended_objects_coords[function]
+        if inlist:
+            return self.find_closest_in(inlist, x, y)
+
+    def list_tiles_with_objects(self, function, exclusion_list=None):
+        objects_coords = []
         for idy, line in enumerate(self.tiles):
             for idx, tile in enumerate(line):
-                if tile.has_object_with_function(function)\
-                        and tile not in unusable:
-                    objects.append((idx, idy))
-        if objects:
-            distances = self.__coords_to_distance(objects, x, y)
-            closest = min(distances)
-            return objects[distances.index(closest)]
+                if tile.has_object_with_function(function):
+                    if exclusion_list and (idx, idy) in exclusion_list:
+                            continue
+                    objects_coords.append((idx, idy))
+        return objects_coords
 
 
 class Tile(object):

@@ -42,6 +42,13 @@ class StorageSystem(object):
                                    'Not enough wares in storage.'
                                    % (quantity, str(goods)))
 
+    def available_products_of_kind(self, goods_type):
+        result = []
+        for k, v in self.store.iteritems():
+            if k.goods_type == goods_type and v > 0:
+                result.append(k)
+        return result
+
     def amount_of(self, goods):
         """
         How much of <goods> to we have in store ?

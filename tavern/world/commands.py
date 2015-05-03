@@ -5,7 +5,7 @@ class Command(object):
         pass
 
 
-class AttendToCommand(object):
+class AttendToCommand(Command):
     """This command let us known when an employee has begun or stopped
     working at a given post. We update the world accordingly."""
     def __init__(self, nature, position, stop=False):
@@ -15,17 +15,52 @@ class AttendToCommand(object):
 
     def execute(self, world):
         tav = world.tavern_map
-        to_tag = [(x, y) for (x, y) in
-                  tav.get_immediate_neighboring_coords(self.x, self.y)
-                  if tav.tiles[y][x].has_object_with_function(self.nature)]
-        for x, y in to_tag:
-            if self.stop:
-                tav.attended_objects_coords[self.nature].remove((x, y))
-            else:
-                tav.attended_objects_coords[self.nature].append((x, y))
+        # A serving employee is attending to one or more object
+        # (e.g., a counter). We need to flag the tiles NEXT to this object
+        # as places where the service is available.
+        tiles_next_to = tav.get_immediate_neighboring_coords(self.x, self.y)
+        for x, y in tiles_next_to:
+            if tav.tiles[y][x].has_object_with_function(self.nature):
+                print("Current : %d, %d" % (x, y))
+                dir_x = x - self.x
+                dir_y = y - self.y
+                print("Direction : %d, %d" % (dir_x, dir_y))
+                to_serve_x = x + dir_x
+                to_serve_y = y + dir_y
+                if tav.tiles[to_serve_y][to_serve_x].is_walkable():
+                    if self.stop:
+                        tav.attended_objects_coords[self.nature].\
+                            remove((to_serve_x, to_serve_y))
+                    else:
+                        tav.attended_objects_coords[self.nature].\
+                            append((to_serve_x, to_serve_y))
 
 
-class BuyCommand(object):
+class OrderCommand(Command):
+    def __init__(self, drink_type, creature):
+        self.drink_type = drink_type
+        self.creature = creature
+
+    def execute(self, world):
+        # For now, we'll take the first available and affordable drink
+        for drink in world.store.available_products_of_kind(self.drink_type):
+            if drink.selling_price <= self.creature.money:
+                world.store.take(drink, 1)
+                world.cash += drink.selling_price
+                self.creature.money -= drink.selling_price
+                self.creature.has_a_drink = True
+                return
+
+
+class CreatureExit(Command):
+    def __init__(self, creature):
+        self.creature = creature
+
+    def execute(self, world):
+        world.remove_creature(self.creature)
+
+
+class BuyCommand(Command):
     def __init__(self, goods, quantity, cancel=False):
         self.goods = goods
         self.quantity = abs(quantity)

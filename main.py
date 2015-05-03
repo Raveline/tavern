@@ -9,7 +9,8 @@ from tavern.view.show_console import display_creatures
 from tavern.ui.state import GameState, MenuState, StoreMenuState
 from tavern.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
-from tavern.world.actions import door
+from tavern.world.customers import Customers
+from tavern.world.actions import door, counter, chair
 from tavern.world.context import Context
 from tavern.world.world import Tavern
 from tavern.world.actions import action_tree
@@ -58,6 +59,18 @@ class Game(object):
                          'area': self.tavern.tavern_map.fill_from(9, 9),
                          'complement': 0},
                         bus.WORLD_EVENT)
+        bus.bus.publish({'action': 1,
+                         'area': build_area(11, 1, 11, 1),
+                         'complement': door}, bus.WORLD_EVENT)
+        bus.bus.publish({'action': 1,
+                         'area': build_area(9, 11, 9, 11),
+                         'complement': counter},
+                        bus.WORLD_EVENT)
+        bus.bus.publish({'action': 1,
+                         'area': build_area(9, 6, 9, 6),
+                         'complement': chair},
+                        bus.WORLD_EVENT)
+        self.customers.tick_counter += 120
 
     def __init__(self):
         self.context = Context()
@@ -70,6 +83,8 @@ class Game(object):
 
         self.tavern = Tavern(MAP_WIDTH, MAP_HEIGHT)
         bus.bus.subscribe(self.tavern, bus.WORLD_EVENT)
+        bus.bus.subscribe(self.tavern, bus.CUSTOMER_EVENT)
+        self.customers = Customers(self.tavern)
 
         self.informer = Informer(self.text_console)
         bus.bus.subscribe(self.informer, bus.FEEDBACK_EVENT)
@@ -133,6 +148,7 @@ class Game(object):
                 counter = 0
             if tick:
                 self.tavern.tick()
+                self.customers.tick()
             self.display_background()
             self.display_characters()
             self.display_text()
@@ -178,7 +194,8 @@ class Game(object):
     def describe_area(self):
         x, y = self.state.navigator.getX(), self.state.navigator.getY()
         tile = self.tavern.tavern_map.tiles[y][x]
-        display_text(self.text_console.console, tile.describe(), 0, 0)
+        text = "(%d, %d) - %s" % (x, y, tile.describe())
+        display_text(self.text_console.console, text, 0, 0)
 
     def describe_creature(self, c):
         display_text(self.text_console.console, str(c), 0, 0)

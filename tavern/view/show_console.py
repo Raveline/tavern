@@ -1,5 +1,6 @@
 import libtcodpy as libtcod
 import tavern.world.world as world
+from tavern.people.characters import Creature
 
 materials_to_colors = {world.WOOD: libtcod.darker_sepia}
 
@@ -17,6 +18,10 @@ dwarvens_background_scale = __get_color_scale(libtcod.lighter_yellow,
                                               libtcod.darker_yellow, 20)
 humans_background_scale = __get_color_scale(libtcod.lighter_azure,
                                             libtcod.darker_azure, 20)
+
+race_to_scale = {Creature.ELVEN: elvens_background_scale,
+                 Creature.DWARVES: dwarvens_background_scale,
+                 Creature.HUMAN: humans_background_scale}
 
 
 def display(grid, console):
@@ -40,7 +45,11 @@ def display_creatures(console, creatures, func):
     put to local using the function given as parameter."""
     for c in creatures:
         x, y = func(c.x, c.y)
-        color_front = libtcod.white
+        if c.race == 0:
+            color_front = libtcod.white
+        else:
+            color_picker = race_to_scale[c.race]
+            color_front = color_picker[c.level]
         color_back = libtcod.console_get_char_background(console, x, y)
         to_display = c.char
         libtcod.console_put_char_ex(console, x, y,
