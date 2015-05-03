@@ -1,3 +1,6 @@
+from tavern.utils import bus
+
+
 class Command(object):
     """A simple implementation of Command pattern.
     """
@@ -41,13 +44,19 @@ class OrderCommand(Command):
 
     def execute(self, world):
         # For now, we'll take the first available and affordable drink
-        for drink in world.store.available_products_of_kind(self.drink_type):
+        drinks = world.store.available_products_of_kind(self.drink_type)
+        for drink in drinks:
             if drink.selling_price <= self.creature.money:
                 world.store.take(drink, 1)
                 world.cash += drink.selling_price
                 self.creature.money -= drink.selling_price
                 self.creature.has_a_drink = True
+                bus.bus.publish({'status': 'drinks',
+                                 'flag': True}, bus.STATUS_EVENT)
                 return
+        if not drinks:
+            bus.bus.publish({'status': 'drinks',
+                             'flag': False}, bus.STATUS_EVENT)
 
 
 class CreatureExit(Command):

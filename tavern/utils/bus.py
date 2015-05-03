@@ -1,20 +1,22 @@
 from collections import defaultdict
 
-INPUT_EVENT = 0
-AREA_SELECT = 1
-PLAYER_ACTION = 2
-FEEDBACK_EVENT = 3
-GAME_EVENT = 4
-WORLD_EVENT = 5
-NEW_STATE = 6
-PREVIOUS_STATE = 7
-MENU_EVENT = 8
-MENU_MODEL_EVENT = 9
-CUSTOMER_EVENT = 10
+INPUT_EVENT = 0         # Input pressed
+AREA_SELECT = 1         # The player selected an area
+PLAYER_ACTION = 2       # Any other action from the player
+FEEDBACK_EVENT = 3      # Simple feedback from the game, a bit like a log
+GAME_EVENT = 4          # General game-related event
+WORLD_EVENT = 5         # General event worldwide
+NEW_STATE = 6           # Event to push a new game state
+PREVIOUS_STATE = 7      # Event to request the previous game state
+MENU_EVENT = 8          # Event to handle user input in menu
+MENU_MODEL_EVENT = 9    # Event to handle model change in menu
+CUSTOMER_EVENT = 10     # Event relative to customers
+STATUS_EVENT = 11       # Event that should raise status flags
 
 EVENTS_NAMES = ['Input event', 'Area select', 'Player action', 'Feedback event',
                 'Game event', 'World event', 'New state', 'Previous state',
-                'Menu event', 'Menu model event', 'Customer event']
+                'Menu event', 'Menu model event', 'Customer event',
+                'Status event']
 
 
 class Bus(object):

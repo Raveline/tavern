@@ -16,14 +16,28 @@ class Status(object):
         self.console = console
 
     def receive(self, event):
-        pass
+        event_data = event.get('data')
+        if event_data.get('status') == 'drinks':
+            if event_data.get('flag') == True:
+                self.remove_flag(StatusFlags.NO_BASICS_DRINKS)
+            else:
+                self.add_flag(StatusFlags.NO_BASICS_DRINKS)
+
+    def add_flag(self, flag):
+        if flag not in self.flags:
+            self.flags.append(flag)
+
+    def remove_flag(self, flag):
+        if flag in self.flags:
+            self.flags.remove(flag)
 
     def display(self):
         libtcod.console_clear(self.console.console)
         display_text(self.console.console, self.current_state, 0, 0)
         display_text(self.console.console, ("Cash : %s" % self.money), 50, 0)
         for idx, f in enumerate(self.flags):
-            display_highlighted_text(self.console.console, f, 60, 0)
+            display_highlighted_text(self.console.console, f,
+                                     self.console.w - idx - 1, 0)
 
     def __repr__(self):
         return "Status bar"

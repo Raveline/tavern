@@ -92,6 +92,7 @@ class Game(object):
         bus.bus.subscribe(self.informer, bus.FEEDBACK_EVENT)
 
         self.status = Status(self.status_console)
+        bus.bus.subscribe(self.status, bus.STATUS_EVENT)
 
         self.world_frame = Frame(0, 0, MAP_WIDTH, MAP_HEIGHT)
         self.cross = Crosshair(width, height, self.world_frame)
