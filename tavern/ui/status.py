@@ -36,7 +36,8 @@ class Status(object):
         libtcod.console_clear(self.console.console)
         if self.pause:
             display_text(self.console.console, "*PAUSED*", 0, 0)
-        display_text(self.console.console, self.current_state, 10, 0)
+        display_text(self.console.console, str(libtcod.sys_get_fps()), 10, 0)
+        display_text(self.console.console, self.current_state, 15, 0)
         display_text(self.console.console, ("Cash : %s" % self.money), 50, 0)
         for idx, f in enumerate(self.flags):
             display_highlighted_text(self.console.console, f,

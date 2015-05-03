@@ -136,7 +136,7 @@ class Game(object):
                 self.describe_area()
 
     def loop(self):
-        libtcod.sys_set_fps(40)
+        libtcod.sys_set_fps(50)
         # Couting elapsed milliseconds
         counter = 0
         # Flag : should the cursor be blinking ?
