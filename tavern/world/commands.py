@@ -21,10 +21,8 @@ class AttendToCommand(Command):
         tiles_next_to = tav.get_immediate_neighboring_coords(self.x, self.y)
         for x, y in tiles_next_to:
             if tav.tiles[y][x].has_object_with_function(self.nature):
-                print("Current : %d, %d" % (x, y))
                 dir_x = x - self.x
                 dir_y = y - self.y
-                print("Direction : %d, %d" % (dir_x, dir_y))
                 to_serve_x = x + dir_x
                 to_serve_y = y + dir_y
                 if tav.tiles[to_serve_y][to_serve_x].is_walkable():
