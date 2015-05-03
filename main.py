@@ -9,6 +9,7 @@ from tavern.view.show_console import display_creatures
 from tavern.ui.state import GameState, MenuState, StoreMenuState
 from tavern.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
+from tavern.ui.status import Status
 from tavern.world.customers import Customers
 from tavern.world.actions import door, counter, chair
 from tavern.world.context import Context
@@ -77,7 +78,8 @@ class Game(object):
         width = self.context.width
         height = self.context.height
         libtcod.console_init_root(width, height, TITLE)
-        self.world_console = Console(0, 0, width, height - 2)
+        self.status_console = Console(0, 0, width, 1)
+        self.world_console = Console(0, 1, width, height - 3)
         self.text_console = Console(0, height - 2, width, 2)
         self.inputs = Inputs(bus.bus)
 
@@ -88,6 +90,8 @@ class Game(object):
 
         self.informer = Informer(self.text_console)
         bus.bus.subscribe(self.informer, bus.FEEDBACK_EVENT)
+
+        self.status = Status(self.status_console)
 
         self.world_frame = Frame(0, 0, MAP_WIDTH, MAP_HEIGHT)
         self.cross = Crosshair(width, height, self.world_frame)
@@ -151,14 +155,21 @@ class Game(object):
                 self.customers.tick()
             self.display_background()
             self.display_characters()
+            self.display_status()
             self.display_text()
             self.display_navigation(blink)
             self.inputs.poll()
             self.world_console.blit_on(0)
             self.text_console.blit_on(0)
+            self.status_console.blit_on(0)
             self.state.display(0)
             libtcod.console_flush()
             tick = False
+
+    def display_status(self):
+        self.status.money = self.tavern.cash
+        self.status.current_state = str(self.state)
+        self.status.display()
 
     def build_state(self, tree):
         if tree.get('type', '') == 'menu':
