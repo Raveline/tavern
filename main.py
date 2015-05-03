@@ -168,6 +168,7 @@ class Game(object):
             tick = False
 
     def display_status(self):
+        self.status.pause = self.state.pauses_game
         self.status.money = self.tavern.cash
         self.status.current_state = str(self.state)
         self.status.display()

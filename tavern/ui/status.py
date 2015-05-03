@@ -14,6 +14,7 @@ class Status(object):
         self.money = 0
         self.flags = []
         self.console = console
+        self.pause = False
 
     def receive(self, event):
         event_data = event.get('data')
@@ -33,7 +34,9 @@ class Status(object):
 
     def display(self):
         libtcod.console_clear(self.console.console)
-        display_text(self.console.console, self.current_state, 0, 0)
+        if self.pause:
+            display_text(self.console.console, "*PAUSED*", 0, 0)
+        display_text(self.console.console, self.current_state, 10, 0)
         display_text(self.console.console, ("Cash : %s" % self.money), 50, 0)
         for idx, f in enumerate(self.flags):
             display_highlighted_text(self.console.console, f,
