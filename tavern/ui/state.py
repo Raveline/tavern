@@ -33,7 +33,7 @@ class GameState(object):
             subobject = self.tree.get('submenu', {}).get(event_data)
             if subobject:
                 self.sub_object = subobject.get('subobject')
-                bus.bus.publish(str(self) + " : " + subobject.get('display'))
+
             return subobject
 
         event_data = event.get('data')
@@ -73,7 +73,10 @@ class GameState(object):
         pass
 
     def __repr__(self):
-        return self.name
+        if self.sub_object:
+            return "%s : %s" % (self.name, self.sub_object.name)
+        else:
+            return self.name
 
 
 class MenuState(GameState):
