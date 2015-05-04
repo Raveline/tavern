@@ -58,6 +58,9 @@ class Customers(object):
                 self.tick_counter = 0
                 return
             prob = (self.tick_counter - 100) / 2
+            print("Prob is %d" % prob)
             if random.randint(1, 100) < prob:
                 self.make_customer()
-                self.tick_counter = 0
+                if random.randint(1, 5) == 1:
+                    print("Reset...")
+                    self.tick_counter = 0
