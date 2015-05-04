@@ -6,35 +6,36 @@ FILLER = 1
 
 class Actions:
     BUILD = 0
+    BUILD_COST = 10
     PUT = 1
     ROOMS = 2
 
 
 door = TavernObject('Door',
                     Functions.ROOM_SEPARATOR,
-                    0,
+                    15,
                     '=')
 
 chair = TavernObject('Chair',
                      Functions.SITTING,
-                     0,
+                     5,
                      'o')
 
 table = TavernObject('Table',
                      Functions.EATING,
-                     0,
+                     10,
                      '*',
                      True)
 
 counter = TavernObject('Counter',
                        Functions.ORDERING,
-                       0,
+                       30,
                        '+',
                        True)
 
 beam = TavernObject('Beam',
                     Functions.SUPPORT,
-                    0,
+                    10,
                     '^',
                     True)
 
