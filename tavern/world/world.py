@@ -101,9 +101,6 @@ class TavernMap():
     def can_serve_at(self, service, x, y):
         return (x, y) in self.attended_objects_coords.get(service)
 
-    def take_seat(self, x, y):
-        self.used_seating.append((x, y))
-
     def take_busy_attended(self, function, x, y):
         self.attended_objects_coords.get(function).remove((x, y))
         self.busy_attended_objects_coords.get(function).append((x, y))
@@ -111,6 +108,10 @@ class TavernMap():
     def free_busy_attended(self, function, x, y):
         self.busy_attended_objects_coords.get(function).remove((x, y))
         self.attended_objects_coords.get(function).append((x, y))
+
+    def take_seat(self, x, y):
+        self.used_seating.append((x, y))
+        self.available_seating.remove((x, y))
 
     def open_seat(self, x, y):
         if (x, y) in self.used_seating:
