@@ -35,18 +35,13 @@ class Tavern(object):
         for crea in self.creatures:
             crea.tick(self.tavern_map)
 
-    def receive(self, event):
-        event_data = event.get('data')
-        if event.get('type') == bus.CUSTOMER_EVENT:
-            self.add_creature(event_data.get('customer'))
-            return
+    def handle_customer_event(self, event_data):
+        self.add_creature(event_data.get('customer'))
+
+    def handle_build_event(self, event_data):
         area = event_data.get('area')
         action = event_data.get('action')
-        command = event_data.get('command')
-        if command:
-            command.execute(self)
-        # Building tiles
-        elif action == Actions.BUILD:
+        if action == Actions.BUILD:
             self.tavern_map.apply_to_area(area, self.tavern_map.build)
             if not self.creatures:
                 self.add_creature(Publican(area.x, area.y))
@@ -60,6 +55,16 @@ class Tavern(object):
             self.tavern_map.add_room(area, complement)
             if complement == Rooms.STORAGE:
                 self.store.add_cells(len(area))
+
+    def receive(self, event):
+        event_data = event.get('data')
+        if event.get('type') == bus.CUSTOMER_EVENT:
+            self.handle_customer_event(event_data)
+        elif event.get('type') == bus.WORLD_EVENT:
+            command = event_data.get('command')
+            if command:
+                command.execute(self)
+            self.handle_build_event(event_data)
 
     def creature_at(self, x, y, z):
         cre = [c for c in self.creatures
