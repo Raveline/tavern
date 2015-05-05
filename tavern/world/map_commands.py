@@ -130,5 +130,10 @@ class RoomCommand(MapCommand):
         self.room_type = room_type
 
     def execute(self, world):
+        for (x, y) in self.area:
+            tile = world.tavern_map.tiles[y][x]
+            tile.room_type = self.room_type
+
+        world.tavern_map.rooms[self.room_type].append(self.area)
         if self.room_type == Rooms.STORAGE:
             world.store.add_cells(len(self.area))

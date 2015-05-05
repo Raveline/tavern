@@ -113,12 +113,6 @@ class TavernMap():
                 for x in range(self.width)]
                 for y in range(self.height)]
 
-    def add_room(self, tiles, room_type):
-        for (x, y) in tiles:
-            tile = self.tiles[y][x]
-            tile.room_type = room_type
-        self.rooms[room_type].append(tiles)
-
     def fill_from(self, x, y):
         """
         Filler function, mostly used to handle room definition.
