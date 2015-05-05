@@ -22,13 +22,24 @@ class MapCommand(Command):
                     count += 1
         return count
 
+    def get_area_size(self, rect):
+        return (rect.y2 - rect.y) * (rect.x2 - rect.x)
+
 
 class BuildCommand(MapCommand):
+    COST = 10
+
     def __init__(self, area):
         self.area = area
 
     def execute(self, world):
-        self.apply_to_area(self.area, self.build, world.tavern_map)
+        previewed_cost = self.get_area_size(self.area) * BuildCommand.COST
+        if world.cash < previewed_cost:
+            bus.bus.publish('Not enough money to do this !')
+            return
+        real_cost = self.apply_to_area(self.area, self.build,
+                                       world.tavern_map) * BuildCommand.COST
+        world.cash -= real_cost
         # If this is the first build, add a Publican
         if not world.creatures:
             world.add_creature(Publican(self.area.x, self.area.y))
