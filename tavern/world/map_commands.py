@@ -2,7 +2,7 @@
 
 from tavern.utils import bus
 from commands import Command
-from tavern.world.objects import Functions, Rooms
+from tavern.world.objects import Functions, Rooms, Materials
 from tavern.people.characters import Publican
 
 
@@ -23,17 +23,17 @@ class MapCommand(Command):
         return count
 
 
-class BuildCommand(Command):
+class BuildCommand(MapCommand):
     def __init__(self, area):
         self.area = area
 
-    def exec(self, world):
+    def execute(self, world):
         self.apply_to_area(self.area, self.build, world.tavern_map)
         # If this is the first build, add a Publican
         if not world.creatures:
             world.add_creature(Publican(self.area.x, self.area.y))
 
-    def build(self, y, x, tavern_map):
+    def build(self, x, y, tavern_map):
         """
         Make tiles "built" and surround them by walls.
         """
@@ -44,6 +44,7 @@ class BuildCommand(Command):
         tile = tavern_map.tiles[y][x]
         tile.built = True
         tile.wall = False
+        tile.material = Materials.WOOD
         tavern_map.add_walkable_tile(x, y)
         # TODO : add material
         self.set_neighboring_tiles_to_wall(x, y, tavern_map)
@@ -60,12 +61,12 @@ class BuildCommand(Command):
                 tile.wall = True
 
 
-class PutCommand(Command):
+class PutCommand(MapCommand):
     def __init__(self, area, object_type):
         self.object_type = object_type
         self.area = area
 
-    def exec(self, world):
+    def execute(self, world):
         self.apply_to_area(self.area, self.put_object,
                            world.tavern_map, self.object_type)
 
@@ -84,7 +85,7 @@ class PutCommand(Command):
                             bus.bus.publish('Door to the outside must be on an'
                                             ' exterior wall.')
                             return False
-                    if len([t for t in self.get_neighboring_for(x, y)
+                    if len([t for t in world_map.get_neighboring_for(x, y)
                             if t.wall]) > 0:
                         return True
                     else:
@@ -104,11 +105,11 @@ class PutCommand(Command):
                 world_map.open_seat(x, y)
 
 
-class RoomCommand(Command):
+class RoomCommand(MapCommand):
     def __init__(self, area, room_type):
         self.area = area
         self.room_type = room_type
 
-    def exec(self, world):
+    def execute(self, world):
         if self.room_type == Rooms.STORAGE:
             world.store.add_cells(len(self.area))

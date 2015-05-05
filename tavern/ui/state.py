@@ -1,7 +1,9 @@
 from tavern.utils import bus
 from tavern.utils.dict_path import read_path_dict
 from tavern.inputs.input import Inputs
+from tavern.world.actions import Actions
 from tavern.world.commands import BuyCommand
+from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
 from tavern.world.goods import DRINKS
 NEW_STATE = 0
 
@@ -49,13 +51,20 @@ class GameState(object):
             need_subobject = (bool(self.tree.get('submenu')) and
                               self.sub_object is None)
             if not need_subobject:
-                bus.bus.publish({'area': event_data,
-                                 'action': self.action,
-                                 'complement': self.sub_object},
-                                bus.WORLD_EVENT)
+                self.send_command(event_data)
             elif need_subobject:
                 keys = ['(' + k + ')' for k in self.tree.get('submenu').keys()]
                 bus.bus.publish('Pick between ' + ', '.join(keys))
+
+    def send_command(self, area):
+        if self.action == Actions.BUILD:
+            command = BuildCommand(area)
+        elif self.action == Actions.PUT:
+            command = PutCommand(area, self.sub_object)
+        elif self.action == Actions.ROOM:
+            command = RoomCommand(area, self.sub_object)
+
+        bus.bus.publish({'command': command}, bus.WORLD_EVENT)
 
     def _check_for_previous_state(self, event_data):
         """

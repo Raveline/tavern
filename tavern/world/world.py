@@ -31,6 +31,9 @@ class Tavern(object):
         for crea in self.creatures:
             crea.tick(self.tavern_map)
 
+    def handle_customer_event(self, event_data):
+        self.creatures.append(event_data.get('customer'))
+
     def receive(self, event):
         event_data = event.get('data')
         if event.get('type') == bus.CUSTOMER_EVENT:

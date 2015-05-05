@@ -12,6 +12,7 @@ from tavern.ui.informer import Informer
 from tavern.ui.status import Status
 from tavern.world.customers import Customers
 from tavern.world.actions import door, counter, chair
+from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
 from tavern.world.context import Context
 from tavern.world.world import Tavern
 from tavern.world.actions import action_tree
@@ -37,40 +38,20 @@ class Game(object):
             area.y2 = y2
             return area
         # Build a storage area
-        bus.bus.publish({'action': 0,
-                         'area': build_area(2, 2, 5, 5)}, bus.WORLD_EVENT)
-        bus.bus.publish({'action': 2,
-                         'area': self.tavern.tavern_map.fill_from(3, 3),
-                         'complement': 1},
-                        bus.WORLD_EVENT)
+        commands = []
+        commands.append(BuildCommand(build_area(2, 2, 5, 5)))
+        commands.append(RoomCommand(self.tavern.tavern_map.fill_from(3, 3), 1))
         # build a corridor to a tavern room
-        bus.bus.publish({'action': 0,
-                         'area': build_area(5, 3, 9, 4)}, bus.WORLD_EVENT)
-        bus.bus.publish({'action': 1,
-                         'area': build_area(8, 3, 8, 3),
-                         'complement': door}, bus.WORLD_EVENT)
-        bus.bus.publish({'action': 1,
-                         'area': build_area(8, 4, 8, 4),
-                         'complement': door}, bus.WORLD_EVENT)
-
+        commands.append(BuildCommand(build_area(5, 3, 9, 4)))
+        commands.append(PutCommand(build_area(8, 3, 8, 4), door))
         # Build the tavern room
-        bus.bus.publish({'action': 0,
-                         'area': build_area(9, 2, 12, 12)}, bus.WORLD_EVENT)
-        bus.bus.publish({'action': 2,
-                         'area': self.tavern.tavern_map.fill_from(9, 9),
-                         'complement': 0},
-                        bus.WORLD_EVENT)
-        bus.bus.publish({'action': 1,
-                         'area': build_area(11, 1, 11, 1),
-                         'complement': door}, bus.WORLD_EVENT)
-        bus.bus.publish({'action': 1,
-                         'area': build_area(9, 11, 9, 11),
-                         'complement': counter},
-                        bus.WORLD_EVENT)
-        bus.bus.publish({'action': 1,
-                         'area': build_area(9, 6, 9, 6),
-                         'complement': chair},
-                        bus.WORLD_EVENT)
+        commands.append(BuildCommand(build_area(9, 2, 12, 12)))
+        commands.append(RoomCommand(self.tavern.tavern_map.fill_from(9, 9), 0))
+        commands.append(PutCommand(build_area(11, 1, 11, 1), door))
+        commands.append(PutCommand(build_area(9, 11, 9, 11), counter))
+        commands.append(PutCommand(build_area(9, 6, 9, 6), chair))
+        for command in commands:
+            bus.bus.publish({'command': command}, bus.WORLD_EVENT)
         self.customers.tick_counter += 120
 
     def __init__(self):

@@ -13,6 +13,8 @@ class Rooms(object):
     MEETING_ROOM = 3
     ROOM = 4
 
+class Materials(object):
+    WOOD = 0
 
 rooms_to_name = {Rooms.TAVERN: 'Tavern',
                  Rooms.STORAGE: 'Storage',

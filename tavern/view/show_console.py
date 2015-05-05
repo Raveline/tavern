@@ -1,8 +1,8 @@
 import libtcodpy as libtcod
-import tavern.world.world as world
+from tavern.world.objects import Materials
 from tavern.people.characters import Creature
 
-materials_to_colors = {world.WOOD: libtcod.darker_sepia}
+materials_to_colors = {Materials.WOOD: libtcod.darker_sepia}
 
 
 def __get_color_scale(first, last, size):
