@@ -3,12 +3,8 @@ from collections import defaultdict
 import libtcodpy as libtcod
 from tavern.utils import bus
 from tavern.utils.geom import manhattan
-from tavern.world.actions import Actions
-from tavern.people.characters import Publican
-from tavern.world.objects import Functions, Rooms, rooms_to_name
+from tavern.world.objects import Functions, rooms_to_name
 from tavern.world.store import StorageSystem
-
-WOOD = 'wood'
 
 
 class Tavern(object):
@@ -35,27 +31,6 @@ class Tavern(object):
         for crea in self.creatures:
             crea.tick(self.tavern_map)
 
-    def handle_customer_event(self, event_data):
-        self.add_creature(event_data.get('customer'))
-
-    def handle_build_event(self, event_data):
-        area = event_data.get('area')
-        action = event_data.get('action')
-        if action == Actions.BUILD:
-            self.tavern_map.apply_to_area(area, self.tavern_map.build)
-            if not self.creatures:
-                self.add_creature(Publican(area.x, area.y))
-        # Putting objects
-        elif action == Actions.PUT:
-            self.tavern_map.apply_to_area(area, self.tavern_map.add_object,
-                                          event_data.get('complement'))
-        # Creating a room
-        elif action == Actions.ROOMS:
-            complement = event_data.get('complement')
-            self.tavern_map.add_room(area, complement)
-            if complement == Rooms.STORAGE:
-                self.store.add_cells(len(area))
-
     def receive(self, event):
         event_data = event.get('data')
         if event.get('type') == bus.CUSTOMER_EVENT:
@@ -64,7 +39,6 @@ class Tavern(object):
             command = event_data.get('command')
             if command:
                 command.execute(self)
-            self.handle_build_event(event_data)
 
     def creature_at(self, x, y, z):
         cre = [c for c in self.creatures
@@ -142,43 +116,6 @@ class TavernMap():
             tile.room_type = room_type
         self.rooms[room_type].append(tiles)
 
-    def add_object(self, y, x, object_type):
-        def validate_object_location(tile, object_type):
-            if tile.tile_object is None and tile.built:
-                if object_type.function == Functions.ROOM_SEPARATOR:
-                    if self.tiles[y][x].wall:
-                        # Wall. Door is only allowed if on exterior wall
-                        if self.is_an_outside_wall(x, y):
-                            self.tiles[y][x].wall = False
-                            self.tiles[y][x].built = True
-                            self.entry_points.append((x, y))
-                            return True
-                        else:
-                            bus.bus.publish('Door to the outside must be on an'
-                                            ' exterior wall.')
-                            return False
-                    if len([t for t in self.get_neighboring_for(x, y)
-                            if t.wall]) > 0:
-                        return True
-                    else:
-                        bus.bus.publish('Door must be next to a wall, or in'
-                                        ' an exterior wall.')
-                else:
-                    return not tile.wall
-            elif tile.tile_object is not None:
-                bus.bus.publish('There is already an object here.')
-            elif not tile.built:
-                bus.bus.publish('The area is not built.')
-            return False
-
-        tile = self.tiles[y][x]
-        if object_type and validate_object_location(tile, object_type):
-            tile.tile_object = object_type
-            libtcod.map_set_properties(self.path_map, x, y,
-                                       False, tile.is_walkable())
-            if object_type.function == Functions.SITTING:
-                self.open_seat(x, y)
-
     def fill_from(self, x, y):
         """
         Filler function, mostly used to handle room definition.
@@ -221,39 +158,6 @@ class TavernMap():
                                                  32.0))
         libtcod.noise_delete(noise)
         return background
-
-    def apply_to_area(self, rect, func, *args):
-        """
-        Apply the function func (with args if any) to every
-        tiles in the rect.
-        """
-        for y in range(rect.y, rect.y2 + 1):
-            for x in range(rect.x, rect.x2 + 1):
-                func(y, x, *args)
-
-    def build(self, y, x):
-        """
-        Make tiles "built" and surround them by walls.
-        """
-        if x == 0 or y == 0 or x == self.width - 1 or y == self.height - 1:
-            bus.bus.publish('Cannot build border-map tiles.')
-            return
-        tile = self.tiles[y][x]
-        tile.built = True
-        tile.wall = False
-        tile.material = WOOD
-        self.set_neighboring_tiles_to_wall(x, y)
-        libtcod.map_set_properties(self.path_map, x, y, False, True)
-
-    def set_neighboring_tiles_to_wall(self, x, y):
-        """
-        For each tiles around a built tile, make sure
-        those are wall if they are not built and not wall already.
-        """
-        for tile in self.get_neighboring_for(x, y):
-            if not tile.built:
-                tile.built = True
-                tile.wall = True
 
     def is_an_outside_wall(self, x, y):
         """
@@ -411,6 +315,13 @@ class TavernMap():
             inlist = self.attended_objects_coords[function]
         if inlist:
             return self.find_closest_in(inlist, x, y)
+
+    def add_walkable_tile(self, x, y):
+        libtcod.map_set_properties(self.path_map, x, y, False, True)
+
+    def update_tile_walkability(self, x, y):
+        libtcod.map_set_properties(self.path_map, x, y,
+                                   False, self.tiles[y][x].is_walkable())
 
     def list_tiles_with_objects(self, function, exclusion_list=None):
         objects_coords = []
