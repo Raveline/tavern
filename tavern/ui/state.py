@@ -16,6 +16,7 @@ class GameState(object):
         self.name = self.tree.get('name', '')
         self.action = self.tree.get('action', '')
         self.sub_object = None
+        self.sub_object_display = None
         # By default, every state pauses game but the main one
         self.pauses_game = state_tree.get('pauses_game', True)
 
@@ -37,6 +38,7 @@ class GameState(object):
             subobject = self.tree.get('submenu', {}).get(event_data)
             if subobject:
                 self.sub_object = subobject.get('subobject')
+                self.sub_object_display = subobject.get('display')
 
             return subobject
 
@@ -61,7 +63,7 @@ class GameState(object):
             command = BuildCommand(area)
         elif self.action == Actions.PUT:
             command = PutCommand(area, self.sub_object)
-        elif self.action == Actions.ROOM:
+        elif self.action == Actions.ROOMS:
             command = RoomCommand(area, self.sub_object)
 
         bus.bus.publish({'command': command}, bus.WORLD_EVENT)
@@ -84,8 +86,8 @@ class GameState(object):
         pass
 
     def __repr__(self):
-        if self.sub_object:
-            return "%s : %s" % (self.name, self.sub_object.name)
+        if self.sub_object_display:
+            return "%s : %s" % (self.name, self.sub_object_display)
         else:
             return self.name
 
