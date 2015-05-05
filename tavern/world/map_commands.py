@@ -78,8 +78,13 @@ class PutCommand(MapCommand):
         self.area = area
 
     def execute(self, world):
-        self.apply_to_area(self.area, self.put_object,
-                           world.tavern_map, self.object_type)
+        preview_cost = self.get_area_size(self.area) * self.object_type.price
+        if world.cash < preview_cost:
+            bus.bus.publish('Not enough money to do this !')
+            return
+        counter = self.apply_to_area(self.area, self.put_object,
+                                     world.tavern_map, self.object_type)
+        world.cash -= (counter * self.object_type.price)
 
     def put_object(self, x, y, world_map, object_type):
         def validate_object_location(tile, object_type):
@@ -102,10 +107,12 @@ class PutCommand(MapCommand):
                     else:
                         bus.bus.publish('Door must be next to a wall, or in'
                                         ' an exterior wall.')
+                        return False
                 else:
                     return not tile.wall
             elif tile.tile_object is not None:
                 bus.bus.publish('There is already an object here.')
+                return False
             elif not tile.built:
                 bus.bus.publish('The area is not built.')
             return False
@@ -114,6 +121,7 @@ class PutCommand(MapCommand):
             tile.tile_object = object_type
             if object_type.function == Functions.SITTING:
                 world_map.open_seat(x, y)
+        return True
 
 
 class RoomCommand(MapCommand):
