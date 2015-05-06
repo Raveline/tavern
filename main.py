@@ -40,19 +40,21 @@ class Game(object):
         # Build a storage area
         commands = []
         commands.append(BuildCommand(build_area(2, 2, 5, 5)))
-        commands.append(RoomCommand(self.tavern.tavern_map.fill_from(3, 3), 1))
         # build a corridor to a tavern room
         commands.append(BuildCommand(build_area(5, 3, 9, 4)))
         commands.append(PutCommand(build_area(8, 3, 8, 4), door))
         # Build the tavern room
         commands.append(BuildCommand(build_area(9, 2, 12, 12)))
-        commands.append(RoomCommand(self.tavern.tavern_map.fill_from(9, 9), 0))
         commands.append(PutCommand(build_area(11, 1, 11, 1), door))
         commands.append(PutCommand(build_area(9, 11, 9, 11), counter))
         commands.append(PutCommand(build_area(9, 6, 9, 6), chair))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
-        self.customers.tick_counter += 120
+        command = RoomCommand(self.tavern.tavern_map.fill_from(3, 3), 1)
+        bus.bus.publish({'command': command}, bus.WORLD_EVENT)
+        command = RoomCommand(self.tavern.tavern_map.fill_from(10, 10), 0)
+        bus.bus.publish({'command': command}, bus.WORLD_EVENT)
+        self.customers.tick_counter += 80
 
     def __init__(self):
         self.context = Context()
