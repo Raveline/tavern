@@ -86,6 +86,28 @@ supplies_menu = {'type': 'RootComponent',
                               'w': '80%'}]
                       }]}
 
+prices_menu = {'type': 'RootComponent',
+               'template': 'centered 5',
+               'title': 'Prices',
+               'children': [
+                   {'type': 'Line',
+                    'x': 0,
+                    'w': '100%',
+                    'y': 3},
+                   {'type': 'Foreach',
+                    'source': 'goods.supplies',
+                    'do': [{'type': 'StaticText',
+                            'x': 5,
+                            'eat_line': False},
+                           {'type': 'DynamicText',
+                            'x': 25,
+                            'source_builder': 'selling_price'},
+                           {'type': 'NumberPicker',
+                            'minimum': 1,
+                            'maximum': 100,
+                            'x': 5,
+                            'w': '80%'}]
+                    }]}
 action_tree = {'name': 'Main mode',
                'pauses_game': False,
                'b': {'action': Actions.BUILD,
@@ -102,5 +124,8 @@ action_tree = {'name': 'Main mode',
                      'submenu': room_types},
                's': {'type': 'menu',
                      'menu_type': 'StoreMenu',
-                     'content': supplies_menu}
+                     'content': supplies_menu},
+               'r': {'type': 'menu',
+                     'menu_type': 'PriceMenu',
+                     'content': prices_menu}
                }
