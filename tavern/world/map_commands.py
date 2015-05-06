@@ -96,6 +96,7 @@ class PutCommand(MapCommand):
                             world_map.tiles[y][x].wall = False
                             world_map.tiles[y][x].built = True
                             world_map.entry_points.append((x, y))
+                            world_map.add_walkable_tile(x, y)
                             return True
                         else:
                             bus.bus.publish('Door to the outside must be on an'
@@ -121,6 +122,7 @@ class PutCommand(MapCommand):
             tile.tile_object = object_type
             if object_type.function == Functions.SITTING:
                 world_map.open_seat(x, y)
+            world_map.update_tile_walkability(x, y)
         return True
 
 
@@ -130,6 +132,7 @@ class RoomCommand(MapCommand):
         self.room_type = room_type
 
     def execute(self, world):
+        print("Executing room command with tiles : %s" % self.area)
         for (x, y) in self.area:
             tile = world.tavern_map.tiles[y][x]
             tile.room_type = self.room_type
