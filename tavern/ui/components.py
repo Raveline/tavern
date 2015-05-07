@@ -7,6 +7,7 @@ from tavern.utils import bus
 from tavern.utils.dict_path import read_path_dict
 from tavern.utils.tcod_wrapper import Console
 from tavern.view.show_console import display_highlighted_text, display_text
+from tavern.view.show_console import print_char
 
 
 class ComponentException(Exception):
@@ -290,12 +291,9 @@ class Line(Component):
         libtcod.console_hline(console, self.x, self.y, self.w)
 
 
-class Ruler(Component):
-    def __init__(self, x, y, w, source):
-        super(Ruler, self).__init__(x, y, w, 1, True)
-        self.source = source
-        self.value = 0
-
+class MinimumMaximum(Component):
+    """Abstract class for component with a current / minimum / maximum
+    data model."""
     def set_data(self, data):
         pertinent = read_path_dict(data, self.source)
         if pertinent:
@@ -322,6 +320,45 @@ class Ruler(Component):
         if self.value > self.maximum:
             self.value = self.maximum
         self.publish_change()
+
+
+class NumberPicker(MinimumMaximum):
+    def __init__(self, x, y, source):
+        super(NumberPicker, self).__init__(x, y, 15, 1, True)
+        self.source = source
+
+    def display(self, console):
+        size_min = len(str(self.minimum))
+        current_x = self.x
+        if self.focused:
+            func = display_highlighted_text
+        else:
+            func = display_text
+        func(console, str(self.minimum), current_x, self.y)
+        current_x += (size_min + 2)
+
+        print_char(console, libtcod.CHAR_ARROW_W, current_x, self.y,
+                   libtcod.white)
+
+        current_x += 2
+
+        func(console, str(self.value), current_x, self.y)
+
+        current_x += (len(str(self.value)) + 2)
+
+        print_char(console, libtcod.CHAR_ARROW_E, current_x, self.y,
+                   libtcod.white)
+
+        current_x += 2
+
+        func(console, str(self.maximum), current_x, self.y)
+
+
+class Ruler(MinimumMaximum):
+    def __init__(self, x, y, w, source):
+        super(Ruler, self).__init__(x, y, w, 1, True)
+        self.source = source
+        self.value = 0
 
     def display(self, console):
         size_min = len(str(self.minimum))
