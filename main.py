@@ -6,7 +6,7 @@ from tavern.utils.tcod_wrapper import Console
 from tavern.utils.geom import Frame
 from tavern.view.show_console import display, print_selection, display_text
 from tavern.view.show_console import display_creatures
-from tavern.ui.state import GameState, MenuState, StoreMenuState
+from tavern.ui.state import GameState, MenuState, PricesMenuState, BuyMenuState
 from tavern.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
 from tavern.ui.status import Status
@@ -162,8 +162,11 @@ class Game(object):
             root_component = build_menu(context, tree.get('content'), True)
             clazz = MenuState
             data = tree.get('data')
-            if tree.get('menu_type') == 'StoreMenu':
-                clazz = StoreMenuState
+            if tree.get('menu_type') == 'BuyMenu':
+                clazz = BuyMenuState
+                data = self.tavern
+            elif tree.get('menu_type') == 'PricesMenu':
+                clazz = PricesMenuState
                 data = self.tavern
             return clazz({}, root_component, self.state, data)
         else:

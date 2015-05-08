@@ -143,10 +143,17 @@ class StoreMenuState(MenuState):
     def __init__(self, state_tree, root_component,
                  parent_state=None, world=None):
         self.world = world
-        self.initial_data = {}
         super(StoreMenuState, self).__init__(
             state_tree, root_component, parent_state, self.build_data()
         )
+
+
+class BuyMenuState(StoreMenuState):
+    def __init__(self, state_tree, root_component,
+                 parent_state=None, world=None):
+        self.initial_data = {}
+        super(BuyMenuState, self).__init__(state_tree, root_component,
+                                           parent_state, world)
 
     def build_data(self):
         data = {}
@@ -172,11 +179,6 @@ class StoreMenuState(MenuState):
             self.initial_data = data.copy()
         return data
 
-    def name_to_goods(self, key):
-        goods = self.world.store.store.keys()
-        with_name = [g for g in goods if g.name == key]
-        return with_name[0]
-
     def update_data(self, source, new_value):
         goods = read_path_dict(self.data, source + ".obj")
         old_value = read_path_dict(self.data, source + ".current")
@@ -190,3 +192,21 @@ class StoreMenuState(MenuState):
                 command = BuyCommand(goods, quantity_diff, True)
             command.execute(self.world)
             self.set_data(self.build_data())
+
+
+class PricesMenuState(StoreMenuState):
+    def build_data(self):
+        data = {}
+        for goods in DRINKS:
+            data[goods.name] = {
+                'obj': goods,
+                'minimum': 0,
+                'current': goods.selling_price,
+                'maximum': 100
+            }
+        return data
+
+    def update_data(self, source, new_value):
+        goods = read_path_dict(self.data, source + ".obj")
+        goods.selling_price = new_value
+        self.set_data(self.build_data())
