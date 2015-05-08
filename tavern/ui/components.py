@@ -169,7 +169,8 @@ class RootComponent(ContainerComponent):
 
     def set_children(self, children):
         super(RootComponent, self).set_children(children)
-        self.selectable_children[0].enter_focus()
+        if len(self.selectable_children):
+            self.selectable_children[0].enter_focus()
 
     def set_data(self, data):
         self.data = data

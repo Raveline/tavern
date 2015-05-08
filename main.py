@@ -6,7 +6,8 @@ from tavern.utils.tcod_wrapper import Console
 from tavern.utils.geom import Frame
 from tavern.view.show_console import display, print_selection, display_text
 from tavern.view.show_console import display_creatures
-from tavern.ui.state import GameState, MenuState, PricesMenuState, BuyMenuState
+from tavern.ui.state import (GameState, MenuState,
+                             PricesMenuState, BuyMenuState, HelpMenuState)
 from tavern.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
 from tavern.ui.status import Status
@@ -156,19 +157,24 @@ class Game(object):
         self.status.current_state = str(self.state)
         self.status.display()
 
+    def __build_menu_state(self, tree):
+        context = self.context.to_context_dict()
+        clazz = MenuState
+        data = self.tavern
+        if tree.get('menu_type') == 'BuyMenu':
+            clazz = BuyMenuState
+        elif tree.get('menu_type') == 'PricesMenu':
+            clazz = PricesMenuState
+        elif tree.get('menu_type') == 'Help':
+            clazz = HelpMenuState
+            data = self.state
+            context['state'] = self.state.to_keys_array()
+        root_component = build_menu(context, tree.get('content'), True)
+        return clazz({}, root_component, self.state, data)
+
     def build_state(self, tree):
         if tree.get('type', '') == 'menu':
-            context = self.context.to_context_dict()
-            root_component = build_menu(context, tree.get('content'), True)
-            clazz = MenuState
-            data = tree.get('data')
-            if tree.get('menu_type') == 'BuyMenu':
-                clazz = BuyMenuState
-                data = self.tavern
-            elif tree.get('menu_type') == 'PricesMenu':
-                clazz = PricesMenuState
-                data = self.tavern
-            return clazz({}, root_component, self.state, data)
+            return self.__build_menu_state(tree)
         else:
             if tree.get('selector', actions.CROSSHAIR) == actions.CROSSHAIR:
                 navigator = self.cross

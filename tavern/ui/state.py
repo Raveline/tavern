@@ -14,8 +14,13 @@ class GameState(object):
         self.parent_state = parent_state
         self.navigator = navigator
         self.name = self.tree.get('name', '')
+        # The specific action in this menu
         self.action = self.tree.get('action', '')
+        # The sub-modes one can enter from here
+        self.actions = state_tree.get('actions')
+        # The complement of any action
         self.sub_object = None
+        # The way this complement should be displayed
         self.sub_object_display = None
         # By default, every state pauses game but the main one
         self.pauses_game = state_tree.get('pauses_game', True)
@@ -28,11 +33,12 @@ class GameState(object):
 
     def receive(self, event):
         def pick_substate(event_data):
-            substate = self.tree.get(event_data)
-            if substate:
-                bus.bus.publish(substate,
-                                bus.NEW_STATE)
-            return substate
+            if self.actions:
+                substate = self.actions.get(event_data)
+                if substate:
+                    bus.bus.publish(substate,
+                                    bus.NEW_STATE)
+                return substate
 
         def pick_subobject(event_data):
             subobject = self.tree.get('submenu', {}).get(event_data)
@@ -90,6 +96,25 @@ class GameState(object):
             return "%s : %s" % (self.name, self.sub_object_display)
         else:
             return self.name
+
+    def to_keys_array(self):
+        """Used to feed the help menu."""
+        to_return = []
+        for k in self.actions.keys():
+            to_return.append(k)
+        for k in self.tree.get('submenu', {}).keys():
+            to_return.append(k)
+        return to_return
+
+    def to_actions_dict(self):
+        """Used to display the help menu.
+        Should only be used on main menu."""
+        to_return = {}
+        for k, v in self.actions.iteritems():
+            to_return[k] = {'key': k, 'name': v['name']}
+        for v in self.tree.get('submenu', []):
+            to_return[k] = {'key': k, 'name': v['display']}
+        return to_return
 
 
 class MenuState(GameState):
@@ -210,3 +235,18 @@ class PricesMenuState(StoreMenuState):
         goods = read_path_dict(self.data, source + ".obj")
         goods.selling_price = new_value
         self.set_data(self.build_data())
+
+
+class HelpMenuState(MenuState):
+    def __init__(self, state_tree, root_component,
+                 parent_state=None, informed_state=None):
+        self.informed_state = informed_state
+        print(root_component)
+        super(HelpMenuState, self).__init__(
+            state_tree, root_component, parent_state, self.build_data()
+        )
+
+    def build_data(self):
+        data = {}
+        data = self.informed_state.to_actions_dict()
+        return data

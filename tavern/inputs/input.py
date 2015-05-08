@@ -37,7 +37,7 @@ class Inputs(object):
             self.bus.publish(Inputs.ENTER, 0)
         if self.key.vk == tcod.KEY_END:
             self.bus.publish('quit', 4)
-        if self.key.c >= 65 and self.key.c <= 122:
+        if self.key.c >= 63 and self.key.c <= 122:
             self.bus.publish(chr(self.key.c), 0)
 
     def poll_mouse(self):
