@@ -1,6 +1,6 @@
 from tavern.ui.components import (
     StaticText, TextBloc, RowsComponent, DynamicText, RootComponent,
-    Button, Ruler, Line, ComponentException)
+    Button, Ruler, NumberPicker, Line, ComponentException)
 
 
 def build_menu(context, menu_description, root=False):
@@ -58,6 +58,9 @@ def build_component(context, comp_desc, children=None, root=False):
         elif comp_type == 'Ruler':
             source = comp_desc.get('source')
             component = Ruler(x, y, w, source)
+        elif comp_type == 'NumberPicker':
+            source = comp_desc.get('source')
+            component = NumberPicker(x, y, source)
         elif comp_type == 'Foreach':
             source = comp_desc.get('source').split('.')
             iterable = context
