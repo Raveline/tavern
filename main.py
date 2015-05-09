@@ -6,7 +6,7 @@ from tavern.utils.tcod_wrapper import Console
 from tavern.utils.geom import Frame
 from tavern.view.show_console import display, print_selection, display_text
 from tavern.view.show_console import display_creatures
-from tavern.ui.state import (GameState, MenuState,
+from tavern.ui.state import (GameState, MenuState, ExamineMenu,
                              PricesMenuState, BuyMenuState, HelpMenuState)
 from tavern.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
@@ -111,9 +111,7 @@ class Game(object):
             if not blink:
                 print_selection(self.world_console.console,
                                 self.state.navigator)
-            cre = self.tavern.creature_at(self.state.navigator.getX(),
-                                          self.state.navigator.getY(),
-                                          0)
+            cre = self.get_selected_customer()
             if cre:
                 self.describe_creature(cre)
             else:
@@ -157,18 +155,31 @@ class Game(object):
         self.status.current_state = str(self.state)
         self.status.display()
 
+    def get_selected_customer(self):
+        return self.tavern.creature_at(self.state.navigator.getX(),
+                                       self.state.navigator.getY(),
+                                       0)
+
     def __build_menu_state(self, tree):
         context = self.context.to_context_dict()
         clazz = MenuState
         data = self.tavern
-        if tree.get('menu_type') == 'BuyMenu':
+        menu_type = tree.get('menu_type')
+        if menu_type == 'BuyMenu':
             clazz = BuyMenuState
-        elif tree.get('menu_type') == 'PricesMenu':
+        elif menu_type == 'PricesMenu':
             clazz = PricesMenuState
-        elif tree.get('menu_type') == 'Help':
+        elif menu_type == 'Help':
             clazz = HelpMenuState
             data = self.state
             context['state'] = self.state.to_keys_array()
+        elif menu_type == 'ExamineMenu':
+            examined = self.get_selected_customer()
+            if examined:
+                clazz = ExamineMenu
+                data = examined
+            else:
+                return None
         root_component = build_menu(context, tree.get('content'), True)
         return clazz({}, root_component, self.state, data)
 
@@ -207,7 +218,9 @@ class Game(object):
     def receive(self, event):
         event_data = event.get('data')
         if event.get('type', '') == bus.NEW_STATE:
-            self.change_state(self.build_state(event_data))
+            new_state = self.build_state(event_data)
+            if new_state is not None:
+                self.change_state(new_state)
         elif event.get('type', '') == bus.PREVIOUS_STATE:
             self.change_state(event_data)
         elif event_data == 'quit':

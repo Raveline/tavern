@@ -241,7 +241,6 @@ class HelpMenuState(MenuState):
     def __init__(self, state_tree, root_component,
                  parent_state=None, informed_state=None):
         self.informed_state = informed_state
-        print(root_component)
         super(HelpMenuState, self).__init__(
             state_tree, root_component, parent_state, self.build_data()
         )
@@ -250,3 +249,50 @@ class HelpMenuState(MenuState):
         data = {}
         data = self.informed_state.to_actions_dict()
         return data
+
+
+class ExamineMenu(MenuState):
+    def __init__(self, state_tree, root_component,
+                 parent_state=None, creature=None):
+        self.creature = creature
+        super(ExamineMenu, self).__init__(
+            state_tree, root_component, parent_state, self.build_data())
+
+    def build_data(self):
+        data = {}
+        data['name'] = 'PLACEHOLDER'
+        data['level'] = str(self.creature.level)
+        data['race'] = self.creature.race_string()
+        data['class'] = self.creature.class_string()
+        data['money'] = self.__money_to_string(self.creature.money)
+        data['thirst'] = self.__desire_to_string(self.creature.thirst)
+        data['activity'] = str(self.creature.current_activity)
+        return data
+
+    def __money_to_string(self, money):
+        if money == 0:
+            return "Pennyless"
+        elif money <= 10:
+            return "Broke"
+        elif money <= 20:
+            return "Has coins"
+        elif money <= 30:
+            return "Heavy purse"
+        elif money <= 50:
+            return "Wealthy"
+        elif money <= 200:
+            return "Rich"
+        else:
+            return "High roller"
+
+    def __desire_to_string(self, desire):
+        if desire == 0:
+            return "None"
+        elif desire == 1:
+            return "Small"
+        elif desire == 2:
+            return "Medium"
+        elif desire == 3:
+            return "Severe"
+        else:
+            return "Enormous"

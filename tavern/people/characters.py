@@ -51,6 +51,9 @@ class Creature(object):
         self.activity_list = []
         self.race = race
 
+    def race_string(self):
+        return races_to_string[self.race]
+
     def add_activity(self, activity):
         if self.current_activity is not None:
             self.activity_list.append(activity)
@@ -139,6 +142,9 @@ class Patron(Creature):
         self.thirst = thirst
         self.seated = False
         self.has_a_drink = False
+
+    def class_string(self):
+        return creature_class_to_string[self.creature_class]
 
     def leave(self, world_map):
         # We don't want to drink anymore, let's leave this place !
