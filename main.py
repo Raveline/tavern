@@ -175,7 +175,7 @@ class Game(object):
             context['state'] = self.state.to_keys_array()
         elif menu_type == 'ExamineMenu':
             examined = self.get_selected_customer()
-            if examined:
+            if examined and examined.examinable:
                 clazz = ExamineMenu
                 data = examined
             else:

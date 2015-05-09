@@ -39,7 +39,7 @@ class Creature(object):
     DWARVES = 2
     HUMAN = 3
 
-    def __init__(self, char, level, race):
+    def __init__(self, char, level, race, examinable=False):
         # The character that will represent this creature
         self.char = char
         # The level of the creature, from 1 to 20
@@ -50,6 +50,7 @@ class Creature(object):
         self.current_activity = None
         self.activity_list = []
         self.race = race
+        self.examinable = examinable
 
     def race_string(self):
         return races_to_string[self.race]
@@ -136,7 +137,7 @@ class Patron(Creature):
     """A customer of the Tavern."""
     def __init__(self, creature_class, race, level, money, thirst):
         super(Patron, self).__init__(
-            creature_class_to_character[creature_class], level, race)
+            creature_class_to_character[creature_class], level, race, True)
         self.creature_class = creature_class
         self.money = money
         self.thirst = thirst
