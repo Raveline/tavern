@@ -48,10 +48,15 @@ class GameState(object):
 
             return subobject
 
+        def check_pause(event_data):
+            if event_data == Inputs.SPACE:
+                self.pauses_game = not self.pauses_game
+
         event_data = event.get('data')
         if (event.get('type') == bus.INPUT_EVENT):
             if not (pick_substate(event_data) or
                     pick_subobject(event_data) or
+                    check_pause(event_data) or
                     self._check_for_previous_state(event_data))\
                     and self.navigator:
                 self.navigator.receive(event_data)
