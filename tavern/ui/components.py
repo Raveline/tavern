@@ -389,7 +389,3 @@ class Ruler(MinimumMaximum):
                                         libtcod.black)
 
 
-def make_textbox(x, y, w, h, title, text):
-    tbc = TextBloc(1, 1, w - 1, text)
-    root_component = RootComponent(x, y, w, h, title, [tbc])
-    return root_component

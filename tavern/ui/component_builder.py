@@ -1,3 +1,4 @@
+from tavern.utils import bus
 from tavern.ui.components import (
     StaticText, TextBloc, RowsComponent, DynamicText, RootComponent,
     Button, Ruler, NumberPicker, Line, ComponentException)
@@ -113,3 +114,16 @@ def read_dimensions(context, tree):
             w = int(percent * parent_width)
         h = tree.get('h', 0)
     return x, y, w, h
+
+
+def make_textbox(x, y, w, h, title, text):
+    tbc = TextBloc(1, 1, w - 1, text)
+    return RootComponent(x, y, w, h, title, [tbc])
+
+
+def make_questionbox(x, y, w, h, title, text, from_state, event_yes,
+                     event_type):
+    tbc = TextBloc(1, 1, w - 2, text)
+    yes = Button(1, h - 3, w - 2, 'Yes', event_yes, event_type)
+    no = Button(1, h - 2, w - 2, 'No', from_state, bus.PREVIOUS_STATE)
+    return RootComponent(x, y, w, h, title, [tbc, yes, no])
