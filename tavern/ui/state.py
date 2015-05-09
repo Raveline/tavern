@@ -1,5 +1,6 @@
 from tavern.utils import bus
 from tavern.utils.dict_path import read_path_dict
+from tavern.ui.component_builder import make_questionbox
 from tavern.inputs.input import Inputs
 from tavern.world.actions import Actions
 from tavern.world.commands import BuyCommand
@@ -76,8 +77,8 @@ class GameState(object):
             command = PutCommand(area, self.sub_object)
         elif self.action == Actions.ROOMS:
             command = RoomCommand(area, self.sub_object)
-
-        bus.bus.publish({'command': command}, bus.WORLD_EVENT)
+        if command is not None:
+            bus.bus.publish({'command': command}, bus.WORLD_EVENT)
 
     def _check_for_previous_state(self, event_data):
         """
@@ -159,14 +160,16 @@ class MenuState(GameState):
     def receive(self, event):
         event_data = event.get('data')
         if event.get('type') == bus.MENU_MODEL_EVENT:
-            self.update_data(event_data.get('source'),
-                             event_data.get('new_value'))
+            self.receive_model_event(event_data)
         else:
             if not self._check_for_previous_state(event_data):
                 self.root_component.receive(event_data)
 
     def display(self, console):
         self.root_component.display(console)
+
+    def receive_model_event(self, event_data):
+        pass
 
 
 class StoreMenuState(MenuState):
@@ -176,6 +179,10 @@ class StoreMenuState(MenuState):
         super(StoreMenuState, self).__init__(
             state_tree, root_component, parent_state, self.build_data()
         )
+
+    def receive_model_event(self, event_data):
+        self.update_data(event_data.get('source'),
+                         event_data.get('new_value'))
 
 
 class BuyMenuState(StoreMenuState):
@@ -262,6 +269,15 @@ class ExamineMenu(MenuState):
         self.creature = creature
         super(ExamineMenu, self).__init__(
             state_tree, root_component, parent_state, self.build_data())
+
+    def receive_model_event(self, event_data):
+        box = make_questionbox(5, 5, 60, 10,
+                               'Are you sure you want to recruit this '
+                               'customer ?', self, [{'recruit': self.creature},
+                                                    self.parent_state],
+                               [bus.CUSTOMER_EVENT, bus.PREVIOUS_STATE])
+        bus.bus.publish({'type': 'box',
+                         'box': box})
 
     def build_data(self):
         data = {}
