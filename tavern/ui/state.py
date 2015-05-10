@@ -171,6 +171,9 @@ class MenuState(GameState):
     def receive_model_event(self, event_data):
         pass
 
+    def __str__(self):
+        return "Menu"
+
 
 class StoreMenuState(MenuState):
     def __init__(self, state_tree, root_component,
@@ -272,12 +275,12 @@ class ExamineMenu(MenuState):
 
     def receive_model_event(self, event_data):
         box = make_questionbox(5, 5, 60, 10,
+                               'Recruit ?',
                                'Are you sure you want to recruit this '
                                'customer ?', self, [{'recruit': self.creature},
                                                     self.parent_state],
                                [bus.CUSTOMER_EVENT, bus.PREVIOUS_STATE])
-        bus.bus.publish({'type': 'box',
-                         'box': box})
+        bus.bus.publish({'type': 'box', 'box': box}, bus.NEW_STATE)
 
     def build_data(self):
         data = {}
