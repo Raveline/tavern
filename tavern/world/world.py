@@ -5,6 +5,7 @@ from tavern.utils import bus
 from tavern.utils.geom import manhattan
 from tavern.world.objects import Functions, rooms_to_name
 from tavern.world.store import StorageSystem
+from tavern.people.employees import make_recruit_out_of
 
 
 class Tavern(object):
@@ -32,7 +33,16 @@ class Tavern(object):
             crea.tick(self.tavern_map)
 
     def handle_customer_event(self, event_data):
-        self.creatures.append(event_data.get('customer'))
+        if event_data.get('customer'):
+            self.creatures.append(event_data.get('customer'))
+        elif event_data.get('recruit'):
+            recruit = event_data.get('recruit')
+            # First, we remove our recruit from the existing creature list...
+            self.creatures.remove(recruit)
+            # Then we rebuild it, anew !
+            new_recruit = make_recruit_out_of(recruit)
+            # ... and we add it back to the list of creatures !
+            self.creatures.append(new_recruit)
 
     def receive(self, event):
         event_data = event.get('data')

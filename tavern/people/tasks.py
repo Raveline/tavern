@@ -45,6 +45,34 @@ class Wandering(Task):
         return "Being idle"
 
 
+class ReserveSeat(Task):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def tick(self):
+        self.finish()
+
+    def finish(self):
+        command = ReserveSeat(self.x, self.y)
+        self.call_command(command)
+        super(ReserveSeat, self).finish()
+
+
+class OpenSeat(Task):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def tick(self):
+        self.finish()
+
+    def finish(self):
+        command = ReserveSeat(self.x, self.y, True)
+        self.call_command(command)
+        super(OpenSeat, self).finish()
+
+
 class Drinking(Task):
     def tick(self, world_map, creature):
         # For now, just drink during 20 ticks
@@ -88,8 +116,6 @@ class Seating(Task):
 
 class StandingUp(Task):
     def tick(self, world_map, creature):
-        # We release the seat we were using
-        world_map.open_seat(creature.x, creature.y)
         self.finish()
 
     def __str__(self):

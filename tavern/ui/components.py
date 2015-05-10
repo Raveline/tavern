@@ -282,9 +282,7 @@ class Button(Component):
 
     def enter(self):
         for idx, event in enumerate(self.events):
-            print("Events_types : %s" % self.events_types)
             event_type = self.events_types[idx]
-            print("Selected event_type : %s" % event_type)
             bus.bus.publish(event, event_type)
 
 

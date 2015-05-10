@@ -1,7 +1,8 @@
 import random
-from tavern.world.objects import Rooms, Functions
-from tavern.people.tasks import Walking, Wandering, Serving, Drinking, Ordering
+from tavern.world.objects import Functions
+from tavern.people.tasks import Walking, Wandering, Drinking, Ordering
 from tavern.people.tasks import Leaving, Seating, StandingUp
+from tavern.people.tasks import ReserveSeat, OpenSeat
 
 
 class CreatureClass(object):
@@ -100,39 +101,6 @@ races_to_string = {
     Creature.DWARVES: 'Dwarf'}
 
 
-class Publican(Creature):
-    """The avatar of the player."""
-    def __init__(self, x, y):
-        super(Publican, self).__init__('@', 1, Creature.EMPLOYEE)
-        self.x = x
-        self.y = y
-
-    def __str__(self):
-        return ' --- '.join(["You", super(Publican, self).__str__()])
-
-    def find_activity(self, world_map):
-        # Am I in the tavern ?
-        tav = world_map.find_closest_room(self.x, self.y, Rooms.TAVERN)
-        in_tavern = tav and (self.x, self.y) in tav
-        if tav and not in_tavern:
-            x, y = random.choice(tav)
-            self.add_activity(Walking(world_map, self, x, y))
-        elif in_tavern:
-            # We want to find a counter to attend
-            counter = world_map.find_closest_object(self.x, self.y,
-                                                    Functions.ORDERING,
-                                                    True)
-            if counter:
-                # We have a counter ! Now let us find the tile that is the
-                # closest to a wall around this counter.
-                x, y = world_map.find_closest_to_wall_neighbour(counter[0],
-                                                                counter[1])
-                self.add_activity(Walking(world_map, self, x, y))
-                self.add_activity(Serving(Functions.ORDERING))
-            else:
-                self.add_activity(Wandering())
-
-
 class Patron(Creature):
     """A customer of the Tavern."""
     def __init__(self, creature_class, race, level, money, thirst):
@@ -165,11 +133,12 @@ class Patron(Creature):
         available = world_map.available_seating
         if available:
             x, y = world_map.find_closest_in(available, self.x, self.y)
-            world_map.take_seat(x, y)
+            self.add_activity(ReserveSeat(x, y))
             self.add_activity(Walking(world_map, self, x, y))
             self.add_activity(Seating())
             self.add_activity(Drinking())
             self.add_activity(StandingUp())
+            self.add_activity(OpenSeat(x, y))
         else:
             # For the moment, just wait
             self.add_activity(Wandering())

@@ -3,7 +3,7 @@
 from tavern.utils import bus
 from commands import Command
 from tavern.world.objects import Functions, Rooms, Materials
-from tavern.people.characters import Publican
+from tavern.people.employees import Publican
 
 
 class MapCommand(Command):

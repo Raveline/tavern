@@ -64,7 +64,13 @@ class CreatureExit(Command):
         self.creature = creature
 
     def execute(self, world):
-        world.remove_creature(self.creature)
+        # There is a small chance here the player recruit a character
+        # just when he was leaving. So this would fail. Let's add a bit
+        # of safety here.
+        try:
+            world.remove_creature(self.creature)
+        except:
+            pass
 
 
 class BuyCommand(Command):
@@ -83,3 +89,16 @@ class BuyCommand(Command):
             # Cancel a buy
             world.cash += self.money_value
             world.store.take(self.goods, self.quantity)
+
+
+class ReserveSeat(Command):
+    def __init__(self, x, y, cancel=False):
+        self.x = x
+        self.y = y
+        self.cancel = cancel
+
+    def execute(self, world):
+        if self.cancel:
+            world.open_seat(self.x, self.y)
+        else:
+            world.take_seat(self.x, self.y)
