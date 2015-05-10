@@ -54,8 +54,8 @@ def build_component(context, comp_desc, children=None, root=False):
         elif comp_type == 'Button':
             text = comp_desc.get('text')
             event = comp_desc.get('event')
-            event_type = comp_desc.get('even_type')
-            component = Button(x, y, w, text, event, event_type)
+            event_type = comp_desc.get('event_type')
+            component = Button(x, y, w, text, [event], [event_type])
         elif comp_type == 'Ruler':
             source = comp_desc.get('source')
             component = Ruler(x, y, w, source)
@@ -125,5 +125,5 @@ def make_questionbox(x, y, w, h, title, text, from_state, event_yes,
                      event_type):
     tbc = TextBloc(1, 1, w - 2, text)
     yes = Button(1, h - 3, w - 2, 'Yes', event_yes, event_type)
-    no = Button(1, h - 2, w - 2, 'No', from_state, bus.PREVIOUS_STATE)
+    no = Button(1, h - 2, w - 2, 'No', [from_state], [bus.PREVIOUS_STATE])
     return RootComponent(x, y, w, h, title, [tbc, yes, no])

@@ -268,11 +268,11 @@ class ColumnedLine(Component):
 
 
 class Button(Component):
-    def __init__(self, x, y, w, text, event, event_type):
+    def __init__(self, x, y, w, text, events, events_types):
         super(Button, self).__init__(x, y, w, 1, True)
         self.text = text
-        self.event = event
-        self.event_type = event_type
+        self.events = events
+        self.events_types = events_types
 
     def display(self, console):
         func = display_text
@@ -281,7 +281,11 @@ class Button(Component):
         func(console, self.text, self.x, self.y)
 
     def enter(self):
-        bus.bus.publish(self.event, self.event_type)
+        for idx, event in enumerate(self.events):
+            print("Events_types : %s" % self.events_types)
+            event_type = self.events_types[idx]
+            print("Selected event_type : %s" % event_type)
+            bus.bus.publish(event, event_type)
 
 
 class Line(Component):
@@ -387,5 +391,3 @@ class Ruler(MinimumMaximum):
             libtcod.console_put_char_ex(console, x, self.y,
                                         libtcod.CHAR_BLOCK1, front_color,
                                         libtcod.black)
-
-
