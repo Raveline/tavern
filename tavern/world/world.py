@@ -101,6 +101,13 @@ class TavernMap():
         self.busy_attended_objects_coords.get(function).remove((x, y))
         self.attended_objects_coords.get(function).append((x, y))
 
+    def get_room_at(self, x, y):
+        for room_type, lists in self.rooms.iteritems():
+            for one_list in lists:
+                if (x, y) in one_list:
+                    return room_type
+        return None
+
     def take_seat(self, x, y):
         self.used_seating.append((x, y))
         self.available_seating.remove((x, y))
