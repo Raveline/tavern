@@ -55,7 +55,7 @@ class Game(object):
         bus.bus.publish({'command': command}, bus.WORLD_EVENT)
         command = RoomCommand(self.tavern.tavern_map.fill_from(10, 10), 0)
         bus.bus.publish({'command': command}, bus.WORLD_EVENT)
-        self.customers.tick_counter += 80
+        self.customers.tick_counter += 100
 
     def __init__(self):
         self.context = Context()
@@ -186,6 +186,8 @@ class Game(object):
     def build_state(self, tree):
         if tree.get('type', '') == 'menu':
             return self.__build_menu_state(tree)
+        elif tree.get('type', '') == 'box':
+            return MenuState({}, tree.get('box'), self.state)
         else:
             if tree.get('selector', actions.CROSSHAIR) == actions.CROSSHAIR:
                 navigator = self.cross
