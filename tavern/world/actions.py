@@ -1,4 +1,7 @@
 from tavern.world.objects import Functions, TavernObject, Rooms
+from tavern.world.objects import (
+    RoomsRule, OrRule, NextToWallRule, ExteriorWallRule
+)
 from tavern.utils import bus
 
 CROSSHAIR = 0
@@ -15,7 +18,8 @@ class Actions:
 door = TavernObject('Door',
                     Functions.ROOM_SEPARATOR,
                     15,
-                    '=')
+                    '=', False,
+                    [OrRule(NextToWallRule(), ExteriorWallRule())])
 
 chair = TavernObject('Chair',
                      Functions.SITTING,
@@ -26,13 +30,15 @@ table = TavernObject('Table',
                      Functions.EATING,
                      10,
                      '*',
-                     True)
+                     True,
+                     [RoomsRule([Rooms.TAVERN])])
 
 counter = TavernObject('Counter',
                        Functions.ORDERING,
                        30,
                        '+',
-                       True)
+                       True
+                       [RoomsRule([Rooms.TAVERN])])
 
 beam = TavernObject('Beam',
                     Functions.SUPPORT,
