@@ -2,7 +2,7 @@
 
 from tavern.utils import bus
 from commands import Command
-from tavern.world.objects import Functions, Rooms, Materials
+from tavern.world.objects import Functions, Rooms, Materials, DefaultRule
 from tavern.people.employees import Publican
 
 
@@ -57,7 +57,6 @@ class BuildCommand(MapCommand):
         tile.wall = False
         tile.material = Materials.WOOD
         tavern_map.add_walkable_tile(x, y)
-        # TODO : add material
         self.set_neighboring_tiles_to_wall(x, y, tavern_map)
         return True
 
@@ -87,42 +86,26 @@ class PutCommand(MapCommand):
         world.cash -= (counter * self.object_type.price)
 
     def put_object(self, x, y, world_map, object_type):
-        def validate_object_location(tile, object_type):
-            if tile.tile_object is None and tile.built:
-                if object_type.function == Functions.ROOM_SEPARATOR:
-                    if world_map.tiles[y][x].wall:
-                        # Wall. Door is only allowed if on exterior wall
-                        if world_map.is_an_outside_wall(x, y):
-                            world_map.tiles[y][x].wall = False
-                            world_map.tiles[y][x].built = True
-                            world_map.entry_points.append((x, y))
-                            world_map.add_walkable_tile(x, y)
-                            return True
-                        else:
-                            bus.bus.publish('Door to the outside must be on an'
-                                            ' exterior wall.')
-                            return False
-                    if len([t for t in world_map.get_neighboring_for(x, y)
-                            if t.wall]) > 0:
-                        return True
-                    else:
-                        bus.bus.publish('Door must be next to a wall, or in'
-                                        ' an exterior wall.')
-                        return False
-                else:
-                    return not tile.wall
-            elif tile.tile_object is not None:
-                bus.bus.publish('There is already an object here.')
-                return False
-            elif not tile.built:
-                bus.bus.publish('The area is not built.')
-            return False
         tile = world_map.tiles[y][x]
-        if object_type and validate_object_location(tile, object_type):
+        is_door = object_type.function == Functions.ROOM_SEPARATOR
+        is_chair = object_type.function == Functions.SITTING
+        is_destination_wall = tile.wall
+        for rule in object_type.rules + [DefaultRule()]:
+            if not rule.check(world_map, x, y):
+                bus.bus.publish(rule.get_error_message())
+                return
+        # If we reached this point, object is valid
+        # Special case for outside door
+        if is_door and is_destination_wall:
+            world_map.tiles[y][x].wall = False
+            world_map.tiles[y][x].built = True
+            world_map.entry_points.append((x, y))
+            world_map.add_walkable_tile(x, y)
+        else:
             tile.tile_object = object_type
-            if object_type.function == Functions.SITTING:
+            if is_chair:
                 world_map.open_seat(x, y)
-            world_map.update_tile_walkability(x, y)
+                world_map.update_tile_walkability(x, y)
         return True
 
 
@@ -132,7 +115,6 @@ class RoomCommand(MapCommand):
         self.room_type = room_type
 
     def execute(self, world):
-        print("Executing room command with tiles : %s" % self.area)
         for (x, y) in self.area:
             tile = world.tavern_map.tiles[y][x]
             tile.room_type = self.room_type

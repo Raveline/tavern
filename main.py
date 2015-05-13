@@ -47,14 +47,17 @@ class Game(object):
         # Build the tavern room
         commands.append(BuildCommand(build_area(9, 2, 12, 12)))
         commands.append(PutCommand(build_area(11, 1, 11, 1), door))
+        for command in commands:
+            bus.bus.publish({'command': command}, bus.WORLD_EVENT)
+        commands = []
+        commands.append(RoomCommand(self.tavern.tavern_map.fill_from(3, 3), 1))
+        commands.append(RoomCommand(
+            self.tavern.tavern_map.fill_from(10, 10), 0))
         commands.append(PutCommand(build_area(9, 11, 9, 11), counter))
         commands.append(PutCommand(build_area(9, 6, 9, 6), chair))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
-        command = RoomCommand(self.tavern.tavern_map.fill_from(3, 3), 1)
-        bus.bus.publish({'command': command}, bus.WORLD_EVENT)
-        command = RoomCommand(self.tavern.tavern_map.fill_from(10, 10), 0)
-        bus.bus.publish({'command': command}, bus.WORLD_EVENT)
+        print(self.tavern.tavern_map.tiles[11][9].wall)
         self.customers.tick_counter += 100
 
     def __init__(self):

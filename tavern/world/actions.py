@@ -1,6 +1,6 @@
 from tavern.world.objects import Functions, TavernObject, Rooms
 from tavern.world.objects import (
-    RoomsRule, OrRule, NextToWallRule, ExteriorWallRule
+    RoomsRule, OrRule, NextToWallRule, ExteriorWallRule, NotWallRule
 )
 from tavern.utils import bus
 
@@ -24,27 +24,29 @@ door = TavernObject('Door',
 chair = TavernObject('Chair',
                      Functions.SITTING,
                      5,
-                     'o')
+                     'o',
+                     [NotWallRule])
 
 table = TavernObject('Table',
                      Functions.EATING,
                      10,
                      '*',
                      True,
-                     [RoomsRule([Rooms.TAVERN])])
+                     [RoomsRule([Rooms.TAVERN]), NotWallRule()])
 
 counter = TavernObject('Counter',
                        Functions.ORDERING,
                        30,
                        '+',
                        True,
-                       [RoomsRule([Rooms.TAVERN])])
+                       [RoomsRule([Rooms.TAVERN]), NotWallRule()])
 
 beam = TavernObject('Beam',
                     Functions.SUPPORT,
                     10,
                     '^',
-                    True)
+                    True,
+                    [NotWallRule()])
 
 objects_tree = {'d': {'display': 'Door', 'subobject': door},
                 'c': {'display': 'Chair', 'subobject': chair},
