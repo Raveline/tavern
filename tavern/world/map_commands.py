@@ -105,7 +105,7 @@ class PutCommand(MapCommand):
             tile.tile_object = object_type
             if is_chair:
                 world_map.open_seat(x, y)
-                world_map.update_tile_walkability(x, y)
+            world_map.update_tile_walkability(x, y)
         return True
 
 
