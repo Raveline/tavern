@@ -1,4 +1,4 @@
-from tavern.world.objects import Functions, TavernObject, Rooms
+from tavern.world.objects import Functions, ObjectTemplate, Rooms
 from tavern.world.objects import (
     RoomsRule, OrRule, NextToWallRule, ExteriorWallRule, NotWallRule
 )
@@ -15,33 +15,33 @@ class Actions:
     ROOMS = 2
 
 
-door = TavernObject('Door',
+door = ObjectTemplate('Door',
                     Functions.ROOM_SEPARATOR,
                     15,
                     '=', False,
                     [OrRule(NextToWallRule(), ExteriorWallRule())])
 
-chair = TavernObject('Chair',
+chair = ObjectTemplate('Chair',
                      Functions.SITTING,
                      5,
                      'o',
                      [NotWallRule])
 
-table = TavernObject('Table',
+table = ObjectTemplate('Table',
                      Functions.EATING,
                      10,
                      '*',
                      True,
                      [RoomsRule([Rooms.TAVERN]), NotWallRule()])
 
-counter = TavernObject('Counter',
+counter = ObjectTemplate('Counter',
                        Functions.ORDERING,
                        30,
                        '+',
                        True,
                        [RoomsRule([Rooms.TAVERN]), NotWallRule()])
 
-beam = TavernObject('Beam',
+beam = ObjectTemplate('Beam',
                     Functions.SUPPORT,
                     10,
                     '^',

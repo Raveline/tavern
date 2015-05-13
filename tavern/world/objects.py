@@ -25,7 +25,8 @@ rooms_to_name = {Rooms.TAVERN: 'Tavern',
                  Rooms.ROOM: 'Room'}
 
 
-class TavernObject(object):
+class ObjectTemplate(object):
+    """A template for an object in the tavern."""
     def __init__(self, name, function, price, character,
                  blocks=False, rules=None):
         self.function = function
@@ -39,6 +40,17 @@ class TavernObject(object):
 
     def __repr__(self):
         return self.name
+
+
+class TavernObject(object):
+    """A real object, instantiated, with properties taken
+    from the template."""
+    def __init__(self, template):
+        self.template
+        self.blocks = self.template.blocks
+        self.name = self.template.name
+        self.character = self.template.character
+        self.function = self.template.function
 
 
 class Rule(object):
