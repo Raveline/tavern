@@ -37,7 +37,7 @@ counter = TavernObject('Counter',
                        Functions.ORDERING,
                        30,
                        '+',
-                       True
+                       True,
                        [RoomsRule([Rooms.TAVERN])])
 
 beam = TavernObject('Beam',
