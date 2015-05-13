@@ -39,6 +39,7 @@ class GameState(object):
                 if substate:
                     bus.bus.publish(substate,
                                     bus.NEW_STATE)
+                    self.navigator.set_char()
                 return substate
 
         def pick_subobject(event_data):
@@ -46,6 +47,8 @@ class GameState(object):
             if subobject:
                 self.sub_object = subobject.get('subobject')
                 self.sub_object_display = subobject.get('display')
+                if not isinstance(self.sub_object, int):
+                    self.navigator.set_char(self.sub_object.character)
 
             return subobject
 
@@ -91,6 +94,7 @@ class GameState(object):
             not self.navigator.selection and\
                 self.parent_state is not None:
             bus.bus.publish(self.parent_state, bus.PREVIOUS_STATE)
+            self.navigator.set_char()
             return True
         return False
 
