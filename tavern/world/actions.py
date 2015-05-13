@@ -16,37 +16,37 @@ class Actions:
 
 
 door = ObjectTemplate('Door',
-                    Functions.ROOM_SEPARATOR,
-                    15,
-                    '=', False,
-                    [OrRule(NextToWallRule(), ExteriorWallRule())])
+                      Functions.ROOM_SEPARATOR,
+                      15,
+                      '=', False,
+                      [OrRule(NextToWallRule(), ExteriorWallRule())])
 
 chair = ObjectTemplate('Chair',
-                     Functions.SITTING,
-                     5,
-                     'o',
-                     [NotWallRule])
+                       Functions.SITTING,
+                       5,
+                       'o',
+                       [NotWallRule])
 
 table = ObjectTemplate('Table',
-                     Functions.EATING,
-                     10,
-                     '*',
-                     True,
-                     [RoomsRule([Rooms.TAVERN]), NotWallRule()])
-
-counter = ObjectTemplate('Counter',
-                       Functions.ORDERING,
-                       30,
-                       '+',
+                       Functions.EATING,
+                       10,
+                       '*',
                        True,
                        [RoomsRule([Rooms.TAVERN]), NotWallRule()])
 
+counter = ObjectTemplate('Counter',
+                         Functions.ORDERING,
+                         30,
+                         '+',
+                         True,
+                         [RoomsRule([Rooms.TAVERN]), NotWallRule()])
+
 beam = ObjectTemplate('Beam',
-                    Functions.SUPPORT,
-                    10,
-                    '^',
-                    True,
-                    [NotWallRule()])
+                      Functions.SUPPORT,
+                      10,
+                      '^',
+                      True,
+                      [NotWallRule()])
 
 objects_tree = {'d': {'display': 'Door', 'subobject': door},
                 'c': {'display': 'Chair', 'subobject': chair},
@@ -237,7 +237,7 @@ action_tree = {'name': 'Main mode',
                          'name': 'Buy supplies',
                          'menu_type': 'BuyMenu',
                          'content': supplies_menu},
-                   'r': {'type': 'menu',
+                   'i': {'type': 'menu',
                          'name': 'Fix prices',
                          'menu_type': 'PricesMenu',
                          'content': prices_menu},
