@@ -35,7 +35,8 @@ def display(grid, console):
 
 def print_selection(console, receiver):
     display_list = receiver.get_selected_tiles()
-    for (x, y) in display_list:
+    characters = receiver.get_characters()
+    for (char, (x, y)) in zip(characters, display_list):
         x_, y_ = receiver.global_to_local(x, y)
         print_char(console, 'x', x_, y_, libtcod.yellow)
 

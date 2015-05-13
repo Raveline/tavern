@@ -1,6 +1,7 @@
 from tavern.utils.geom import Frame
 from tavern.inputs.input import Inputs
 from tavern.utils import bus
+from itertools import cycle
 
 
 class Scape(object):
@@ -8,6 +9,12 @@ class Scape(object):
         self.frame = Frame(0, 0, w, h)
         self.world_frame = world_frame
         self.compute_focus()
+        self.set_char()
+
+    def set_char(self, character=None):
+        if character is None:
+            character = 'x'
+        self.character = character
 
     def compute_focus(self):
         self.focusX = self.frame.w / 2
@@ -76,6 +83,9 @@ class Scape(object):
 
     def global_to_local(self, x, y):
         return x - self.scape.frame.x, y - self.scape.frame.y
+
+    def get_characters(self):
+        return cycle(self.character)
 
 
 class Selection(object):
