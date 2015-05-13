@@ -2,7 +2,8 @@
 
 from tavern.utils import bus
 from commands import Command
-from tavern.world.objects import Functions, Rooms, Materials, DefaultRule
+from tavern.world.objects import (
+    Functions, Rooms, Materials, DefaultRule, TavernObject)
 from tavern.people.employees import Publican
 
 
@@ -102,7 +103,7 @@ class PutCommand(MapCommand):
             world_map.entry_points.append((x, y))
             world_map.add_walkable_tile(x, y)
         else:
-            tile.tile_object = object_type
+            tile.tile_object = TavernObject(object_type)
             if is_chair:
                 world_map.open_seat(x, y)
             world_map.update_tile_walkability(x, y)
