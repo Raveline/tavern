@@ -50,7 +50,7 @@ class ReserveSeat(Task):
         self.x = x
         self.y = y
 
-    def tick(self):
+    def tick(self, world_map, creature):
         self.finish()
 
     def finish(self):
@@ -64,7 +64,7 @@ class OpenSeat(Task):
         self.x = x
         self.y = y
 
-    def tick(self):
+    def tick(self, world_map, creature):
         self.finish()
 
     def finish(self):
@@ -190,6 +190,7 @@ class Walking(Task):
     def __init__(self, world_map, creature, x, y):
         super(Walking, self).__init__()
         self.path = world_map.path_from_to(creature.x, creature.y, x, y)
+        print("Going to %d %d" % (x, y))
         self.path_length = libtcod.path_size(self.path)
         if self.path_length == 0:
             self.fail()
@@ -199,6 +200,7 @@ class Walking(Task):
             x, y = libtcod.path_get(self.path, self.tick_time)
             if not world_map.tiles[y][x].is_walkable():
                 # Path is not walkable anymore !
+                print("%d, %d is not walkable anymore !!!" % (x, y))
                 self.fail()
             else:
                 creature.move(x, y, 0)
@@ -208,10 +210,12 @@ class Walking(Task):
 
     def finish(self):
         super(Walking, self).finish()
+        print("Deleting path : %s" % str(self.path))
         libtcod.path_delete(self.path)
 
     def fail(self):
         super(Walking, self).fail()
+        print("Deleting path : %s" % str(self.path))
         libtcod.path_delete(self.path)
 
     def __str__(self):
