@@ -46,7 +46,7 @@ class TavernObject(object):
     """A real object, instantiated, with properties taken
     from the template."""
     def __init__(self, template):
-        self.template
+        self.template = template
         self.blocks = self.template.blocks
         self.name = self.template.name
         self.character = self.template.character
