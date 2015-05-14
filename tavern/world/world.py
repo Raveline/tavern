@@ -85,6 +85,10 @@ class TavernMap():
         self.attended_objects_coords = defaultdict(list)
         # A dict of all objects attended to, but currently taken
         self.busy_attended_objects_coords = defaultdict(list)
+        # Tasks requiring an employee
+        # Those are accessible with Functions as key
+        # The values is a ((x, y), task) tuple
+        self.employee_tasks = defaultdict(list)
         # Seats (coords) that can be used
         self.available_seating = []
         # Seats (coords) that cannot be used because they are taken
