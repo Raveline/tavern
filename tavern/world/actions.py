@@ -24,8 +24,8 @@ door = ObjectTemplate('Door',
 chair = ObjectTemplate('Chair',
                        Functions.SITTING,
                        5,
-                       'o',
-                       [NotWallRule])
+                       'o', False,
+                       [NotWallRule()])
 
 table = ObjectTemplate('Table',
                        Functions.EATING,
