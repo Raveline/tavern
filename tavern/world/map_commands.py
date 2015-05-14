@@ -108,6 +108,9 @@ class PutCommand(MapCommand):
                 print("Opening a chair...")
                 world_map.open_seat(x, y)
             world_map.update_tile_walkability(x, y)
+            after_put = object_type.after_put
+            if after_put is not None:
+                after_put(world_map, x, y)
         return True
 
 

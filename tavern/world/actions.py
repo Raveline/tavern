@@ -3,6 +3,7 @@ from tavern.world.objects import (
     RoomsRule, OrRule, NextToWallRule, ExteriorWallRule, NotWallRule
 )
 from tavern.utils import bus
+from tavern.people.tasks import Serving
 
 CROSSHAIR = 0
 FILLER = 1
@@ -13,6 +14,12 @@ class Actions:
     BUILD_COST = 10
     PUT = 1
     ROOMS = 2
+
+
+def add_counter_helping_task(world_map, x, y):
+    x2, y2 = world_map.find_closest_to_wall_neighbour(x, y)
+    world_map.employee_tasks[Functions.ORDERING].\
+        append(((x2, y2), Serving(Functions.ORDERING)))
 
 
 door = ObjectTemplate('Door',
@@ -39,7 +46,8 @@ counter = ObjectTemplate('Counter',
                          30,
                          '+',
                          True,
-                         [RoomsRule([Rooms.TAVERN]), NotWallRule()])
+                         [RoomsRule([Rooms.TAVERN]), NotWallRule()],
+                         add_counter_helping_task)
 
 beam = ObjectTemplate('Beam',
                       Functions.SUPPORT,
