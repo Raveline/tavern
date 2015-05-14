@@ -1,5 +1,5 @@
 import random
-from tavern.people.tasks import Walking, Serving, Wandering
+from tavern.people.tasks import Serving, Wandering
 from tavern.world.objects import Rooms, Functions
 from tavern.people.characters import Creature
 
@@ -20,7 +20,7 @@ class Publican(Creature):
         in_tavern = tav and (self.x, self.y) in tav
         if tav and not in_tavern:
             x, y = random.choice(tav)
-            self.add_activity(Walking(world_map, self, x, y))
+            self.add_walking_then_or(world_map, x, y, [], [Wandering()])
         elif in_tavern:
             # We want to find a counter to attend
             counter = world_map.find_closest_object(self.x, self.y,
@@ -31,8 +31,9 @@ class Publican(Creature):
                 # closest to a wall around this counter.
                 x, y = world_map.find_closest_to_wall_neighbour(counter[0],
                                                                 counter[1])
-                self.add_activity(Walking(world_map, self, x, y))
-                self.add_activity(Serving(Functions.ORDERING))
+                self.add_walking_then_or(world_map, x, y,
+                                         [Serving(Functions.ORDERING)],
+                                         [Wandering()])
             else:
                 self.add_activity(Wandering())
 

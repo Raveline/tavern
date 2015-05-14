@@ -1,5 +1,6 @@
 import random
 from tavern.world.objects import Functions
+from tavern.people.tasks import ImpossibleTask
 from tavern.people.tasks import Walking, Wandering, Drinking, Ordering
 from tavern.people.tasks import Leaving, Seating, StandingUp
 from tavern.people.tasks import ReserveSeat, OpenSeat
@@ -62,6 +63,22 @@ class Creature(object):
         else:
             self.current_activity = activity
 
+    def add_activities(self, activities):
+        for act in activities:
+            self.add_activity(act)
+
+    def add_walking_then_or(self, world_map, x, y, then_acts, or_acts=None):
+        """Add a walking activity to a point, then the list of activity in
+        [then], or, if the path is impossible, the [or] list."""
+        try:
+            walking = Walking(world_map, self, x, y)
+            self.add_activity(walking)
+            self.add_activities(then_acts)
+        except ImpossibleTask:
+            if not or_acts:
+                self.add_activity(Wandering())
+            self.add_activities(or_acts)
+
     def tick(self, world_map):
         if not self.current_activity:
             self.find_activity(world_map)
@@ -118,27 +135,25 @@ class Patron(Creature):
     def leave(self, world_map):
         # We don't want to drink anymore, let's leave this place !
         exit_x, exit_y = random.choice(world_map.entry_points)
-        self.add_activity(Walking(world_map, self, exit_x, exit_y))
-        self.add_activity(Leaving())
+        self.add_walking_then_or(world_map, exit_x, exit_y, [Leaving()])
 
     def fetch_a_drink(self, world_map):
         # Let's try to find an open counter
         counter = world_map.find_closest_object(self.x, self.y,
                                                 Functions.ORDERING, False)
         if counter:
-            self.add_activity(Walking(world_map, self, counter[0], counter[1]))
-            self.add_activity(Ordering())
+            self.add_walking_then_or(world_map, counter[0], counter[1],
+                                     [Ordering()])
 
     def find_a_seat(self, world_map):
         available = world_map.available_seating
         if available:
             x, y = world_map.find_closest_in(available, self.x, self.y)
             self.add_activity(ReserveSeat(x, y))
-            self.add_activity(Walking(world_map, self, x, y))
-            self.add_activity(Seating())
-            self.add_activity(Drinking())
-            self.add_activity(StandingUp())
-            self.add_activity(OpenSeat(x, y))
+            self.add_walking_then_or(world_map, x, y,
+                                     [Seating(), Drinking(), StandingUp(),
+                                      OpenSeat(x, y)],
+                                     [OpenSeat(x, y), Wandering()])
         else:
             # For the moment, just wait
             self.add_activity(Wandering())
