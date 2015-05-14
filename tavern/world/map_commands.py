@@ -105,6 +105,7 @@ class PutCommand(MapCommand):
         else:
             tile.tile_object = TavernObject(object_type)
             if is_chair:
+                print("Opening a chair...")
                 world_map.open_seat(x, y)
             world_map.update_tile_walkability(x, y)
         return True

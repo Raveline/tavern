@@ -3,8 +3,13 @@ import random
 
 from tavern.utils import bus
 from tavern.world.commands import AttendToCommand, OrderCommand, CreatureExit
+from tavern.world.commands import ReserveSeat as ReserveCommand
 from tavern.world.objects import Functions
 from tavern.world.goods import GoodsType
+
+
+class ImpossibleTask(Exception):
+    pass
 
 
 class Task(object):
@@ -49,12 +54,13 @@ class ReserveSeat(Task):
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        super(ReserveSeat, self).__init__()
 
     def tick(self, world_map, creature):
         self.finish()
 
     def finish(self):
-        command = ReserveSeat(self.x, self.y)
+        command = ReserveCommand(self.x, self.y)
         self.call_command(command)
         super(ReserveSeat, self).finish()
 
@@ -63,12 +69,13 @@ class OpenSeat(Task):
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        super(OpenSeat, self).__init__()
 
     def tick(self, world_map, creature):
         self.finish()
 
     def finish(self):
-        command = ReserveSeat(self.x, self.y, True)
+        command = ReserveCommand(self.x, self.y, True)
         self.call_command(command)
         super(OpenSeat, self).finish()
 
@@ -193,6 +200,7 @@ class Walking(Task):
         self.path_length = libtcod.path_size(self.path)
         if self.path_length == 0:
             self.fail()
+            raise ImpossibleTask('No path to %d, %s' % (x, y))
 
     def tick(self, world_map, creature):
         if self.tick_time < self.path_length:
@@ -212,9 +220,8 @@ class Walking(Task):
 
     def fail(self):
         # Could already have failed at initialisation once
-        if not self.failed:
-            super(Walking, self).fail()
-            libtcod.path_delete(self.path)
+        super(Walking, self).fail()
+        libtcod.path_delete(self.path)
 
     def __str__(self):
         return "Going somewhere"

@@ -99,6 +99,6 @@ class ReserveSeat(Command):
 
     def execute(self, world):
         if self.cancel:
-            world.open_seat(self.x, self.y)
+            world.tavern_map.open_seat(self.x, self.y)
         else:
-            world.take_seat(self.x, self.y)
+            world.tavern_map.take_seat(self.x, self.y)
