@@ -195,8 +195,7 @@ class Walking(Task):
             self.fail()
 
     def tick(self, world_map, creature):
-        # Special check in case this failed at initialisation
-        if not self.failed and self.tick_time < self.path_length:
+        if self.tick_time < self.path_length:
             x, y = libtcod.path_get(self.path, self.tick_time)
             if not world_map.tiles[y][x].is_walkable():
                 # Path is not walkable anymore !
@@ -212,8 +211,10 @@ class Walking(Task):
         libtcod.path_delete(self.path)
 
     def fail(self):
-        super(Walking, self).fail()
-        libtcod.path_delete(self.path)
+        # Could already have failed at initialisation once
+        if not self.failed:
+            super(Walking, self).fail()
+            libtcod.path_delete(self.path)
 
     def __str__(self):
         return "Going somewhere"
