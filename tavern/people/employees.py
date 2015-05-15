@@ -1,5 +1,5 @@
 from tavern.people.tasks import Wandering
-from tavern.world.objects import Functions
+from tavern.world.objects.functions import Functions
 from tavern.people.characters import Creature
 
 

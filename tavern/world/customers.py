@@ -1,7 +1,7 @@
 import random
 
 from tavern.utils import bus
-from tavern.world.objects import Functions
+from tavern.world.objects.functions import Functions
 from tavern.people.characters import CreatureClass, Creature, Patron
 
 

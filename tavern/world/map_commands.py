@@ -2,8 +2,9 @@
 
 from tavern.utils import bus
 from commands import Command
-from tavern.world.objects import (
-    Functions, Rooms, Materials, DefaultRule, TavernObject)
+from tavern.world.objects.objects import Rooms, Materials, TavernObject
+from tavern.world.objects.rules import DefaultRule
+from tavern.world.objects.functions import Functions
 from tavern.people.employees import Publican
 
 

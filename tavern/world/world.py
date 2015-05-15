@@ -3,7 +3,8 @@ from collections import defaultdict
 import libtcodpy as libtcod
 from tavern.utils import bus
 from tavern.utils.geom import manhattan
-from tavern.world.objects import Functions, rooms_to_name
+from tavern.world.objects.functions import Functions
+from tavern.world.objects.objects import rooms_to_name
 from tavern.world.store import StorageSystem
 from tavern.people.employees import make_recruit_out_of
 

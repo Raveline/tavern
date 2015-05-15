@@ -4,7 +4,7 @@ import random
 from tavern.utils import bus
 from tavern.world.commands import AttendToCommand, OrderCommand, CreatureExit
 from tavern.world.commands import ReserveSeat as ReserveCommand
-from tavern.world.objects import Functions
+from tavern.world.objects.functions import Functions
 from tavern.world.goods import GoodsType
 
 

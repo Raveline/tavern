@@ -1,9 +1,6 @@
-from tavern.world.objects import Functions, ObjectTemplate, Rooms
-from tavern.world.objects import (
-    RoomsRule, OrRule, NextToWallRule, ExteriorWallRule, NotWallRule
-)
 from tavern.utils import bus
-from tavern.people.tasks import Serving
+from tavern.world.objects.defaults import (door, chair, table, counter, beam)
+from tavern.world.objects.objects import Rooms
 
 CROSSHAIR = 0
 FILLER = 1
@@ -16,51 +13,12 @@ class Actions:
     ROOMS = 2
 
 
-def add_counter_helping_task(world_map, x, y):
-    x2, y2 = world_map.find_closest_to_wall_neighbour(x, y)
-    world_map.employee_tasks[Functions.ORDERING].\
-        append(((x2, y2), Serving(Functions.ORDERING)))
-
-
-door = ObjectTemplate('Door',
-                      Functions.ROOM_SEPARATOR,
-                      15,
-                      '=', False,
-                      [OrRule(NextToWallRule(), ExteriorWallRule())])
-
-chair = ObjectTemplate('Chair',
-                       Functions.SITTING,
-                       5,
-                       'o', False,
-                       [NotWallRule()])
-
-table = ObjectTemplate('Table',
-                       Functions.EATING,
-                       10,
-                       '*',
-                       True,
-                       [RoomsRule([Rooms.TAVERN]), NotWallRule()])
-
-counter = ObjectTemplate('Counter',
-                         Functions.ORDERING,
-                         30,
-                         '+',
-                         True,
-                         [RoomsRule([Rooms.TAVERN]), NotWallRule()],
-                         add_counter_helping_task)
-
-beam = ObjectTemplate('Beam',
-                      Functions.SUPPORT,
-                      10,
-                      '^',
-                      True,
-                      [NotWallRule()])
-
 objects_tree = {'d': {'display': 'Door', 'subobject': door},
                 'c': {'display': 'Chair', 'subobject': chair},
                 't': {'display': 'Table', 'subobject': table},
                 'o': {'display': 'Counter', 'subobject': counter},
                 'b': {'display': 'Beam', 'subobject': beam}}
+
 
 room_types = {'t': {'display': 'Tavern', 'subobject': Rooms.TAVERN},
               's': {'display': 'Storage', 'subobject': Rooms.STORAGE},
