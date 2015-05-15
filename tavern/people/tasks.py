@@ -1,4 +1,4 @@
-import libtcodpy as libtcod
+import libtcodpy as tcod
 import random
 
 from tavern.utils import bus
@@ -197,14 +197,14 @@ class Walking(Task):
     def __init__(self, world_map, creature, x, y):
         super(Walking, self).__init__()
         self.path = world_map.path_from_to(creature.x, creature.y, x, y)
-        self.path_length = libtcod.path_size(self.path)
+        self.path_length = tcod.path_size(self.path)
         if self.path_length == 0:
             self.fail()
             raise ImpossibleTask('No path to %d, %s' % (x, y))
 
     def tick(self, world_map, creature):
         if self.tick_time < self.path_length:
-            x, y = libtcod.path_get(self.path, self.tick_time)
+            x, y = tcod.path_get(self.path, self.tick_time)
             if not world_map.tiles[y][x].is_walkable():
                 # Path is not walkable anymore !
                 self.fail()
@@ -216,12 +216,12 @@ class Walking(Task):
 
     def finish(self):
         super(Walking, self).finish()
-        libtcod.path_delete(self.path)
+        tcod.path_delete(self.path)
 
     def fail(self):
         # Could already have failed at initialisation once
         super(Walking, self).fail()
-        libtcod.path_delete(self.path)
+        tcod.path_delete(self.path)
 
     def __str__(self):
         return "Going somewhere"

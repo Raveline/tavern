@@ -1,7 +1,7 @@
 from __future__ import division
 
 import math
-import libtcodpy as libtcod
+import libtcodpy as tcod
 from tavern.inputs.input import Inputs
 from tavern.utils import bus
 from tavern.utils.dict_path import read_path_dict
@@ -144,25 +144,24 @@ class RootComponent(ContainerComponent):
 
     def deactivate(self):
         bus.bus.unsubscribe(self, bus.MENU_EVENT)
-        libtcod.console_delete(self.console.console)
+        tcod.console_delete(self.console.console)
 
     def display(self, console):
         """
         Display a frame, a title and children components.
         Then blit on the console parameter.
         """
-        libtcod.console_clear(self.console.console)
-        libtcod.console_set_default_foreground(self.console.console,
-                                               libtcod.white)
-        libtcod.console_hline(self.console.console, 0, 0, self.console.w)
-        libtcod.console_hline(self.console.console, 0,
-                              self.console.h - 1, self.console.w)
-        libtcod.console_vline(self.console.console, 0, 0, self.console.h)
-        libtcod.console_vline(self.console.console, self.console.w - 1,
-                              0, self.console.h)
-        libtcod.console_print_ex(self.console.console, int(self.console.w / 2),
-                                 0, libtcod.BKGND_SET, libtcod.CENTER,
-                                 self.title)
+        tcod.console_clear(self.console.console)
+        tcod.console_set_default_foreground(self.console.console,
+                                            tcod.white)
+        tcod.console_hline(self.console.console, 0, 0, self.console.w)
+        tcod.console_hline(self.console.console, 0,
+                           self.console.h - 1, self.console.w)
+        tcod.console_vline(self.console.console, 0, 0, self.console.h)
+        tcod.console_vline(self.console.console, self.console.w - 1,
+                           0, self.console.h)
+        tcod.console_print_ex(self.console.console, int(self.console.w / 2),
+                              0, tcod.BKGND_SET, tcod.CENTER, self.title)
         for child in self.children:
             child.display(self.console.console)
         self.console.blit_on(console)
@@ -196,8 +195,7 @@ class TextBloc(Component):
         self.text = text
 
     def display(self, console):
-        libtcod.console_print_rect(console, self.x, self.y,
-                                   self.w, 0, self.text)
+        tcod.console_print_rect(console, self.x, self.y, self.w, 0, self.text)
 
 
 class StaticText(Component):
@@ -291,7 +289,7 @@ class Line(Component):
         super(Line, self).__init__(x, y, w, 1)
 
     def display(self, console):
-        libtcod.console_hline(console, self.x, self.y, self.w)
+        tcod.console_hline(console, self.x, self.y, self.w)
 
 
 class MinimumMaximum(Component):
@@ -340,8 +338,8 @@ class NumberPicker(MinimumMaximum):
         func(console, str(self.minimum), current_x, self.y)
         current_x += (size_min + 2)
 
-        print_char(console, libtcod.CHAR_ARROW_W, current_x, self.y,
-                   libtcod.white)
+        print_char(console, tcod.CHAR_ARROW_W, current_x, self.y,
+                   tcod.white)
 
         current_x += 2
 
@@ -349,8 +347,8 @@ class NumberPicker(MinimumMaximum):
 
         current_x += (len(str(self.value)) + 2)
 
-        print_char(console, libtcod.CHAR_ARROW_E, current_x, self.y,
-                   libtcod.white)
+        print_char(console, tcod.CHAR_ARROW_E, current_x, self.y,
+                   tcod.white)
 
         current_x += 2
 
@@ -378,14 +376,13 @@ class Ruler(MinimumMaximum):
             pos = 1
 
         if self.focused:
-            front_color = libtcod.green
+            front_color = tcod.green
         else:
-            front_color = libtcod.white
+            front_color = tcod.white
         display_text(console, str(self.minimum), self.x, self.y)
         display_text(console, str(self.maximum), self.w - size_max, self.y)
         begin_ruler = self.x + size_min
         end_ruler = min(begin_ruler + pos, ruler_width)
         for x in range(begin_ruler, end_ruler):
-            libtcod.console_put_char_ex(console, x, self.y,
-                                        libtcod.CHAR_BLOCK1, front_color,
-                                        libtcod.black)
+            tcod.console_put_char_ex(console, x, self.y,
+                                     tcod.CHAR_BLOCK1, front_color, tcod.black)

@@ -1,4 +1,4 @@
-import libtcodpy as libtcod
+import libtcodpy as tcod
 import tavern.utils.bus as bus
 from tavern.inputs.input import Inputs
 from tavern.receivers.navigators import Crosshair, Fillhair, Selection
@@ -64,7 +64,7 @@ class Game(object):
         self.context = Context()
         width = self.context.width
         height = self.context.height
-        libtcod.console_init_root(width, height, TITLE)
+        tcod.console_init_root(width, height, TITLE)
         self.status_console = Console(0, 0, width, 1)
         self.world_console = Console(0, 1, width, height - 3)
         self.text_console = Console(0, height - 2, width, 2)
@@ -106,7 +106,7 @@ class Game(object):
                           self.cross.global_to_local)
 
     def display_text(self):
-        libtcod.console_clear(self.text_console.console)
+        tcod.console_clear(self.text_console.console)
         self.informer.display()
 
     def display_navigation(self, blink):
@@ -121,7 +121,7 @@ class Game(object):
                 self.describe_area()
 
     def loop(self):
-        libtcod.sys_set_fps(50)
+        tcod.sys_set_fps(50)
         # Couting elapsed milliseconds
         counter = 0
         # Flag : should the cursor be blinking ?
@@ -131,7 +131,7 @@ class Game(object):
         # ONLY FOR TESTING PURPOSE, REMOVE
         self.test_bootstrap()
         while self.continue_game:
-            counter += libtcod.sys_get_last_frame_length()
+            counter += tcod.sys_get_last_frame_length()
             if counter >= .4:
                 blink = not blink
                 tick = True
@@ -149,7 +149,7 @@ class Game(object):
             self.text_console.blit_on(0)
             self.status_console.blit_on(0)
             self.state.display(0)
-            libtcod.console_flush()
+            tcod.console_flush()
             tick = False
 
     def display_status(self):

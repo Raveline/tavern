@@ -1,4 +1,4 @@
-import libtcodpy as libtcod
+import libtcodpy as tcod
 
 
 class Console(object):
@@ -7,8 +7,7 @@ class Console(object):
         self.y = y
         self.w = w
         self.h = h
-        self.console = libtcod.console_new(w, h)
+        self.console = tcod.console_new(w, h)
 
     def blit_on(self, dest):
-        libtcod.console_blit(self.console, 0, 0, 0, 0,
-                             dest, self.x, self.y)
+        tcod.console_blit(self.console, 0, 0, 0, 0, dest, self.x, self.y)

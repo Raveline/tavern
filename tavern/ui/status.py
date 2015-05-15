@@ -1,4 +1,4 @@
-import libtcodpy as libtcod
+import libtcodpy as tcod
 from tavern.view.show_console import display_text, display_highlighted_text
 
 
@@ -19,7 +19,7 @@ class Status(object):
     def receive(self, event):
         event_data = event.get('data')
         if event_data.get('status') == 'drinks':
-            if event_data.get('flag') == True:
+            if event_data.get('flag'):
                 self.remove_flag(StatusFlags.NO_BASICS_DRINKS)
             else:
                 self.add_flag(StatusFlags.NO_BASICS_DRINKS)
@@ -33,10 +33,10 @@ class Status(object):
             self.flags.remove(flag)
 
     def display(self):
-        libtcod.console_clear(self.console.console)
+        tcod.console_clear(self.console.console)
         if self.pause:
             display_text(self.console.console, "*PAUSED*", 0, 0)
-        display_text(self.console.console, str(libtcod.sys_get_fps()), 10, 0)
+        display_text(self.console.console, str(tcod.sys_get_fps()), 10, 0)
         display_text(self.console.console, self.current_state, 15, 0)
         display_text(self.console.console, ("Cash : %s" % self.money), 50, 0)
         for idx, f in enumerate(self.flags):
