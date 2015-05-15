@@ -4,7 +4,6 @@ from tavern.utils import bus
 from commands import Command
 from tavern.world.objects.objects import Rooms, Materials, TavernObject
 from tavern.world.objects.rules import DefaultRule
-from tavern.world.objects.functions import Functions
 from tavern.people.employees import Publican
 
 
@@ -89,29 +88,16 @@ class PutCommand(MapCommand):
 
     def put_object(self, x, y, world_map, object_type):
         tile = world_map.tiles[y][x]
-        is_door = object_type.function == Functions.ROOM_SEPARATOR
-        is_chair = object_type.function == Functions.SITTING
-        is_destination_wall = tile.wall
         for rule in object_type.rules + [DefaultRule()]:
             if not rule.check(world_map, x, y):
                 bus.bus.publish(rule.get_error_message())
                 return
         # If we reached this point, object is valid
-        # Special case for outside door
-        if is_door and is_destination_wall:
-            world_map.tiles[y][x].wall = False
-            world_map.tiles[y][x].built = True
-            world_map.entry_points.append((x, y))
-            world_map.add_walkable_tile(x, y)
-        else:
-            tile.tile_object = TavernObject(object_type)
-            if is_chair:
-                print("Opening a chair...")
-                world_map.open_seat(x, y)
-            world_map.update_tile_walkability(x, y)
-            after_put = object_type.after_put
-            if after_put is not None:
-                after_put(world_map, x, y)
+        tile.tile_object = TavernObject(object_type)
+        world_map.update_tile_walkability(x, y)
+        after_put = object_type.after_put
+        if after_put is not None:
+            after_put(object_type, world_map, x, y)
         return True
 
 

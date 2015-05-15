@@ -81,30 +81,19 @@ class TavernMap():
         # Pathfinding utility
         self.path_map = self._build_path_map()
         # A dict of all objects currently in use, by types
-        self.used_objects_coords = defaultdict(list)
+        self.used_services = defaultdict(list)
         # A dict of all objects currently being attended to by employees
-        self.attended_objects_coords = defaultdict(list)
-        # A dict of all objects attended to, but currently taken
-        self.busy_attended_objects_coords = defaultdict(list)
+        self.available_services = defaultdict(list)
         # Tasks requiring an employee
         # Those are accessible with Functions as key
         # The values is a ((x, y), task) tuple
         self.employee_tasks = defaultdict(list)
-        # Seats (coords) that can be used
-        self.available_seating = []
-        # Seats (coords) that cannot be used because they are taken
-        self.used_seating = []
+
+    def service_list(self, service):
+        return self.available_services[service]
 
     def can_serve_at(self, service, x, y):
-        return (x, y) in self.attended_objects_coords.get(service)
-
-    def take_busy_attended(self, function, x, y):
-        self.attended_objects_coords.get(function).remove((x, y))
-        self.busy_attended_objects_coords.get(function).append((x, y))
-
-    def free_busy_attended(self, function, x, y):
-        self.busy_attended_objects_coords.get(function).remove((x, y))
-        self.attended_objects_coords.get(function).append((x, y))
+        return (x, y) in self.available_services[service]
 
     def get_room_at(self, x, y):
         for room_type, lists in self.rooms.iteritems():
@@ -113,14 +102,33 @@ class TavernMap():
                     return room_type
         return None
 
-    def take_seat(self, x, y):
-        self.used_seating.append((x, y))
-        self.available_seating.remove((x, y))
+    def take_service(self, function, x, y):
+        """
+        Make a service temporarily unavailable because a customer is
+        using it.
+        """
+        self.used_services[function].append((x, y))
+        self.available_services[function].remove((x, y))
 
-    def open_seat(self, x, y):
-        if (x, y) in self.used_seating:
-            self.used_seating.remove((x, y))
-        self.available_seating.append((x, y))
+    def open_service(self, function, x, y):
+        """
+        Make a service available for all. It might be used :
+            - When an employee is necessary for a service to be active and
+            that the employee is now here.
+            - When a service was being used by a customer, and that the
+            customer is done.
+        """
+        if (x, y) in self.used_services[function]:
+            self.used_services[function].remove((x, y))
+        self.available_services[function].append((x, y))
+
+    def stop_service(self, function, x, y):
+        """
+        Remove a service from the available list. Used when a service is
+        dependant on an employee and that this employee is not attending
+        to the service anymore
+        ."""
+        self.available_services[function].remove((x, y))
 
     def _build_path_map(self):
         path_map = tcod.map_new(self.width, self.height)
@@ -257,10 +265,12 @@ class TavernMap():
         """
         Given a list of coords, find and return the one that is the closest
         to the set (x, y).
+        Or return None if coords is empty.
         """
         distances = self.__coords_to_distance(coords, x, y)
-        closest = min(distances)
-        return coords[distances.index(closest)]
+        if distances:
+            closest = min(distances)
+            return coords[distances.index(closest)]
 
     def find_closest_room(self, x, y, room_type):
         """Given x and y, find the closest room_type given
@@ -316,7 +326,7 @@ class TavernMap():
                 return counter
             counter += 1
 
-    def find_closest_object(self, x, y, function, to_attend=True):
+    def find_closest_object(self, x, y, function):
         """Given an object type and a set of coords,
         search for the object of this type the closest to
         the set of coords. We will not return the coordinates
@@ -326,13 +336,7 @@ class TavernMap():
         if we're looking from the point of view of a patron or the
         point of view of an employee.
         Return the coords of this object."""
-        if to_attend:
-            unusable = self.attended_objects_coords[function]
-            inlist = self.list_tiles_with_objects(function, unusable)
-        else:
-            inlist = self.attended_objects_coords[function]
-        if inlist:
-            return self.find_closest_in(inlist, x, y)
+        return self.find_closest_in(self.available_services[function], x, y)
 
     def add_walkable_tile(self, x, y):
         tcod.map_set_properties(self.path_map, x, y, False, True)

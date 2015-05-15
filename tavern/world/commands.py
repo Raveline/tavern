@@ -1,4 +1,5 @@
 from tavern.utils import bus
+from tavern.world.objects.functions import Functions
 
 
 class Command(object):
@@ -30,11 +31,9 @@ class AttendToCommand(Command):
                 to_serve_y = y + dir_y
                 if tav.tiles[to_serve_y][to_serve_x].is_walkable():
                     if self.stop:
-                        tav.attended_objects_coords[self.nature].\
-                            remove((to_serve_x, to_serve_y))
+                        tav.stop_service(self.nature, to_serve_x, to_serve_y)
                     else:
-                        tav.attended_objects_coords[self.nature].\
-                            append((to_serve_x, to_serve_y))
+                        tav.open_service(self.nature, to_serve_x, to_serve_y)
 
 
 class OrderCommand(Command):
@@ -99,6 +98,6 @@ class ReserveSeat(Command):
 
     def execute(self, world):
         if self.cancel:
-            world.tavern_map.open_seat(self.x, self.y)
+            world.tavern_map.open_service(Functions.SITTING, self.x, self.y)
         else:
-            world.tavern_map.take_seat(self.x, self.y)
+            world.tavern_map.take_service(Functions.SITTING, self.x, self.y)

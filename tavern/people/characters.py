@@ -140,13 +140,13 @@ class Patron(Creature):
     def fetch_a_drink(self, world_map):
         # Let's try to find an open counter
         counter = world_map.find_closest_object(self.x, self.y,
-                                                Functions.ORDERING, False)
+                                                Functions.ORDERING)
         if counter:
             self.add_walking_then_or(world_map, counter[0], counter[1],
                                      [Ordering()])
 
     def find_a_seat(self, world_map):
-        available = world_map.available_seating
+        available = world_map.service_list(Functions.SITTING)
         if available:
             x, y = world_map.find_closest_in(available, self.x, self.y)
             self.add_activity(ReserveSeat(x, y))
