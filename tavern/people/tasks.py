@@ -13,13 +13,21 @@ class ImpossibleTask(Exception):
 
 
 class Task(object):
-    def __init__(self):
+    def __init__(self, length=0):
         self.tick_time = 0
+        self.length = length
         self.failed = False
         self.finished = False
 
     def tick(self, world_map, creature):
         self.tick_time += 1
+
+    def check_length(self):
+        if self.tick_time == self.length:
+            self.finish()
+            return True
+        else:
+            return False
 
     def call_command(self, command):
         bus.bus.publish({'command': command}, bus.WORLD_EVENT)
