@@ -142,7 +142,7 @@ class TavernMap():
         return path_map
 
     def _build_tiles(self):
-        return [[Tile(x, y, self.background[y][x])
+        return [[Tile(y, x, self.background[y][x])
                 for x in range(self.width)]
                 for y in range(self.height)]
 
@@ -179,9 +179,9 @@ class TavernMap():
         noise = tcod.noise_new(2)
         tcod.noise_set_type(noise, tcod.NOISE_SIMPLEX)
         background = []
-        for y in range(self.width):
+        for y in range(self.height):
             background.append([])
-            for x in range(self.height):
+            for x in range(self.width):
                 background[y].append(
                     tcod.noise_get_turbulence(noise,
                                               [y / 100.0, x / 100.0], 32.0))
