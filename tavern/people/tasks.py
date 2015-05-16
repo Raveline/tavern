@@ -41,11 +41,12 @@ class Task(object):
 
 class Wandering(Task):
     """Fool around for 10 ticks."""
+    def __init__(self, length=10):
+        super(Wandering, self).__init__(length)
+
     def tick(self, world_map, creature):
-        if self.tick_time <= 10:
+        if not self.check_length():
             self.wander(world_map, creature)
-        else:
-            self.finish()
         super(Wandering, self).tick(world_map, creature)
 
     def wander(self, world_map, creature):
@@ -89,15 +90,16 @@ class OpenSeat(Task):
 
 
 class Drinking(Task):
-    def tick(self, world_map, creature):
-        # For now, just drink during 20 ticks
-        if self.tick_time >= 20:
-            # And we're done
-            self.finish(creature)
-        super(Drinking, self).tick(world_map, creature)
+    def __init__(self, length=20):
+        super(Drinking, self).__init__(length)
 
-    def finish(self, creature):
-        super(Drinking, self).finish()
+    def tick(self, world_map, creature):
+        if self.check_length():
+            self.after(creature)
+        else:
+            super(Drinking, self).tick(world_map, creature)
+
+    def after(self, creature):
         # Diminish the creature thirst
         creature.thirst -= 1
         # Remove the creature drink carrying flag
@@ -181,7 +183,7 @@ class Serving(Task):
     SERVING_LENGTH = 100
     """As in serving people."""
     def __init__(self, nature, x, y, constant=False):
-        super(Serving, self).__init__()
+        super(Serving, self).__init__(Serving.SERVING_LENGTH)
         self.nature = nature
         self.x = x
         self.y = y
@@ -198,9 +200,8 @@ class Serving(Task):
         self.call_command(command)
 
     def tick(self, world_map, creature):
-        if self.tick_time >= Serving.SERVING_LENGTH:
+        if self.check_length():
             self.stop_serving()
-            self.finish()
         else:
             if self.tick_time == 0:
                 self.start_serving()
