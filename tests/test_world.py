@@ -1,4 +1,6 @@
 from tests import TavernTest
+from tavern.world.objects.functions import Functions
+from tavern.world.actions import chair
 
 
 class TestWorld(TavernTest):
@@ -20,3 +22,16 @@ class TestWorld(TavernTest):
         self.assertEqual(len(self.tavern.creatures), 2,
                          'Adding a customer should make a change in the world'
                          ' creatures list.')
+
+    def test_adding_services(self):
+        self.assertEqual(
+            len(self.tavern_map.available_services[Functions.SITTING]),
+            0,
+            'The new tavern should not have available services.'
+        )
+        self.add_object(chair, 9, 6)
+        self.assertEqual(
+            len(self.tavern_map.available_services[Functions.SITTING]),
+            0,
+            'The new tavern should now have one available service.'
+        )
