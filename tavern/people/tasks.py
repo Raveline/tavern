@@ -170,7 +170,7 @@ class Ordering(Task):
 
 
 class Serving(Task):
-    SERVING_LENGTH = 10
+    SERVING_LENGTH = 100
     """As in serving people."""
     def __init__(self, nature, x, y, constant=False):
         super(Serving, self).__init__()
