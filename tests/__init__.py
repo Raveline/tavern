@@ -4,7 +4,7 @@ from tavern.receivers.navigators import Selection
 from tavern.world.world import Tavern
 from tavern.world.customers import Customers
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
-from tavern.world.actions import door, counter, chair
+from tavern.world.actions import door, counter
 
 
 class TavernTest(unittest.TestCase):
@@ -20,32 +20,40 @@ class TavernTest(unittest.TestCase):
         self.customers = Customers(self.tavern)
         self.bootstrap()
 
+    def _build_area(self, x, y, x2=None, y2=None):
+        area = Selection(x, y)
+        if x2 is None:
+            x2 = x
+        if y2 is None:
+            y2 = y
+        area.x2 = x2
+        area.y2 = y2
+        return area
+
     def bootstrap(self):
-        def build_area(x, y, x2, y2):
-            area = Selection(x, y)
-            area.x2 = x2
-            area.y2 = y2
-            return area
         # Build a storage area
         commands = []
-        commands.append(BuildCommand(build_area(2, 2, 5, 5)))
+        commands.append(BuildCommand(self._build_area(2, 2, 5, 5)))
         # build a corridor to a tavern room
-        commands.append(BuildCommand(build_area(5, 3, 9, 4)))
-        commands.append(PutCommand(build_area(8, 3, 8, 4), door))
+        commands.append(BuildCommand(self._build_area(5, 3, 9, 4)))
+        commands.append(PutCommand(self._build_area(8, 3, 8, 4), door))
         # Build the tavern room
-        commands.append(BuildCommand(build_area(9, 2, 12, 12)))
-        commands.append(PutCommand(build_area(11, 1, 11, 1), door))
+        commands.append(BuildCommand(self._build_area(9, 2, 12, 12)))
+        commands.append(PutCommand(self._build_area(11, 1, 11, 1), door))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
         commands = []
         commands.append(RoomCommand(self.tavern.tavern_map.fill_from(3, 3), 1))
         commands.append(RoomCommand(
             self.tavern.tavern_map.fill_from(10, 10), 0))
-        commands.append(PutCommand(build_area(9, 11, 9, 11), counter))
-        commands.append(PutCommand(build_area(9, 6, 9, 6), chair))
+        commands.append(PutCommand(self._build_area(9, 11, 9, 11), counter))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
         print(self.tavern.tavern_map.tiles[11][9].wall)
+
+    def add_object(self, obj, x, y):
+        bus.bus.publish({'command':
+                         PutCommand(self._build_area(x, y), obj)})
 
     def tick_for(self, l=1):
         for i in range(1, l + 1):
