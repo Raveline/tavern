@@ -29,14 +29,13 @@ class Bus(object):
     def unsubscribe(self, receiver, event_type):
         try:
             self.events.get(event_type).remove(receiver)
-        except Exception as a:
-            print(str(a))
+        except Exception:
             self.publish("Trying to remove a receiver that was not subscribed")
 
     def publish(self, event, event_type=FEEDBACK_EVENT):
         event = {'type': event_type,
                  'data': event}
-        self.display_event(event)
+        # self.display_event(event)
         # For event type, act like a stack
         if event_type == MENU_EVENT:
             self.events.get(event_type)[-1].receive(event.get('data'))

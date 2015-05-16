@@ -3,7 +3,7 @@ import random
 
 from tavern.utils import bus
 from tavern.world.commands import AttendToCommand, OrderCommand, CreatureExit
-from tavern.world.commands import ReserveSeat as ReserveCommand
+from tavern.world.commands import ReserveSeat as ReserveCommand, AddTask
 from tavern.world.objects.functions import Functions
 from tavern.world.goods import GoodsType
 
@@ -170,24 +170,48 @@ class Ordering(Task):
 
 
 class Serving(Task):
+    SERVING_LENGTH = 10
     """As in serving people."""
-    def __init__(self, nature):
+    def __init__(self, nature, x, y, constant=False):
         super(Serving, self).__init__()
         self.nature = nature
+        self.x = x
+        self.y = y
+        # Should this task always be here ? (object requiring constant
+        # attendance, e.g.)
+        self.constant = constant
 
-    def start_serving(self, world_map, creature):
-        command = AttendToCommand(self.nature, (creature.x, creature.y))
-        bus.bus.publish({'command': command}, bus.WORLD_EVENT)
+    def start_serving(self):
+        command = AttendToCommand(self.nature, (self.x, self.y))
+        self.call_command(command)
 
-    def stop_serving(self, world_map, creature):
-        command = AttendToCommand(self.nature, (creature.x, creature.y), True)
-        bus.bus.publish({'command': command}, bus.WORLD_EVENT)
+    def stop_serving(self):
+        command = AttendToCommand(self.nature, (self.x, self.y), True)
+        self.call_command(command)
 
     def tick(self, world_map, creature):
-        if self.tick_time == 0:
-            self.start_serving(world_map, creature)
-        # TODO : stop serving when the creature serving needs rest.
-        super(Serving, self).tick(world_map, creature)
+        if self.tick_time >= Serving.SERVING_LENGTH:
+            self.stop_serving()
+            self.finish()
+        else:
+            if self.tick_time == 0:
+                self.start_serving()
+            super(Serving, self).tick(world_map, creature)
+
+    def keep_task_if_constant(self):
+        if self.constant:
+            command = AddTask(self.nature, self.x, self.y,
+                              Serving(self.nature, self.x, self.y, True))
+            self.call_command(command)
+
+    def finish(self):
+        super(Serving, self).finish()
+        self.keep_task_if_constant()
+
+    def fail(self):
+        super(Serving, self).fail()
+        self.stop_serving()
+        self.keep_task_if_constant()
 
     def __str__(self):
         return "Serving customers"
@@ -196,18 +220,34 @@ class Serving(Task):
 class Walking(Task):
     def __init__(self, world_map, creature, x, y):
         super(Walking, self).__init__()
-        self.path = world_map.path_from_to(creature.x, creature.y, x, y)
-        self.path_length = tcod.path_size(self.path)
-        if self.path_length == 0:
-            self.fail()
-            raise ImpossibleTask('No path to %d, %s' % (x, y))
+        self.dest_x = x
+        self.dest_y = y
+        self.compute_path(world_map, creature)
+
+    def compute_path(self, world_map, creature):
+        if self.dest_x != creature.x or self.dest_y != creature.y:
+            self.path = world_map.path_from_to(creature.x, creature.y,
+                                               self.dest_x, self.dest_y)
+            self.path_length = tcod.path_size(self.path)
+            if self.path_length == 0:
+                self.fail()
+                raise ImpossibleTask('No path to %d, %s' % (self.dest_x,
+                                                            self.dest_y))
+            # The tick time MUST be reset, in case we recompute path
+            # during the task.
+            self.tick_time = 0
+        else:
+            self.path = None
+            self.path_length = 0
+            self.finish()
 
     def tick(self, world_map, creature):
         if self.tick_time < self.path_length:
             x, y = tcod.path_get(self.path, self.tick_time)
             if not world_map.tiles[y][x].is_walkable():
                 # Path is not walkable anymore !
-                self.fail()
+                # We'll try to rebuild it...
+                self.compute_path(world_map, creature)
             else:
                 creature.move(x, y, 0)
         else:
@@ -216,12 +256,16 @@ class Walking(Task):
 
     def finish(self):
         super(Walking, self).finish()
-        tcod.path_delete(self.path)
+        self.free_path()
 
     def fail(self):
-        # Could already have failed at initialisation once
         super(Walking, self).fail()
-        tcod.path_delete(self.path)
+        self.free_path()
+
+    def free_path(self):
+        if self.path:
+            tcod.path_delete(self.path)
+            self.path = None
 
     def __str__(self):
         return "Going somewhere"

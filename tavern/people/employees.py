@@ -18,6 +18,7 @@ class Employee(Creature):
 
     def find_activity(self, world_map):
         # For the moment, just wander !
+        print("Tasks : %s" % world_map.employee_tasks)
         for f in self.functions:
             tasks = world_map.employee_tasks[f]
             if tasks:
@@ -25,7 +26,8 @@ class Employee(Creature):
                 task = tasks.pop()
                 x, y = task[0]
                 task = task[1]
-                self.add_walking_then_or(world_map, x, y, [task])
+                # TODO : Replace this "Wandering" taks by a Resting one.
+                self.add_walking_then_or(world_map, x, y, [task, Wandering()])
                 return
         # If we are here, we didn't find a single task to do
         self.add_activity(Wandering())
@@ -41,7 +43,8 @@ class Publican(Employee):
 
 
 def make_recruit_out_of(creature):
-    employee = Employee(creature.x, creature.y, creature.z)
+    employee = Employee(creature.x, creature.y, creature.z,
+                        [Functions.ORDERING])
     # Should make sure every tasks are finished.
     # Free the paths, open seats...
     creature.current_activity.finish()

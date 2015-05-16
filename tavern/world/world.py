@@ -102,6 +102,9 @@ class TavernMap():
                     return room_type
         return None
 
+    def add_task(self, nature, x, y, task):
+        self.employee_tasks[nature].append(((x, y), task))
+
     def take_service(self, function, x, y):
         """
         Make a service temporarily unavailable because a customer is

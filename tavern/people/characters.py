@@ -76,7 +76,7 @@ class Creature(object):
             self.add_activities(then_acts)
         except ImpossibleTask:
             if not or_acts:
-                self.add_activity(Wandering())
+                or_acts = [Wandering()]
             self.add_activities(or_acts)
 
     def tick(self, world_map):
@@ -86,7 +86,8 @@ class Creature(object):
             self.current_activity.tick(world_map, self)
             if self.current_activity.failed:
                 # Empty the activity list
-                self.activity_list = []
+                for activity in self.activity_list:
+                    self.activity_list.fail()
                 self.current_activity.finished = True
             if self.current_activity.finished:
                 self.current_activity = None

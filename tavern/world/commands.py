@@ -101,3 +101,14 @@ class ReserveSeat(Command):
             world.tavern_map.open_service(Functions.SITTING, self.x, self.y)
         else:
             world.tavern_map.take_service(Functions.SITTING, self.x, self.y)
+
+
+class AddTask(Command):
+    def __init__(self, nature, x, y, task):
+        self.nature = nature
+        self.x = x
+        self.y = y
+        self.task = task
+
+    def execute(self, world):
+        world.tavern_map.add_task(self.nature, self.x, self.y, self.task)
