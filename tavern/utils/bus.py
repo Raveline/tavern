@@ -41,7 +41,7 @@ class Bus(object):
             self.events.get(event_type)[-1].receive(event.get('data'))
         # In any other case, publish for every listener
         else:
-            for receiver in self.events.get(event_type):
+            for receiver in self.events[event_type]:
                 receiver.receive(event)
 
     def display_event(self, event):
