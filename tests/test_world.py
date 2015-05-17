@@ -32,6 +32,6 @@ class TestWorld(TavernTest):
         self.add_object(chair, 9, 6)
         self.assertEqual(
             len(self.tavern_map.available_services[Functions.SITTING]),
-            0,
+            1,
             'The new tavern should now have one available service.'
         )
