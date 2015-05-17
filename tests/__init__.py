@@ -27,6 +27,10 @@ class TavernTest(unittest.TestCase):
         self.received_events = defaultdict(list)
         bus.bus.subscribe(self, bus.STATUS_EVENT)
 
+    def tearDown(self):
+        # Reset the bus
+        bus.bus.events = defaultdict(list)
+
     def receive(self, event):
         self.received_events[event.get('type')].append(event.get('data'))
 
