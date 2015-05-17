@@ -1,4 +1,6 @@
 import unittest
+from collections import defaultdict
+
 import tavern.utils.bus as bus
 from tavern.receivers.navigators import Selection
 from tavern.world.world import Tavern
@@ -11,6 +13,9 @@ class TavernTest(unittest.TestCase):
     TEST_WORLD_WIDTH = 100
     TEST_WORLD_HEIGHT = 120
 
+    COUNTER_X = 9
+    COUNTER_Y = 11
+
     def setUp(self):
         self.tavern = Tavern(TavernTest.TEST_WORLD_WIDTH,
                              TavernTest.TEST_WORLD_HEIGHT)
@@ -19,6 +24,14 @@ class TavernTest(unittest.TestCase):
         bus.bus.subscribe(self.tavern, bus.CUSTOMER_EVENT)
         self.customers = Customers(self.tavern)
         self.bootstrap()
+        self.received_events = defaultdict(list)
+        bus.bus.subscribe(self, bus.STATUS_EVENT)
+
+    def receive(self, event):
+        self.received_events[event.get('type')].append(event.get('data'))
+
+    def assertReceived(self, event_type, description):
+        self.assertIn(description, self.received_events[event_type])
 
     def _build_area(self, x, y, x2=None, y2=None):
         area = Selection(x, y)
@@ -46,14 +59,18 @@ class TavernTest(unittest.TestCase):
         commands.append(RoomCommand(self.tavern.tavern_map.fill_from(3, 3), 1))
         commands.append(RoomCommand(
             self.tavern.tavern_map.fill_from(10, 10), 0))
-        commands.append(PutCommand(self._build_area(9, 11, 9, 11), counter))
+        commands.append(PutCommand(self._build_area(TavernTest.COUNTER_X,
+                                                    TavernTest.COUNTER_Y),
+                                   counter))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
         print(self.tavern.tavern_map.tiles[11][9].wall)
 
+    def call_command(self, command):
+        bus.bus.publish({'command': command}, bus.WORLD_EVENT)
+
     def add_object(self, obj, x, y):
-        bus.bus.publish({'command':
-                         PutCommand(self._build_area(x, y), obj)})
+        self.call_command(PutCommand(self._build_area(x, y), obj))
 
     def tick_for(self, l=1):
         for i in range(1, l + 1):
