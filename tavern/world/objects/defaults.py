@@ -1,5 +1,6 @@
 from tavern.world.objects.functions import Functions
-from tavern.world.objects.objects import ObjectTemplate, Rooms
+from tavern.world.objects.objects import ObjectTemplate
+from tavern.world.objects.objects import Rooms
 from tavern.world.objects.rules import (
     RoomsRule, OrRule, NextToWallRule, ExteriorWallRule, NotWallRule
 )
@@ -61,6 +62,16 @@ counter = ObjectTemplate('Counter',
                          True,
                          [RoomsRule([Rooms.TAVERN]), NotWallRule()],
                          add_counter_helping_task)
+
+oven = ObjectTemplate('Oven',
+                      Functions.BAKING,
+                      100,
+                      [['***'],
+                       ['*^*'],
+                       ['* *']],
+                      [[True, True, True],
+                       [True, True, True],
+                       [True, False, True]])
 
 beam = ObjectTemplate('Beam',
                       Functions.SUPPORT,
