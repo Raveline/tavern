@@ -44,13 +44,16 @@ class ObjectTemplate(object):
         self.after_put = after_put
         if isinstance(self.character, list):
             self.height = len(self.character)
-            self.width = len(self.character[0])
+            self.width = len(self.character[0][0])
         else:
             self.height = 1
             self.width = 1
 
     def __repr__(self):
         return self.name
+
+    def is_multi_tile(self):
+        return self.height > 1 or self.width > 1
 
 
 class TavernObject(object):
