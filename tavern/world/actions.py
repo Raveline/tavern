@@ -1,5 +1,6 @@
 from tavern.utils import bus
-from tavern.world.objects.defaults import (door, chair, table, counter, beam)
+from tavern.world.objects.defaults import (door, chair, table,
+                                           counter, beam, oven)
 from tavern.world.objects.objects import Rooms
 
 CROSSHAIR = 0
@@ -12,12 +13,12 @@ class Actions:
     PUT = 1
     ROOMS = 2
 
-
 objects_tree = {'d': {'display': 'Door', 'subobject': door},
                 'c': {'display': 'Chair', 'subobject': chair},
                 't': {'display': 'Table', 'subobject': table},
                 'o': {'display': 'Counter', 'subobject': counter},
-                'b': {'display': 'Beam', 'subobject': beam}}
+                'b': {'display': 'Beam', 'subobject': beam},
+                'v': {'display': 'Oven', 'subobject': oven}}
 
 
 room_types = {'t': {'display': 'Tavern', 'subobject': Rooms.TAVERN},

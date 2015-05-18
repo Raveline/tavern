@@ -1,7 +1,7 @@
+from itertools import cycle, chain
 from tavern.utils.geom import Frame
 from tavern.inputs.input import Inputs
 from tavern.utils import bus
-from itertools import cycle
 
 
 class Scape(object):
@@ -10,11 +10,21 @@ class Scape(object):
         self.world_frame = world_frame
         self.compute_focus()
         self.set_char()
+        self.block = False
 
     def set_char(self, character=None):
+        self.finish_select()
         if character is None:
             character = 'x'
         self.character = character
+        self.block = False
+
+    def set_multi_char(self, characters, width, height):
+        self.selection = Selection(self.getX(), self.getY())
+        self.selection.x2 = self.selection.x + width - 1
+        self.selection.y2 = self.selection.y + height - 1
+        self.character = list(chain(*chain(*characters)))
+        self.block = True
 
     def compute_focus(self):
         self.focusX = self.frame.w / 2
@@ -70,7 +80,10 @@ class Scape(object):
         self.selection = Selection(self.getX(), self.getY())
 
     def move_select(self):
-        self.selection.extends_to(self.getX(), self.getY())
+        if self.block:
+            self.selection.translate_to(self.getX(), self.getY())
+        else:
+            self.selection.extends_to(self.getX(), self.getY())
 
     def finish_select(self):
         self.selection = None
@@ -111,6 +124,14 @@ class Selection(object):
             self.y = self.initial_y
             self.y2 = y
 
+    def translate_to(self, x, y):
+        w = self.x2 - self.x
+        h = self.y2 - self.y
+        self.x = x
+        self.y = y
+        self.x2 = x + w
+        self.y2 = y + h
+
     def to_rect(self):
         return {'x': self.x,
                 'y': self.y,
@@ -118,8 +139,8 @@ class Selection(object):
                 'y2': self.y2}
 
     def to_list_of_tiles(self):
-        return [(x, y) for x in range(self.x, self.x2 + 1)
-                for y in range(self.y, self.y2 + 1)]
+        return [(x, y) for y in range(self.y, self.y2 + 1)
+                for x in range(self.x, self.x2 + 1)]
 
     def __str__(self):
         return 'x : %d, y : %d, x2 : %d, y2 : %d' % (self.x, self.y, self.x2, self.y2)

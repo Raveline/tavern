@@ -78,13 +78,44 @@ class PutCommand(MapCommand):
         self.area = area
 
     def execute(self, world):
-        preview_cost = self.get_area_size(self.area) * self.object_type.price
-        if world.cash < preview_cost:
-            bus.bus.publish('Not enough money to do this !')
-            return
-        counter = self.apply_to_area(self.area, self.put_object,
-                                     world.tavern_map, self.object_type)
+        if self.object_type.is_multi_tile():
+            self.put_multi_objects(world.tavern_map, self.object_type)
+            counter = 1
+        else:
+            preview_cost = self.get_area_size(self.area) * self.object_type.price
+            if world.cash < preview_cost:
+                bus.bus.publish('Not enough money to do this !')
+                return
+            counter = self.apply_to_area(self.area, self.put_object,
+                                         world.tavern_map, self.object_type)
         world.cash -= (counter * self.object_type.price)
+
+    def put_multi_objects(self, world_map, object_type):
+        rules = object_type.rules + [DefaultRule()]
+
+        rect = self.area
+        for y in range(rect.y, rect.y2 + 1):
+            for x in range(rect.x, rect.x2 + 1):
+                for rule in rules:
+                    if not rule.check(world_map, x, y):
+                        bus.bus.publish(rule.get_error_message())
+                        return
+        for y in range(rect.y, rect.y2 + 1):
+            for x in range(rect.x, rect.x2 + 1):
+                relativex = x - rect.x
+                relativey = y - rect.y
+                new_object = TavernObject(object_type)
+                does_block = object_type.blocks[relativey][relativex]
+                character = object_type.character[relativey][0][relativex]
+                new_object.blocks = does_block
+                new_object.character = character
+                world_map.update_tile_walkability(x, y)
+                after_put = object_type.after_put
+                if after_put is not None:
+                    after_put(object_type, world_map, x, y)
+                tile = world_map.tiles[y][x]
+                tile.tile_object = new_object
+        return True
 
     def put_object(self, x, y, world_map, object_type):
         tile = world_map.tiles[y][x]
