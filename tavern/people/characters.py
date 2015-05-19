@@ -1,5 +1,6 @@
 import random
 from tavern.world.objects.functions import Functions
+from tavern.people.needs import Needs
 from tavern.people.tasks import ImpossibleTask
 from tavern.people.tasks import Walking, Wandering, Drinking, Ordering
 from tavern.people.tasks import Leaving, Seating, StandingUp
@@ -121,12 +122,12 @@ races_to_string = {
 
 class Patron(Creature):
     """A customer of the Tavern."""
-    def __init__(self, creature_class, race, level, money, thirst):
+    def __init__(self, creature_class, race, level, money, needs):
         super(Patron, self).__init__(
             creature_class_to_character[creature_class], level, race, True)
         self.creature_class = creature_class
         self.money = money
-        self.thirst = thirst
+        self.needs = needs
         self.seated = False
         self.has_a_drink = False
 
@@ -160,7 +161,7 @@ class Patron(Creature):
             self.add_activity(Wandering())
 
     def find_activity(self, world_map):
-        if self.thirst <= 0:
+        if not self.needs.has_needs() <= 0:
             self.leave(world_map)
         elif not self.has_a_drink:
             # We do not have a drink, we want to get one
@@ -174,7 +175,7 @@ class Patron(Creature):
     def renounce(self, reason):
         # Called when a creature cannot find something in the tavern
         # and must leave. We put the thirst counter to 0 so it will go.
-        self.thirst = 0
+        self.needs.cancel_needs()
 
     def __str__(self):
         basic_display = "%s %s" %\

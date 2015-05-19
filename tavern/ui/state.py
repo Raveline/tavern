@@ -298,7 +298,7 @@ class ExamineMenu(MenuState):
         data['race'] = self.creature.race_string()
         data['class'] = self.creature.class_string()
         data['money'] = self.__money_to_string(self.creature.money)
-        data['thirst'] = self.__desire_to_string(self.creature.thirst)
+        data['thirst'] = self.__desire_to_string(self.creature.needs.thirst)
         data['activity'] = str(self.creature.current_activity)
         return data
 

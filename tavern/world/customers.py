@@ -2,6 +2,7 @@ import random
 
 from tavern.utils import bus
 from tavern.world.objects.functions import Functions
+from tavern.people.needs import Needs
 from tavern.people.characters import CreatureClass, Creature, Patron
 
 
@@ -46,7 +47,11 @@ class Customers(object):
         level = random.randint(1, 3)
         money = random.randint(20, 40)
         thirst = random.randint(1, 3)
-        new_customer = Patron(creature_class, race, level, money, thirst)
+        hunger = random.randint(0, 1)
+        gamble = 0  # Will be random.randint(0,10)
+        sleep = 0   # Will be random.randint(0,0)
+        needs = Needs(thirst, hunger, gamble, sleep)
+        new_customer = Patron(creature_class, race, level, money, needs)
         new_customer.x = x
         new_customer.y = y
         bus.bus.publish({'customer': new_customer}, bus.CUSTOMER_EVENT)

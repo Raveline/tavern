@@ -101,7 +101,7 @@ class Drinking(Task):
 
     def after(self, creature):
         # Diminish the creature thirst
-        creature.thirst -= 1
+        creature.needs.thirst -= 1
         # Remove the creature drink carrying flag
         creature.has_a_drink = False
 
