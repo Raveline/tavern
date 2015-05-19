@@ -1,10 +1,10 @@
 import random
 from tavern.world.objects.functions import Functions
-from tavern.people.needs import Needs
 from tavern.people.tasks import ImpossibleTask
 from tavern.people.tasks import Walking, Wandering, Drinking, Ordering
 from tavern.people.tasks import Leaving, Seating, StandingUp
 from tavern.people.tasks import ReserveSeat, OpenSeat
+from tavern.people.tasks import TableOrder, WaitForOrder, Eat
 
 
 class CreatureClass(object):
@@ -147,14 +147,14 @@ class Patron(Creature):
             self.add_walking_then_or(world_map, counter[0], counter[1],
                                      [Ordering()])
 
-    def find_a_seat(self, world_map):
+    def find_a_seat_and(self, world_map, actions):
         available = world_map.service_list(Functions.SITTING)
         if available:
             x, y = world_map.find_closest_in(available, self.x, self.y)
             self.add_activity(ReserveSeat(x, y))
             self.add_walking_then_or(world_map, x, y,
-                                     [Seating(), Drinking(), StandingUp(),
-                                      OpenSeat(x, y)],
+                                     [Seating()] + actions +
+                                     [StandingUp(), OpenSeat(x, y)],
                                      [OpenSeat(x, y), Wandering()])
         else:
             # For the moment, just wait
@@ -167,8 +167,12 @@ class Patron(Creature):
             # We do not have a drink, we want to get one
             self.fetch_a_drink(world_map)
         elif self.has_a_drink:
-            # We have a drink, we'd like to seat
-            self.find_a_seat(world_map)
+            if self.needs.hunger > 0:
+                self.find_a_seat_and(world_map, [Drinking(), TableOrder(),
+                                                 WaitForOrder(), Eat()])
+            else:
+                # We have a drink, we'd just like to seat
+                self.find_a_seat_and(world_map, [Drinking()])
         else:
             self.add_activity(Wandering())
 
