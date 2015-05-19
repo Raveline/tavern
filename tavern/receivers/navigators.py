@@ -23,7 +23,7 @@ class Scape(object):
         self.selection = Selection(self.getX(), self.getY())
         self.selection.x2 = self.selection.x + width - 1
         self.selection.y2 = self.selection.y + height - 1
-        self.character = list(chain(*chain(*characters)))
+        self.character = list(chain(*characters))
         self.block = True
 
     def compute_focus(self):

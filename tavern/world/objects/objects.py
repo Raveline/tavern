@@ -44,7 +44,7 @@ class ObjectTemplate(object):
         self.after_put = after_put
         if isinstance(self.character, list):
             self.height = len(self.character)
-            self.width = len(self.character[0][0])
+            self.width = len(self.character[0])
         else:
             self.height = 1
             self.width = 1

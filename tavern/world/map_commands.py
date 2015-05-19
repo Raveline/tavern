@@ -106,7 +106,7 @@ class PutCommand(MapCommand):
                 relativey = y - rect.y
                 new_object = TavernObject(object_type)
                 does_block = object_type.blocks[relativey][relativex]
-                character = object_type.character[relativey][0][relativex]
+                character = object_type.character[relativey][relativex]
                 new_object.blocks = does_block
                 new_object.character = character
                 world_map.update_tile_walkability(x, y)
