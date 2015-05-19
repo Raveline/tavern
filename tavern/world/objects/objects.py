@@ -20,7 +20,7 @@ rooms_to_name = {Rooms.TAVERN: 'Tavern',
 class ObjectTemplate(object):
     """A template for an object in the tavern."""
     def __init__(self, name, function, price, character,
-                 blocks=False, rules=None, after_put=None):
+                 blocks=False, rules=None, after_put=None, service_coords=None):
         """
         Name is self-explanatory.
         Function must be a constant in Functions, indicates what the object
@@ -32,7 +32,9 @@ class ObjectTemplate(object):
         some where.
         After_put is a function (or None) to call after putting the object.
         This function should ALWAYS take the object and the world_map as
-        parameter. It is generally used to add constant tasks."""
+        parameter. It is generally used to add constant tasks.
+        Service coords is only used for multi-tiled object, and indicates
+        which tile should offer a service."""
         self.function = function
         self.price = price
         self.character = character
@@ -48,6 +50,7 @@ class ObjectTemplate(object):
         else:
             self.height = 1
             self.width = 1
+        self.service_coords = service_coords
 
     def __repr__(self):
         return self.name

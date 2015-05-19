@@ -4,5 +4,5 @@ class Functions:
     ROOM_SEPARATOR = 2      # Commonly known as doors
     ORDERING = 3            # Counter
     SUPPORT = 4             # Support for floors
-    COOKING = 5             # Preparation of food
-    BAKING = 6              # Making warm food
+    WORKSHOP = 5            # Preparation of food
+    COOKING = 6             # Making warm food

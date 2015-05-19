@@ -32,7 +32,20 @@ def add_entry_point(object_type, world_map, x, y):
 
 
 def open_service(object_type, world_map, x, y):
-    world_map.open_service(object_type.function, x, y)
+    if object_type.is_multi_tile():
+        for pos_x, pos_y in object_type.service_coords:
+            x2, y2 = x + pos_x, y + pos_y
+            if world_map.tiles[y2][x2].is_walkable():
+                world_map.open_service(object_type.function, x2, y2)
+    else:
+        if object_type.blocks:
+            # The object blocks : the service is on all neighbouring tiles
+            for (x2, y2) in world_map.get_immediate_neighboring_coords(x, y):
+                if world_map.tiles[y2][x2].is_walkable():
+                    world_map.open_service(object_type.function, x, y)
+        else:
+            # The object does not block : the service is on the tile itself
+            world_map.open_service(object_type.function, x, y)
 
 door = ObjectTemplate('Door',
                       Functions.ROOM_SEPARATOR,
@@ -64,14 +77,27 @@ counter = ObjectTemplate('Counter',
                          add_counter_helping_task)
 
 oven = ObjectTemplate('Oven',
-                      Functions.BAKING,
+                      Functions.COOKING,
                       100,
-                      ['***',
-                       '*^*',
-                       '* *'],
+                      ['~~~',
+                       '~^~',
+                       '~ ~'],
                       [[True, True, True],
                        [True, True, True],
-                       [True, False, True]])
+                       [True, False, True]],
+                      [RoomsRule([Rooms.KITCHEN]), NotWallRule()],
+                      open_service,
+                      [(2, 1)])
+
+
+work_station = ObjectTemplate('Work station',
+                              Functions.WORKSHOP,
+                              20,
+                              '=',
+                              True,
+                              [RoomsRule([Rooms.KITCHEN]), NotWallRule()],
+                              open_service)
+
 
 beam = ObjectTemplate('Beam',
                       Functions.SUPPORT,

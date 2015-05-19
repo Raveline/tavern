@@ -1,6 +1,7 @@
 from tavern.utils import bus
 from tavern.world.objects.defaults import (door, chair, table,
-                                           counter, beam, oven)
+                                           counter, beam, oven,
+                                           work_station)
 from tavern.world.objects.objects import Rooms
 
 CROSSHAIR = 0
@@ -18,12 +19,14 @@ objects_tree = {'d': {'display': 'Door', 'subobject': door},
                 't': {'display': 'Table', 'subobject': table},
                 'o': {'display': 'Counter', 'subobject': counter},
                 'b': {'display': 'Beam', 'subobject': beam},
-                'v': {'display': 'Oven', 'subobject': oven}}
+                'v': {'display': 'Oven', 'subobject': oven},
+                'w': {'display': 'Workstation', 'subobject': work_station}}
 
 
 room_types = {'t': {'display': 'Tavern', 'subobject': Rooms.TAVERN},
               's': {'display': 'Storage', 'subobject': Rooms.STORAGE},
-              'r': {'display': 'Storage', 'subobject': Rooms.ROOM}}
+              'r': {'display': 'Inn room', 'subobject': Rooms.ROOM},
+              'k': {'display': 'Kitchen', 'subobject': Rooms.KITCHEN}}
 
 supplies_menu = {'type': 'RootComponent',
                  'template': 'centered 5',
