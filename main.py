@@ -12,7 +12,7 @@ from tavern.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
 from tavern.ui.status import Status
 from tavern.world.customers import Customers
-from tavern.world.actions import door, counter, chair
+from tavern.world.actions import door, counter, chair, oven, work_station
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
 from tavern.world.context import Context
 from tavern.world.world import Tavern
@@ -47,14 +47,22 @@ class Game(object):
         # Build the tavern room
         commands.append(BuildCommand(build_area(9, 2, 12, 12)))
         commands.append(PutCommand(build_area(11, 1, 11, 1), door))
+        # Build the kitchen
+        commands.append(BuildCommand(build_area(1, 7, 7, 14)))
+        commands.append(BuildCommand(build_area(8, 12, 8, 12)))
+        commands.append(PutCommand(build_area(8, 12, 8, 12), door))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
         commands = []
         commands.append(RoomCommand(self.tavern.tavern_map.fill_from(3, 3), 1))
         commands.append(RoomCommand(
             self.tavern.tavern_map.fill_from(10, 10), 0))
+        commands.append(RoomCommand(
+            self.tavern.tavern_map.fill_from(3, 10), 2))
         commands.append(PutCommand(build_area(9, 11, 9, 11), counter))
         commands.append(PutCommand(build_area(9, 6, 9, 6), chair))
+        commands.append(PutCommand(build_area(5, 7, 7, 9), oven))
+        commands.append(PutCommand(build_area(4, 7, 4, 7), work_station))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
         print(self.tavern.tavern_map.tiles[11][9].wall)

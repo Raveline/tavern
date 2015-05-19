@@ -14,7 +14,7 @@ class Tavern(object):
     manifestation (the TavernMap), its financial situation (cash),
     its storage situation (StorageSystem) the people inside (creatures).
     """
-    def __init__(self, width, height, cash=1500, tiles=None):
+    def __init__(self, width, height, cash=2000, tiles=None):
         self.tavern_map = TavernMap(width, height, tiles)
         # Storage
         self.store = StorageSystem()
