@@ -102,8 +102,11 @@ class TavernMap():
                     return room_type
         return None
 
-    def add_task(self, nature, x, y, task):
-        self.employee_tasks[nature].append(((x, y), task))
+    def add_task(self, nature, coord, task):
+        self.employee_tasks[nature].append((coord, task))
+
+    def remove_task(self, nature, coord, task):
+        self.employee_tasks[nature].remove((coord, task))
 
     def take_service(self, function, x, y):
         """

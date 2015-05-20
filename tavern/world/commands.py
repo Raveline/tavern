@@ -111,4 +111,19 @@ class AddTask(Command):
         self.task = task
 
     def execute(self, world):
-        world.tavern_map.add_task(self.nature, self.x, self.y, self.task)
+        coord = None
+        if self.x is not None and self.y is not None:
+            coord = (self.x, self.y)
+        world.tavern_map.add_task(self.nature, coord, self.task)
+
+
+class RemoveTask(Command):
+    def __init__(self, nature, x, y, task):
+        self.nature = nature
+        self.task = task
+
+    def execute(self, world):
+        coord = None
+        if self.x is not None and self.y is not None:
+            coord = (self.x, self.y)
+        world.tavern_map.remove_task(self.nature, coord, self.task)
