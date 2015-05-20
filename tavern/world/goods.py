@@ -2,6 +2,8 @@ class GoodsType:
     CLASSIC_DRINKS = 0
     FANCY_DRINKS = 1
     FOOD = 2
+    VEGETABLES = 3
+    MEAT = 4
 
 goods_type_to_store_cell_cost = {
     GoodsType.CLASSIC_DRINKS: .01,
@@ -24,3 +26,8 @@ class Goods:
 DRINKS = [Goods('Ale', GoodsType.CLASSIC_DRINKS, 10, 12),
           Goods('Wine', GoodsType.FANCY_DRINKS, 15, 20),
           Goods('Spirits', GoodsType.CLASSIC_DRINKS, 10, 13)]
+
+PRIMARY = [Goods('Meat', GoodsType.MEAT, 4, 0),
+           Goods('Vegetables', GoodsType.VEGETABLES, 1, 0)]
+
+FOOD = [Goods('Basic Meal', GoodsType.FOOD, 6, 0)]
