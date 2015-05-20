@@ -3,7 +3,8 @@ import random
 
 from tavern.utils import bus
 from tavern.world.commands import AttendToCommand, OrderCommand, CreatureExit
-from tavern.world.commands import ReserveSeat as ReserveCommand, AddTask
+from tavern.world.commands import ReserveSeat as ReserveCommand
+from tavern.world.commands import AddTask, RemoveTask
 from tavern.world.objects.functions import Functions
 from tavern.world.goods import GoodsType
 
@@ -89,15 +90,24 @@ class OpenSeat(Task):
         super(OpenSeat, self).finish()
 
 
-class Drinking(Task):
-    def __init__(self, length=20):
-        super(Drinking, self).__init__(length)
+class Consuming(Task):
+    """An abstract task for the consommation of a service"""
+    def __init__(self, length):
+        super(Consuming, self).__init__(length)
 
     def tick(self, world_map, creature):
         if self.check_length():
             self.after(creature)
         else:
             super(Drinking, self).tick(world_map, creature)
+
+    def after(self):
+        raise NotImplementedError('Consuming is an abstract class !')
+
+
+class Drinking(Consuming):
+    def __init__(self, length=20):
+        super(Drinking, self).__init__(length)
 
     def after(self, creature):
         # Diminish the creature thirst
@@ -107,6 +117,17 @@ class Drinking(Task):
 
     def __str__(self):
         return "Drinking"
+
+
+class Eating(Consuming):
+    def __init__(self, length=50):
+        super(Eating, self).__init__(length)
+
+    def __str__(self):
+        return "Eating"
+
+    def after(self, creature):
+        creature.needs.hunger = 0
 
 
 class Leaving(Task):
@@ -278,3 +299,139 @@ class Walking(Task):
 
     def __str__(self):
         return "Going somewhere"
+
+
+class TableOrder(object):
+    """Customer will wait for a waiter to come and take
+    his order."""
+    ORDER_WAITING = 100
+
+    def __init__(self, order):
+        super(Serving, self).__init__(TableOrder.ORDER_WAITING)
+        self.order_taken = False
+        self.order = order
+
+    def emit_order_task(self, world_map, creature):
+        self.order_task = TakeOrder(self.creature)
+        command = AddTask(Functions.ORDER_TAKING, creature.x, creature.y,
+                          self.order_task)
+        self.call_command(command)
+
+    def tick(self, world_map, creature):
+        if self.tick_time == 0:
+            self.emit_order_task(world_map, creature)
+        else:
+            if self.order_taken:
+                self.finish()
+            else:
+                if self.tick_time > self.length:
+                    self.fail()
+        super(TableOrder, self).tick(world_map, creature)
+
+    def fail(self):
+        command = RemoveTask(Functions.ORDER_TAKING, self.order_task)
+        self.call_command(command)
+
+
+class WaitForOrder(Task):
+    """Customer is waiting for his order to arrive."""
+    def __init__(self):
+        self.served = False
+
+    def tick(self, world_map, creature):
+        if self.served:
+            self.finish()
+
+
+class TakeOrder(Task):
+    def __init__(self, creature):
+        self.creature = creature
+
+    def tick(self, world_map, creature):
+        # We interact with the target creature task, create a new task...
+        ordering = self.creature.current_task
+        ordered = ordering.order
+        command = AddTask(Functions.COOKING, None, None,
+                          PrepareFood(ordered, self.creature))
+        self.call_command(command)
+        ordering.order_taken = True
+        # ... and we are done !
+        self.finish()
+
+
+class PrepareFood(Task):
+    def __init__(self, meal, destination):
+        self.meal = meal
+        self.destination = destination
+
+    def tick(self, world_map, creature):
+        workshop = world_map.find_closest_object(creature.x, creature.y,
+                                                 Functions.WORKSHOP)
+        oven = world_map.find_closest_object(creature.x, creature.y,
+                                             Functions.COOKING)
+        if workshop and oven:
+            creature.add_walking_then_or(world_map, workshop[0], workshop[1],
+                                         [CutFood()])
+            creature.add_walking_then_or(world_map, oven[0], oven[1],
+                                         [CookFood(),
+                                          CreateMeal(self.meal,
+                                                     self.destination)])
+            self.finish()
+        else:
+            self.fail()
+
+
+class CutFood(Task):
+    def __init__(self):
+        super(CutFood, self).__init__(length=10)
+
+    def tick(self, world, creature):
+        # TODO : Consomation of ingredient
+        self.check_length()
+
+
+class CookFood(Task):
+    def __init__(self):
+        super(CookFood, self).__init__(length=15)
+
+    def tick(self, world, creature):
+        self.check_length()
+
+
+class CreateMeal(Task):
+    def __init__(self, meal, destination):
+        self.meal = meal
+        self.destination = destination
+
+    def tick(self, world_map, creature):
+        command = AddTask(Functions.DELIVERING, creature.x, creature.y,
+                          DeliverTask(self.meal, self.destination))
+        self.call_command(command)
+        self.finish()
+
+
+class DeliverTask(Task):
+    def __init__(self, meal, destination):
+        self.meal = meal
+        self.destination = destination
+
+    def tick(self, world_map, creature):
+        creature.add_walking_then_or(world_map, self.destination.x,
+                                     self.destination.y,
+                                     [ServeMealTask(self.destination)])
+        self.finish()
+
+    def __str__(self):
+        return "Picking up a meal"
+
+
+class ServeMealTask(Task):
+    def __init__(self, destination):
+        self.destination = destination
+
+    def tick(self, world_map, creature):
+        self.destination.current_task.served = True
+        self.finish()
+
+    def __str__(self):
+        return "Serving customer"
