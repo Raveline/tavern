@@ -1,4 +1,5 @@
 import random
+from tavern.world.goods import FOOD
 from tavern.world.objects.functions import Functions
 from tavern.people.tasks import ImpossibleTask
 from tavern.people.tasks import Walking, Wandering, Drinking, Ordering
@@ -167,8 +168,10 @@ class Patron(Creature):
             # We do not have a drink, we want to get one
             self.fetch_a_drink(world_map)
         elif self.has_a_drink:
-            if self.needs.hunger > 0:
-                self.find_a_seat_and(world_map, [Drinking(), TableOrder(),
+            potential_order = FOOD[0]
+            if self.needs.hunger > 0 and self.money >= potential_order:
+                self.find_a_seat_and(world_map, [Drinking(),
+                                                 TableOrder(potential_order),
                                                  WaitForOrder(), Eat()])
             else:
                 # We have a drink, we'd just like to seat
