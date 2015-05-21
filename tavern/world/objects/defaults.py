@@ -18,7 +18,7 @@ from tavern.people.tasks import Serving
 ###
 def add_counter_helping_task(object_type, world_map, x, y):
     x2, y2 = world_map.find_closest_to_wall_neighbour(x, y)
-    world_map.add_task(Functions.ORDERING, x2, y2,
+    world_map.add_task(Functions.ORDERING, (x2, y2),
                        Serving(Functions.ORDERING, x2, y2, True))
 
 
