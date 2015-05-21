@@ -99,7 +99,7 @@ class Consuming(Task):
         if self.check_length():
             self.after(creature)
         else:
-            super(Drinking, self).tick(world_map, creature)
+            super(Consuming, self).tick(world_map, creature)
 
     def after(self):
         raise NotImplementedError('Consuming is an abstract class !')
