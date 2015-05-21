@@ -8,7 +8,9 @@ class GoodsType:
 goods_type_to_store_cell_cost = {
     GoodsType.CLASSIC_DRINKS: .01,
     GoodsType.FANCY_DRINKS: .01,
-    GoodsType.FOOD: .1
+    GoodsType.FOOD: .1,
+    GoodsType.VEGETABLES: .1,
+    GoodsType.MEAT: .1
 }
 
 
