@@ -76,6 +76,15 @@ class TavernTest(unittest.TestCase):
     def add_object(self, obj, x, y):
         self.call_command(PutCommand(self._build_area(x, y), obj))
 
+    def assertCanTickTill(self, predicate, tick_number, msg=None):
+        counter = 0
+        while not predicate() and counter <= tick_number:
+            counter += 1
+            self.tick_for()
+        if counter > tick_number:
+            raise AssertionError(msg or ('Waited %d tick without predicate '
+                                         'becoming true.' % (tick_number)))
+
     def tick_for(self, l=1):
         for i in range(1, l + 1):
             self.tavern.tick()
