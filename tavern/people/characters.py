@@ -5,7 +5,7 @@ from tavern.people.tasks import ImpossibleTask
 from tavern.people.tasks import Walking, Wandering, Drinking, Ordering
 from tavern.people.tasks import Leaving, Seating, StandingUp
 from tavern.people.tasks import ReserveSeat, OpenSeat
-from tavern.people.tasks import TableOrder, WaitForOrder, Eat
+from tavern.people.tasks import TableOrder, WaitForOrder, Eating
 
 
 class CreatureClass(object):
@@ -172,7 +172,7 @@ class Patron(Creature):
             if self.needs.hunger > 0 and self.money >= potential_order:
                 self.find_a_seat_and(world_map, [Drinking(),
                                                  TableOrder(potential_order),
-                                                 WaitForOrder(), Eat()])
+                                                 WaitForOrder(), Eating()])
             else:
                 # We have a drink, we'd just like to seat
                 self.find_a_seat_and(world_map, [Drinking()])
