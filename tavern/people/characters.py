@@ -169,7 +169,7 @@ class Patron(Creature):
             self.fetch_a_drink(world_map)
         elif self.has_a_drink:
             potential_order = FOOD[0]
-            if self.needs.hunger > 0 and self.money >= potential_order:
+            if self.needs.hunger > 0 and self.money >= potential_order.selling_price:
                 self.find_a_seat_and(world_map, [Drinking(),
                                                  TableOrder(potential_order),
                                                  WaitForOrder(), Eating()])
