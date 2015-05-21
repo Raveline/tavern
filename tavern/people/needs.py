@@ -6,8 +6,8 @@ class Needs(object):
         self.sleep = sleep
 
     def has_needs(self):
-        return self.thirst > 0 and self.hunger > 0 and self.gamble > 0\
-            and self.sleep > 0
+        return self.thirst > 0 or self.hunger > 0 or self.gamble > 0\
+            or self.sleep > 0
 
     def cancel_needs(self):
         self.thirst = 0

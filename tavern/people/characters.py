@@ -162,7 +162,7 @@ class Patron(Creature):
             self.add_activity(Wandering())
 
     def find_activity(self, world_map):
-        if not self.needs.has_needs() <= 0:
+        if not self.needs.has_needs():
             self.leave(world_map)
         elif not self.has_a_drink:
             # We do not have a drink, we want to get one
