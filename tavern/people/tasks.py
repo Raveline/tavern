@@ -301,13 +301,13 @@ class Walking(Task):
         return "Going somewhere"
 
 
-class TableOrder(object):
+class TableOrder(Task):
     """Customer will wait for a waiter to come and take
     his order."""
     ORDER_WAITING = 100
 
     def __init__(self, order):
-        super(Serving, self).__init__(TableOrder.ORDER_WAITING)
+        super(TableOrder, self).__init__(TableOrder.ORDER_WAITING)
         self.order_taken = False
         self.order = order
 
