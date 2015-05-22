@@ -54,10 +54,11 @@ class Serving(Task):
 class TakeOrder(Task):
     def __init__(self, creature):
         self.creature = creature
+        super(TakeOrder, self).__init__()
 
     def tick(self, world_map, creature):
         # We interact with the target creature task, create a new task...
-        ordering = self.creature.current_task
+        ordering = self.creature.current_activity
         ordered = ordering.order
         command = AddTask(Functions.COOKING, None, None,
                           PrepareFood(ordered, self.creature))
@@ -71,6 +72,7 @@ class PrepareFood(Task):
     def __init__(self, meal, destination):
         self.meal = meal
         self.destination = destination
+        super(PrepareFood, self).__init__()
 
     def tick(self, world_map, creature):
         workshop = world_map.find_closest_object(creature.x, creature.y,
@@ -110,6 +112,7 @@ class CreateMeal(Task):
     def __init__(self, meal, destination):
         self.meal = meal
         self.destination = destination
+        super(CreateMeal, self).__init__()
 
     def tick(self, world_map, creature):
         command = AddTask(Functions.DELIVERING, creature.x, creature.y,
@@ -122,6 +125,7 @@ class DeliverTask(Task):
     def __init__(self, meal, destination):
         self.meal = meal
         self.destination = destination
+        super(DeliverTask, self).__init__()
 
     def tick(self, world_map, creature):
         creature.add_walking_then_or(world_map, self.destination.x,
@@ -136,6 +140,7 @@ class DeliverTask(Task):
 class ServeMealTask(Task):
     def __init__(self, destination):
         self.destination = destination
+        super(ServeMealTask, self).__init__()
 
     def tick(self, world_map, creature):
         self.destination.current_task.served = True

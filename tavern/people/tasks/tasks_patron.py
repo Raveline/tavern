@@ -187,6 +187,7 @@ class WaitForOrder(Task):
     """Customer is waiting for his order to arrive."""
     def __init__(self):
         self.served = False
+        super(WaitForOrder, self).__init__()
 
     def tick(self, world_map, creature):
         if self.served:
