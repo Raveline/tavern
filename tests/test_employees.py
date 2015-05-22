@@ -23,16 +23,30 @@ class TestEmployees(TavernTest):
                          'profile': TAVERN_WAITER}, bus.CUSTOMER_EVENT)
         return self.tavern.creatures[1]
 
-    def test_employee_will_go_pick_order(self):
-        """A free employee with an order to pick should go and pick it up."""
-        employee = self._make_employee()
-        # This one also wants to eat !
+    def base_conditions(self):
         patron = self._build_thirsty_customer()
         patron.needs.hunger = 1
         self.add_drinks()
         self.add_chair()
+        return patron
+
+    def test_employee_will_go_pick_order(self):
+        """A free employee with an order to pick should go and pick it up."""
+        employee = self._make_employee()
+        self.base_conditions()
 
         def assert_is_taking_order():
             return isinstance(employee.current_activity, TakeOrder)
 
         self.assertCanTickTill(assert_is_taking_order, 100)
+
+    def test_failed_order(self):
+        """If an order has been passed, but is not satisfied,
+        after a while, the customer will leave."""
+        self._make_employee()
+        patron = self.base_conditions()
+
+        def patron_has_left():
+            return patron not in self.tavern.creatures
+
+        self.assertCanTickTill(patron_has_left, 400)
