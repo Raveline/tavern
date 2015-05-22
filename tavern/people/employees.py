@@ -51,7 +51,8 @@ def make_recruit_out_of(creature, profile):
                         profile)
     # Should make sure every tasks are finished.
     # Free the paths, open seats...
-    creature.current_activity.finish()
+    if creature.current_activity:
+        creature.current_activity.finish()
     for t in creature.activity_list:
         t.finish()
     return employee
