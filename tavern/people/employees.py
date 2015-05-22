@@ -22,7 +22,6 @@ class Employee(Creature):
 
     def find_activity(self, world_map):
         # For the moment, just wander !
-        print("Tasks : %s" % world_map.employee_tasks)
         for f in self.functions:
             tasks = world_map.employee_tasks[f]
             if tasks:
