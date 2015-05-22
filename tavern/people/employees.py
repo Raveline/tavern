@@ -28,10 +28,13 @@ class Employee(Creature):
             if tasks:
                 # For the moment, let's take the last opened task...
                 task = tasks.pop()
-                x, y = task[0]
-                task = task[1]
-                # TODO : Replace this "Wandering" taks by a Resting one.
-                self.add_walking_then_or(world_map, x, y, [task, Wandering()])
+                if task[0] is not None:
+                    x, y = task[0]
+                    task = task[1]
+                    # TODO : Replace this "Wandering" taks by a Resting one.
+                    self.add_walking_then_or(world_map, x, y, [task, Wandering()])
+                else:
+                    self.add_activity(task[1])
                 return
         # If we are here, we didn't find a single task to do
         self.add_activity(Wandering())
