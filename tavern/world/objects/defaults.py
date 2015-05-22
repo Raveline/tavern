@@ -4,7 +4,7 @@ from tavern.world.objects.objects import Rooms
 from tavern.world.objects.rules import (
     RoomsRule, OrRule, NextToWallRule, ExteriorWallRule, NotWallRule
 )
-from tavern.people.tasks import Serving
+from tavern.people.tasks.tasks_employees import Serving
 
 
 ###

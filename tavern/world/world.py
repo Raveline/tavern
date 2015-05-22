@@ -41,9 +41,10 @@ class Tavern(object):
             # First, we remove our recruit from the existing creature list...
             self.creatures.remove(recruit)
             # Then we rebuild it, anew !
-            new_recruit = make_recruit_out_of(recruit)
+            new_creature = make_recruit_out_of(recruit,
+                                               event_data.get('profile'))
             # ... and we add it back to the list of creatures !
-            self.creatures.append(new_recruit)
+            self.creatures.append(new_creature)
 
     def receive(self, event):
         event_data = event.get('data')

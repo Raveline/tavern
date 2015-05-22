@@ -1,6 +1,10 @@
-from tavern.people.tasks import Wandering
+from tavern.people.tasks.tasks import Wandering
 from tavern.world.objects.functions import Functions
 from tavern.people.characters import Creature
+
+
+TAVERN_WAITER = [Functions.ORDERING, Functions.WORKSHOP, Functions.COOKING,
+                 Functions.ORDER_TAKING, Functions.DELIVERING]
 
 
 class Employee(Creature):
@@ -42,9 +46,9 @@ class Publican(Employee):
         return ' --- '.join(["You", super(Publican, self).__str__()])
 
 
-def make_recruit_out_of(creature):
+def make_recruit_out_of(creature, profile):
     employee = Employee(creature.x, creature.y, creature.z,
-                        [Functions.ORDERING])
+                        profile)
     # Should make sure every tasks are finished.
     # Free the paths, open seats...
     creature.current_activity.finish()

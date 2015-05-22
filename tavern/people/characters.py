@@ -1,11 +1,10 @@
 import random
 from tavern.world.goods import FOOD
 from tavern.world.objects.functions import Functions
-from tavern.people.tasks import ImpossibleTask
-from tavern.people.tasks import Walking, Wandering, Drinking, Ordering
-from tavern.people.tasks import Leaving, Seating, StandingUp
-from tavern.people.tasks import ReserveSeat, OpenSeat
-from tavern.people.tasks import TableOrder, WaitForOrder, Eating
+from tavern.people.tasks.tasks import ImpossibleTask, Wandering, Walking
+from tavern.people.tasks.tasks_patron import (
+    Drinking, Ordering, Leaving, Seating, StandingUp, ReserveSeat, OpenSeat,
+    TableOrder, WaitForOrder, Eating)
 
 
 class CreatureClass(object):

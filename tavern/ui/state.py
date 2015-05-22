@@ -6,6 +6,7 @@ from tavern.world.actions import Actions
 from tavern.world.commands import BuyCommand
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
 from tavern.world.goods import DRINKS
+from tavern.people.employees import TAVERN_WAITER
 NEW_STATE = 0
 
 
@@ -286,7 +287,8 @@ class ExamineMenu(MenuState):
         box = make_questionbox(5, 5, 60, 10,
                                'Recruit ?',
                                'Are you sure you want to recruit this '
-                               'customer ?', self, [{'recruit': self.creature},
+                               'customer ?', self, [{'recruit': self.creature,
+                                                     'profile': TAVERN_WAITER},
                                                     self.parent_state],
                                [bus.CUSTOMER_EVENT, bus.PREVIOUS_STATE])
         bus.bus.publish({'type': 'box', 'box': box}, bus.NEW_STATE)

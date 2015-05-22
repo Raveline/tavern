@@ -7,5 +7,4 @@ class Functions:
     WORKSHOP = 5            # Preparation of food
     COOKING = 6             # Making warm food
     ORDER_TAKING = 7        # Going to someone to take his/her order
-    WORKSHOP = 8            # Working to build, craft, prepare something
-    DELIVERING = 9          # Bringing something to someone
+    DELIVERING = 8          # Bringing something to someone
