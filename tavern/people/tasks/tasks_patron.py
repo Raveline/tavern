@@ -162,7 +162,7 @@ class TableOrder(Task):
         self.order = order
 
     def emit_order_task(self, world_map, creature):
-        self.order_task = TakeOrder(self.creature)
+        self.order_task = TakeOrder(creature)
         command = AddTask(Functions.ORDER_TAKING, creature.x, creature.y,
                           self.order_task)
         self.call_command(command)
