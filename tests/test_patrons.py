@@ -1,25 +1,10 @@
 from tests import TavernTest
-from tavern.people.tasks import Ordering, Leaving, Drinking, TableOrder
+from tavern.people.tasks.tasks_patron import (
+    Ordering, Leaving, Drinking, TableOrder)
 from tavern.world.objects.functions import Functions
-from tavern.world.goods import DRINKS
-from tavern.world.actions import chair
 
 
 class TestPatron(TavernTest):
-    def _build_thirsty_customer(self):
-        self.customers.make_customer()
-        patron = self.tavern.creatures[-1]
-        # This fellow will want to drink, and only drink
-        patron.needs.thirst = 1
-        patron.needs.hunger = 0
-        patron.needs.gamble = 0
-        patron.needs.sleep = 0
-        # Money is not an issue
-        patron.money = 1000
-        return patron
-
-    def add_drinks(self):
-        self.tavern.store.add(DRINKS[0], 10)
 
     def test_go_to_counter(self):
         """A thirsty patron will go to the counter and try to order.
@@ -43,7 +28,8 @@ class TestPatron(TavernTest):
         patron = self._build_thirsty_customer()
         # This time, we MUST have drinks.
         self.add_drinks()
-        self.add_object(chair, 9, 6)
+        self.add_chair()
+
         num_available_chairs = len(
             self.tavern_map.available_services[Functions.SITTING]
         )
@@ -75,7 +61,7 @@ class TestPatron(TavernTest):
         # This one also wants to eat !
         patron.needs.hunger = 1
         self.add_drinks()
-        self.add_object(chair, 9, 6)
+        self.add_chair()
 
         def customer_want_to_order_something_to_eat():
             return isinstance(patron.current_activity, TableOrder)

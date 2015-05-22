@@ -6,7 +6,8 @@ from tavern.receivers.navigators import Selection
 from tavern.world.world import Tavern
 from tavern.world.customers import Customers
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
-from tavern.world.actions import door, counter
+from tavern.world.actions import door, counter, chair
+from tavern.world.goods import DRINKS
 
 
 class TavernTest(unittest.TestCase):
@@ -15,6 +16,31 @@ class TavernTest(unittest.TestCase):
 
     COUNTER_X = 9
     COUNTER_Y = 11
+
+    def tick_for(self, l=1):
+        for i in range(1, l + 1):
+            self.tavern.tick()
+
+    def tearDown(self):
+        # Reset the bus
+        bus.bus.events = defaultdict(list)
+
+    def receive(self, event):
+        self.received_events[event.get('type')].append(event.get('data'))
+
+    def assertReceived(self, event_type, description):
+        self.assertIn(description, self.received_events[event_type])
+
+    def assertCanTickTill(self, predicate, tick_number, msg=None):
+        counter = 0
+        while not predicate() and counter <= tick_number:
+            counter += 1
+            self.tick_for()
+        if counter > tick_number:
+            raise AssertionError(msg or ('Waited %d tick without predicate '
+                                         'becoming true.' % (tick_number)))
+
+    # SETUP AND UTILITIES TO PREPARE TESTS
 
     def setUp(self):
         self.tavern = Tavern(TavernTest.TEST_WORLD_WIDTH,
@@ -27,16 +53,6 @@ class TavernTest(unittest.TestCase):
         self.received_events = defaultdict(list)
         bus.bus.subscribe(self, bus.STATUS_EVENT)
 
-    def tearDown(self):
-        # Reset the bus
-        bus.bus.events = defaultdict(list)
-
-    def receive(self, event):
-        self.received_events[event.get('type')].append(event.get('data'))
-
-    def assertReceived(self, event_type, description):
-        self.assertIn(description, self.received_events[event_type])
-
     def _build_area(self, x, y, x2=None, y2=None):
         area = Selection(x, y)
         if x2 is None:
@@ -46,6 +62,15 @@ class TavernTest(unittest.TestCase):
         area.x2 = x2
         area.y2 = y2
         return area
+
+    def add_drinks(self):
+        self.tavern.store.add(DRINKS[0], 10)
+
+    def add_chair(self):
+        self.add_object(chair, 9, 6)
+
+    def add_object(self, obj, x, y):
+        self.call_command(PutCommand(self._build_area(x, y), obj))
 
     def bootstrap(self):
         # Build a storage area
@@ -73,18 +98,14 @@ class TavernTest(unittest.TestCase):
     def call_command(self, command):
         bus.bus.publish({'command': command}, bus.WORLD_EVENT)
 
-    def add_object(self, obj, x, y):
-        self.call_command(PutCommand(self._build_area(x, y), obj))
-
-    def assertCanTickTill(self, predicate, tick_number, msg=None):
-        counter = 0
-        while not predicate() and counter <= tick_number:
-            counter += 1
-            self.tick_for()
-        if counter > tick_number:
-            raise AssertionError(msg or ('Waited %d tick without predicate '
-                                         'becoming true.' % (tick_number)))
-
-    def tick_for(self, l=1):
-        for i in range(1, l + 1):
-            self.tavern.tick()
+    def _build_thirsty_customer(self):
+        self.customers.make_customer()
+        patron = self.tavern.creatures[-1]
+        # This fellow will want to drink, and only drink
+        patron.needs.thirst = 1
+        patron.needs.hunger = 0
+        patron.needs.gamble = 0
+        patron.needs.sleep = 0
+        # Money is not an issue
+        patron.money = 1000
+        return patron
