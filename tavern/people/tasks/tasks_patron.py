@@ -184,11 +184,15 @@ class TableOrder(Task):
 
 
 class WaitForOrder(Task):
+    MAX_WAIT = 400
     """Customer is waiting for his order to arrive."""
     def __init__(self):
         self.served = False
-        super(WaitForOrder, self).__init__()
+        super(WaitForOrder, self).__init__(length=WaitForOrder.MAX_WAIT)
 
     def tick(self, world_map, creature):
         if self.served:
             self.finish()
+        if self.tick_time > self.length:
+            self.fail()
+        super(WaitForOrder, self).tick(world_map, creature)

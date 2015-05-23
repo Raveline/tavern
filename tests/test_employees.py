@@ -49,4 +49,4 @@ class TestEmployees(TavernTest):
         def patron_has_left():
             return patron not in self.tavern.creatures
 
-        self.assertCanTickTill(patron_has_left, 400)
+        self.assertCanTickTill(patron_has_left, 600)

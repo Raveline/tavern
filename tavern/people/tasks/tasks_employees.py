@@ -59,13 +59,16 @@ class TakeOrder(Task):
     def tick(self, world_map, creature):
         # We interact with the target creature task, create a new task...
         ordering = self.creature.current_activity
-        ordered = ordering.order
-        command = AddTask(Functions.COOKING, None, None,
-                          PrepareFood(ordered, self.creature))
-        self.call_command(command)
-        ordering.order_taken = True
-        # ... and we are done !
-        self.finish()
+        if hasattr(ordering, 'order'):
+            ordered = ordering.order
+            command = AddTask(Functions.COOKING, None, None,
+                              PrepareFood(ordered, self.creature))
+            self.call_command(command)
+            ordering.order_taken = True
+            # ... and we are done !
+            self.finish()
+        else:
+            self.fail()
 
 
 class PrepareFood(Task):
@@ -143,8 +146,11 @@ class ServeMealTask(Task):
         super(ServeMealTask, self).__init__()
 
     def tick(self, world_map, creature):
-        self.destination.current_task.served = True
-        self.finish()
+        if hasattr(self.destination.current_task, 'served'):
+            self.destination.current_task.served = True
+            self.finish()
+        else:
+            self.fail()
 
     def __str__(self):
         return "Serving customer"
