@@ -194,5 +194,7 @@ class WaitForOrder(Task):
         if self.served:
             self.finish()
         if self.tick_time > self.length:
+            creature.renounce("%s waited too long to be served food."
+                              % str(creature))
             self.fail()
         super(WaitForOrder, self).tick(world_map, creature)
