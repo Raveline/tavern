@@ -107,6 +107,7 @@ class CutFood(Task):
     def tick(self, world, creature):
         # TODO : Consomation of ingredient
         self.check_length()
+        super(CutFood, self).tick(world, creature)
 
     def __str__(self):
         return "Cutting ingredients"
@@ -118,6 +119,7 @@ class CookFood(Task):
 
     def tick(self, world, creature):
         self.check_length()
+        super(CookFood, self).tick(world, creature)
 
     def __str__(self):
         return "Cooking"
