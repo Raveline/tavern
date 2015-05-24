@@ -87,7 +87,7 @@ oven = ObjectTemplate('Oven',
                        [True, False, True]],
                       [RoomsRule([Rooms.KITCHEN]), NotWallRule()],
                       open_service,
-                      [(2, 1)])
+                      [(1, 2)])
 
 
 work_station = ObjectTemplate('Work station',
