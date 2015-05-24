@@ -162,9 +162,11 @@ class TableOrder(Task):
         self.order = order
 
     def emit_order_task(self, world_map, creature):
-        self.order_task = TakeOrder(creature)
+        order_task = TakeOrder(creature)
         command = AddTask(Functions.ORDER_TAKING, creature.x, creature.y,
-                          self.order_task)
+                          order_task)
+        self.reverse = RemoveTask(Functions.ORDER_TAKING, creature.x,
+                                  creature.y, order_task)
         self.call_command(command)
 
     def tick(self, world_map, creature):
@@ -179,8 +181,7 @@ class TableOrder(Task):
         super(TableOrder, self).tick(world_map, creature)
 
     def fail(self):
-        command = RemoveTask(Functions.ORDER_TAKING, self.order_task)
-        self.call_command(command)
+        self.call_command(self.reverse)
 
 
 class WaitForOrder(Task):
