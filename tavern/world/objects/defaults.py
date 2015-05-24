@@ -42,7 +42,7 @@ def open_service(object_type, world_map, x, y):
             # The object blocks : the service is on all neighbouring tiles
             for (x2, y2) in world_map.get_immediate_neighboring_coords(x, y):
                 if world_map.tiles[y2][x2].is_walkable():
-                    world_map.open_service(object_type.function, x, y)
+                    world_map.open_service(object_type.function, x2, y2)
         else:
             # The object does not block : the service is on the tile itself
             world_map.open_service(object_type.function, x, y)
