@@ -163,8 +163,8 @@ class ServeMealTask(Task):
         super(ServeMealTask, self).__init__()
 
     def tick(self, world_map, creature):
-        if hasattr(self.destination.current_task, 'served'):
-            self.destination.current_task.served = True
+        if hasattr(self.destination.current_activity, 'served'):
+            self.destination.current_activity.served = True
             self.finish()
         else:
             self.fail()
