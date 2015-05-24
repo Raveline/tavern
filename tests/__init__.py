@@ -6,7 +6,7 @@ from tavern.receivers.navigators import Selection
 from tavern.world.world import Tavern
 from tavern.world.customers import Customers
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
-from tavern.world.actions import door, counter, chair
+from tavern.world.actions import door, counter, chair, oven, work_station
 from tavern.world.goods import DRINKS
 
 
@@ -93,7 +93,22 @@ class TavernTest(unittest.TestCase):
                                    counter))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
-        print(self.tavern.tavern_map.tiles[11][9].wall)
+
+    def add_kitchen(self):
+        # Build the kitchen
+        commands = []
+        commands.append(BuildCommand(self._build_area(1, 7, 7, 14)))
+        commands.append(BuildCommand(self._build_area(8, 12, 8, 12)))
+        commands.append(PutCommand(self._build_area(8, 12), door))
+        for command in commands:
+            bus.bus.publish({'command': command}, bus.WORLD_EVENT)
+        commands = []
+        commands.append(RoomCommand(
+            self.tavern.tavern_map.fill_from(3, 10), 2))
+        commands.append(PutCommand(self._build_area(5, 7, 7, 9), oven))
+        commands.append(PutCommand(self._build_area(4, 7), work_station))
+        for command in commands:
+            bus.bus.publish({'command': command}, bus.WORLD_EVENT)
 
     def call_command(self, command):
         bus.bus.publish({'command': command}, bus.WORLD_EVENT)
