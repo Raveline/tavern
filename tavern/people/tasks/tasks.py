@@ -69,7 +69,7 @@ class Walking(Task):
             self.path_length = tcod.path_size(self.path)
             if self.path_length == 0:
                 self.fail()
-                raise ImpossibleTask('No path to %d, %s' % (self.dest_x,
+                raise ImpossibleTask('No path to %d, %d' % (self.dest_x,
                                                             self.dest_y))
             # The tick time MUST be reset, in case we recompute path
             # during the task.
