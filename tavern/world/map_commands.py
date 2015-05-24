@@ -110,11 +110,11 @@ class PutCommand(MapCommand):
                 new_object.blocks = does_block
                 new_object.character = character
                 world_map.update_tile_walkability(x, y)
-                after_put = object_type.after_put
-                if after_put is not None:
-                    after_put(object_type, world_map, x, y)
                 tile = world_map.tiles[y][x]
                 tile.tile_object = new_object
+        after_put = object_type.after_put
+        if after_put is not None:
+            after_put(object_type, world_map, rect.x, rect.y)
         return True
 
     def put_object(self, x, y, world_map, object_type):
