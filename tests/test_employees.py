@@ -1,6 +1,9 @@
 from tests import TavernTest
 from tavern.utils import bus
-from tavern.people.tasks.tasks_employees import Serving, TakeOrder
+from tavern.people.tasks.tasks_employees import (
+    Serving, TakeOrder, PrepareFood, CutFood, CookFood, CreateMeal,
+    DeliverTask
+)
 from tavern.people.employees import TAVERN_WAITER
 
 
@@ -49,4 +52,34 @@ class TestEmployees(TavernTest):
         def patron_has_left():
             return patron not in self.tavern.creatures
 
-        self.assertCanTickTill(patron_has_left, 600)
+        self.assertCanTickTill(patron_has_left, 500)
+
+    def test_cook_order(self):
+        """If a hungry patron has ordered food, employees should
+        go, prepare it."""
+        employee = self._make_employee()
+        self.base_conditions()
+        # We need the kitchen for the test to work
+        self.add_kitchen()
+
+        def employee_is_preparing_food():
+            return isinstance(employee.current_activity, PrepareFood)
+
+        def employee_is_cutting_food():
+            return isinstance(employee.current_activity, CutFood)
+
+        def employee_is_cooking_food():
+            return isinstance(employee.current_activity, CookFood)
+
+        def employee_is_creating_meal():
+            return isinstance(employee.current_activity, CreateMeal)
+
+        def employee_is_delivering():
+            return isinstance(employee.current_activity, DeliverTask)
+
+        self.assertCanTickTill(employee_is_preparing_food, 100)
+        self.assertCanTickTill(employee_is_cutting_food, 80)
+        self.assertTrue(self.tavern_map.tiles[6][9].is_walkable())
+        self.assertCanTickTill(employee_is_cooking_food, 80)
+        self.assertCanTickTill(employee_is_creating_meal, 20)
+        self.assertCanTickTill(employee_is_delivering, 20)
