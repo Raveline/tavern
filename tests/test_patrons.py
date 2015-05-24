@@ -1,6 +1,6 @@
 from tests import TavernTest
 from tavern.people.tasks.tasks_patron import (
-    Ordering, Leaving, Drinking, TableOrder)
+    Ordering, Leaving, Drinking, Eating, TableOrder)
 from tavern.world.objects.functions import Functions
 
 
@@ -55,8 +55,7 @@ class TestPatron(TavernTest):
         self.assertNotIn(patron, self.tavern.creatures)
 
     def test_order_food_no_waiter(self):
-        """Customers might want to order food when there is no employee
-        available for waiting. They should leave after a while."""
+        """Customers leave if there is nobody to take their food order."""
         patron = self._build_thirsty_customer()
         # This one also wants to eat !
         patron.needs.hunger = 1
@@ -68,3 +67,20 @@ class TestPatron(TavernTest):
 
         # Customer will be waiting for someone to take his/her order.
         self.assertCanTickTill(customer_want_to_order_something_to_eat, 70)
+
+    def test_order_food_complete(self):
+        """Customers should be able to order (and eat !) food."""
+        # An employee to take care of orders
+        self._make_employee()
+        # We need the kitchen for the test to work
+        self.add_kitchen()
+        # This one also wants to eat !
+        patron = self._build_thirsty_customer()
+        patron.needs.hunger = 1
+        self.add_drinks()
+        self.add_chair()
+
+        def customer_is_eating():
+            return isinstance(patron.current_activity, Eating)
+
+        self.assertCanTickTill(customer_is_eating, 200)
