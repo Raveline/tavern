@@ -115,7 +115,12 @@ class TavernMap():
         using it.
         """
         self.used_services[function].append((x, y))
-        self.available_services[function].remove((x, y))
+        try:
+            self.available_services[function].remove((x, y))
+        except:
+            print("There was no available service of type %d in %d, %d"
+                  % (function, x, y))
+            exit(0)
 
     def open_service(self, function, x, y):
         """
