@@ -65,7 +65,6 @@ class Game(object):
         commands.append(PutCommand(build_area(4, 7, 4, 7), work_station))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
-        print(self.tavern.tavern_map.tiles[11][9].wall)
         self.customers.tick_counter += 100
 
     def __init__(self):
