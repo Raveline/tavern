@@ -1,10 +1,8 @@
 from tests import TavernTest
-from tavern.utils import bus
 from tavern.people.tasks.tasks_employees import (
     Serving, TakeOrder, PrepareFood, CutFood, CookFood, CreateMeal,
     DeliverTask
 )
-from tavern.people.employees import TAVERN_WAITER
 
 
 class TestEmployees(TavernTest):
@@ -18,13 +16,6 @@ class TestEmployees(TavernTest):
             return isinstance(publican.current_activity, Serving)
 
         self.assertCanTickTill(publican_is_serving, 20)
-
-    def _make_employee(self):
-        self.customers.make_customer()
-        patron = self.tavern.creatures[1]
-        bus.bus.publish({'recruit': patron,
-                         'profile': TAVERN_WAITER}, bus.CUSTOMER_EVENT)
-        return self.tavern.creatures[1]
 
     def base_conditions(self):
         patron = self._build_thirsty_customer()
@@ -79,7 +70,6 @@ class TestEmployees(TavernTest):
 
         self.assertCanTickTill(employee_is_preparing_food, 100)
         self.assertCanTickTill(employee_is_cutting_food, 80)
-        self.assertTrue(self.tavern_map.tiles[6][9].is_walkable())
         self.assertCanTickTill(employee_is_cooking_food, 80)
         self.assertCanTickTill(employee_is_creating_meal, 20)
         self.assertCanTickTill(employee_is_delivering, 20)
