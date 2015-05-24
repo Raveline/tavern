@@ -60,7 +60,6 @@ class Walking(Task):
         super(Walking, self).__init__()
         self.dest_x = x
         self.dest_y = y
-        self.compute_path(world_map, creature)
 
     def compute_path(self, world_map, creature):
         if self.dest_x != creature.x or self.dest_y != creature.y:
@@ -80,6 +79,8 @@ class Walking(Task):
             self.finish()
 
     def tick(self, world_map, creature):
+        if self.tick_time == 0:
+            self.compute_path(world_map, creature)
         if self.tick_time < self.path_length:
             x, y = tcod.path_get(self.path, self.tick_time)
             if not world_map.tiles[y][x].is_walkable():
