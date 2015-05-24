@@ -70,6 +70,9 @@ class TakeOrder(Task):
         else:
             self.fail()
 
+    def __str__(self):
+        return "Taking an order"
+
 
 class PrepareFood(Task):
     def __init__(self, meal, destination):
@@ -93,6 +96,9 @@ class PrepareFood(Task):
         else:
             self.fail()
 
+    def __str__(self):
+        return "Starting a meal"
+
 
 class CutFood(Task):
     def __init__(self):
@@ -102,6 +108,9 @@ class CutFood(Task):
         # TODO : Consomation of ingredient
         self.check_length()
 
+    def __str__(self):
+        return "Cutting ingredients"
+
 
 class CookFood(Task):
     def __init__(self):
@@ -109,6 +118,9 @@ class CookFood(Task):
 
     def tick(self, world, creature):
         self.check_length()
+
+    def __str__(self):
+        return "Cooking"
 
 
 class CreateMeal(Task):
@@ -122,6 +134,9 @@ class CreateMeal(Task):
                           DeliverTask(self.meal, self.destination))
         self.call_command(command)
         self.finish()
+
+    def __str__(self):
+        return "Finishing to prepare a meal"
 
 
 class DeliverTask(Task):
