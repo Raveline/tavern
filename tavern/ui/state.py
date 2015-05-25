@@ -49,7 +49,7 @@ class GameState(object):
                 self.sub_object = subobject.get('subobject')
                 self.sub_object_display = subobject.get('display')
                 if not isinstance(self.sub_object, int):
-                    if self.sub_object.is_multi_tile:
+                    if self.sub_object.is_multi_tile():
                         self.navigator.set_multi_char(self.sub_object.character,
                                                       self.sub_object.width,
                                                       self.sub_object.height)
