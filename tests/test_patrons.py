@@ -83,4 +83,4 @@ class TestPatron(TavernTest):
         def customer_is_eating():
             return isinstance(patron.current_activity, Eating)
 
-        self.assertCanTickTill(customer_is_eating, 200)
+        self.assertCanTickTill(customer_is_eating, 300)
