@@ -43,8 +43,9 @@ class Scape(object):
             movx = 1
         if message == Inputs.ENTER:
             if self.selection:
-                bus.bus.publish(self.selection, bus.AREA_SELECT)
+                selection = self.selection
                 self.finish_select()
+                bus.bus.publish(selection, bus.AREA_SELECT)
             else:
                 self.enter_select()
         if message == Inputs.ESCAPE:

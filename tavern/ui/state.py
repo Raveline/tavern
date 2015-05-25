@@ -33,6 +33,15 @@ class GameState(object):
     def activate(self):
         self.sub_object = None
 
+    def change_sub_object_display(self):
+        if not isinstance(self.sub_object, int):
+            if self.sub_object.is_multi_tile():
+                self.navigator.set_multi_char(self.sub_object.character,
+                                              self.sub_object.width,
+                                              self.sub_object.height)
+            else:
+                self.navigator.set_char(self.sub_object.character)
+
     def receive(self, event):
         def pick_substate(event_data):
             if self.actions:
@@ -48,13 +57,7 @@ class GameState(object):
             if subobject:
                 self.sub_object = subobject.get('subobject')
                 self.sub_object_display = subobject.get('display')
-                if not isinstance(self.sub_object, int):
-                    if self.sub_object.is_multi_tile():
-                        self.navigator.set_multi_char(self.sub_object.character,
-                                                      self.sub_object.width,
-                                                      self.sub_object.height)
-                    else:
-                        self.navigator.set_char(self.sub_object.character)
+                self.change_sub_object_display()
 
             return subobject
 
@@ -84,6 +87,7 @@ class GameState(object):
             command = BuildCommand(area)
         elif self.action == Actions.PUT:
             command = PutCommand(area, self.sub_object)
+            self.change_sub_object_display()
         elif self.action == Actions.ROOMS:
             command = RoomCommand(area, self.sub_object)
         if command is not None:
