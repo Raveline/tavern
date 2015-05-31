@@ -7,21 +7,20 @@ from tavern.world.objects.functions import Functions
 class Serving(Task):
     SERVING_LENGTH = 100
     """As in serving people."""
-    def __init__(self, nature, x, y, constant=False):
+    def __init__(self, nature, pos, constant=False):
         super(Serving, self).__init__(Serving.SERVING_LENGTH)
         self.nature = nature
-        self.x = x
-        self.y = y
+        self.pos = pos
         # Should this task always be here ? (object requiring constant
         # attendance, e.g.)
         self.constant = constant
 
     def start_serving(self):
-        command = AttendToCommand(self.nature, (self.x, self.y))
+        command = AttendToCommand(self.nature, self.pos)
         self.call_command(command)
 
     def stop_serving(self):
-        command = AttendToCommand(self.nature, (self.x, self.y), True)
+        command = AttendToCommand(self.nature, self.pos, True)
         self.call_command(command)
 
     def tick(self, world_map, creature):
@@ -34,8 +33,8 @@ class Serving(Task):
 
     def keep_task_if_constant(self):
         if self.constant:
-            command = AddTask(self.nature, self.x, self.y,
-                              Serving(self.nature, self.x, self.y, True))
+            command = AddTask(self.nature, self.pos,
+                              Serving(self.nature, self.pos, True))
             self.call_command(command)
 
     def finish(self):
@@ -61,7 +60,7 @@ class TakeOrder(Task):
         ordering = self.creature.current_activity
         if hasattr(ordering, 'order'):
             ordered = ordering.order
-            command = AddTask(Functions.COOKING, None, None,
+            command = AddTask(Functions.COOKING, None,
                               PrepareFood(ordered, self.creature))
             self.call_command(command)
             ordering.order_taken = True
@@ -75,23 +74,23 @@ class TakeOrder(Task):
 
 
 class PrepareFood(Task):
-    def __init__(self, meal, destination):
+    def __init__(self, meal, recipient):
+        # The meal to prepare
         self.meal = meal
-        self.destination = destination
+        # The person that will receive this meal
+        self.recipient = recipient
         super(PrepareFood, self).__init__()
 
     def tick(self, world_map, creature):
-        workshop = world_map.find_closest_object(creature.x, creature.y,
+        workshop = world_map.find_closest_object(creature.to_pos(),
                                                  Functions.WORKSHOP)
-        oven = world_map.find_closest_object(creature.x, creature.y,
+        oven = world_map.find_closest_object(creature.to_pos(),
                                              Functions.COOKING)
         if workshop and oven:
-            creature.add_walking_then_or(world_map, workshop[0], workshop[1],
-                                         [CutFood()])
-            creature.add_walking_then_or(world_map, oven[0], oven[1],
-                                         [CookFood(),
-                                          CreateMeal(self.meal,
-                                                     self.destination)])
+            creature.add_walking_then_or(world_map, workshop, [CutFood()])
+            creature.add_walking_then_or(world_map, oven, [CookFood(),
+                                         CreateMeal(self.meal,
+                                                    self.recipient)])
             self.finish()
         else:
             self.fail()
@@ -126,14 +125,16 @@ class CookFood(Task):
 
 
 class CreateMeal(Task):
-    def __init__(self, meal, destination):
+    def __init__(self, meal, recipient):
+        # The meal to create
         self.meal = meal
-        self.destination = destination
+        # The person that will receive this meal
+        self.recipient = recipient
         super(CreateMeal, self).__init__()
 
     def tick(self, world_map, creature):
-        command = AddTask(Functions.DELIVERING, creature.x, creature.y,
-                          DeliverTask(self.meal, self.destination))
+        command = AddTask(Functions.DELIVERING, creature.to_pos(),
+                          DeliverTask(self.meal, self.recipient))
         self.call_command(command)
         self.finish()
 
@@ -142,15 +143,14 @@ class CreateMeal(Task):
 
 
 class DeliverTask(Task):
-    def __init__(self, meal, destination):
+    def __init__(self, meal, recipient):
         self.meal = meal
-        self.destination = destination
+        self.recipient = recipient
         super(DeliverTask, self).__init__()
 
     def tick(self, world_map, creature):
-        creature.add_walking_then_or(world_map, self.destination.x,
-                                     self.destination.y,
-                                     [ServeMealTask(self.destination)])
+        creature.add_walking_then_or(world_map, self.recipient.to_pos(),
+                                     [ServeMealTask(self.recipient)])
         self.finish()
 
     def __str__(self):
@@ -158,13 +158,14 @@ class DeliverTask(Task):
 
 
 class ServeMealTask(Task):
-    def __init__(self, destination):
-        self.destination = destination
+    def __init__(self, recipient):
+        # The person that will receive the meal
+        self.recipient = recipient
         super(ServeMealTask, self).__init__()
 
     def tick(self, world_map, creature):
-        if hasattr(self.destination.current_activity, 'served'):
-            self.destination.current_activity.served = True
+        if hasattr(self.recipient.current_activity, 'served'):
+            self.recipient.current_activity.served = True
             self.finish()
         else:
             self.fail()

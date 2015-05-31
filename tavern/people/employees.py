@@ -28,10 +28,11 @@ class Employee(Creature):
                 # For the moment, let's take the last opened task...
                 task = tasks.pop()
                 if task[0] is not None:
-                    x, y = task[0]
+                    position = task[0]
                     task = task[1]
                     # TODO : Replace this "Wandering" taks by a Resting one.
-                    self.add_walking_then_or(world_map, x, y, [task, Wandering()])
+                    self.add_walking_then_or(world_map, position,
+                                             [task, Wandering()])
                 else:
                     self.add_activity(task[1])
                 return
@@ -41,8 +42,8 @@ class Employee(Creature):
 
 class Publican(Employee):
     """The avatar of the player."""
-    def __init__(self, x, y):
-        super(Publican, self).__init__(x, y, 0, [Functions.ORDERING], '@')
+    def __init__(self, x, y, z):
+        super(Publican, self).__init__(x, y, z, [Functions.ORDERING], '@')
 
     def __str__(self):
         return ' --- '.join(["You", super(Publican, self).__str__()])

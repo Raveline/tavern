@@ -1,5 +1,5 @@
 import libtcodpy as tcod
-import random
+from random import choice, randint
 
 from tavern.utils import bus
 
@@ -46,30 +46,27 @@ class Wandering(Task):
         super(Wandering, self).tick(world_map, creature)
 
     def wander(self, world_map, creature):
-        if random.randint(0, 2) == 0:
-            x, y, z = random.choice(world_map.get_legit_moves_from(
-                creature.x, creature.y, creature.z))
-            creature.move(x, y, z)
+        if randint(0, 2) == 0:
+            pos = choice(world_map.get_legit_moves_from(creature.to_pos()))
+            creature.move(pos)
 
     def __str__(self):
         return "Being idle"
 
 
 class Walking(Task):
-    def __init__(self, world_map, creature, x, y):
+    def __init__(self, world_map, creature, pos):
         super(Walking, self).__init__()
-        self.dest_x = x
-        self.dest_y = y
+        self.dest = pos
 
     def compute_path(self, world_map, creature):
-        if self.dest_x != creature.x or self.dest_y != creature.y:
-            self.path = world_map.path_from_to(creature.x, creature.y,
-                                               self.dest_x, self.dest_y)
+        if not creature.is_at_pos(self.dest):
+            self.path = world_map.path_from_to(creature.to_pos(), self.dest)
             self.path_length = tcod.path_size(self.path)
             if self.path_length == 0:
                 self.fail()
-                raise ImpossibleTask('No path to %d, %d' % (self.dest_x,
-                                                            self.dest_y))
+                raise ImpossibleTask('No path from %d, %d, %d to %d, %d, %d'
+                                     % (creature.to_pos() + self.dest))
             # The tick time MUST be reset, in case we recompute path
             # during the task.
             self.tick_time = 0
@@ -83,12 +80,13 @@ class Walking(Task):
             self.compute_path(world_map, creature)
         if self.tick_time < self.path_length:
             x, y = tcod.path_get(self.path, self.tick_time)
-            if not world_map.tiles[y][x].is_walkable():
+            z = creature.z
+            if not world_map[(x, y, z)].is_walkable():
                 # Path is not walkable anymore !
                 # We'll try to rebuild it...
                 self.compute_path(world_map, creature)
             else:
-                creature.move(x, y, 0)
+                creature.move((x, y, 0))
         else:
             self.finish()
         super(Walking, self).tick(world_map, creature)

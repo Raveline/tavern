@@ -12,31 +12,29 @@ class ImpossibleTask(Exception):
 
 
 class ReserveSeat(Task):
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    def __init__(self, pos):
+        self.pos = pos
         super(ReserveSeat, self).__init__()
 
     def tick(self, world_map, creature):
         self.finish()
 
     def finish(self):
-        command = ReserveCommand(self.x, self.y)
+        command = ReserveCommand(self.pos)
         self.call_command(command)
         super(ReserveSeat, self).finish()
 
 
 class OpenSeat(Task):
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    def __init__(self, pos):
+        self.pos = pos
         super(OpenSeat, self).__init__()
 
     def tick(self, world_map, creature):
         self.finish()
 
     def finish(self):
-        command = ReserveCommand(self.x, self.y, True)
+        command = ReserveCommand(self.pos, True)
         self.call_command(command)
         super(OpenSeat, self).finish()
 
@@ -83,7 +81,7 @@ class Eating(Consuming):
 
 class Leaving(Task):
     def tick(self, world_map, creature):
-        if (creature.x, creature.y) in world_map.entry_points:
+        if (creature.to_pos()) in world_map.entry_points:
             self.call_command(CreatureExit(creature))
         else:
             # Uh oh... this should not happen !
@@ -122,8 +120,7 @@ class Ordering(Task):
             self.fail()
             creature.renounce("%s waited too long for being served.")
         elif not self.order_placed:
-            if world_map.can_serve_at(Functions.ORDERING,
-                                      creature.x, creature.y):
+            if world_map.can_serve_at(Functions.ORDERING, creature.to_pos()):
                 command = OrderCommand(self.pick_a_drink(creature), creature)
                 self.call_command(command)
                 self.order_placed = True
@@ -163,10 +160,10 @@ class TableOrder(Task):
 
     def emit_order_task(self, world_map, creature):
         order_task = TakeOrder(creature)
-        command = AddTask(Functions.ORDER_TAKING, creature.x, creature.y,
+        command = AddTask(Functions.ORDER_TAKING, creature.to_pos(),
                           order_task)
-        self.reverse = RemoveTask(Functions.ORDER_TAKING, creature.x,
-                                  creature.y, order_task)
+        self.reverse = RemoveTask(Functions.ORDER_TAKING, creature.to_pos(),
+                                  order_task)
         self.call_command(command)
 
     def tick(self, world_map, creature):

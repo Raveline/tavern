@@ -12,9 +12,9 @@ class Command(object):
 class AttendToCommand(Command):
     """This command let us known when an employee has begun or stopped
     working at a given post. We update the world accordingly."""
-    def __init__(self, nature, position, stop=False):
+    def __init__(self, nature, pos, stop=False):
         self.nature = nature
-        self.x, self.y = position[0], position[1]
+        self.pos = pos
         self.stop = stop
 
     def execute(self, world):
@@ -22,18 +22,20 @@ class AttendToCommand(Command):
         # A serving employee is attending to one or more object
         # (e.g., a counter). We need to flag the tiles NEXT to this object
         # as places where the service is available.
-        tiles_next_to = tav.get_immediate_neighboring_coords(self.x, self.y)
-        for x, y in tiles_next_to:
-            if tav.tiles[y][x].has_object_with_function(self.nature):
-                dir_x = x - self.x
-                dir_y = y - self.y
+        tiles_next_to = tav.get_immediate_neighboring_coords(self.pos)
+        for x, y, z in tiles_next_to:
+            if tav.tiles[z][y][x].has_object_with_function(self.nature):
+                dir_x = x - self.pos[0]
+                dir_y = y - self.pos[1]
                 to_serve_x = x + dir_x
                 to_serve_y = y + dir_y
-                if tav.tiles[to_serve_y][to_serve_x].is_walkable():
+                to_serve_z = z
+                as_position = (to_serve_x, to_serve_y, to_serve_z)
+                if tav[as_position].is_walkable():
                     if self.stop:
-                        tav.stop_service(self.nature, to_serve_x, to_serve_y)
+                        tav.stop_service(self.nature, as_position)
                     else:
-                        tav.open_service(self.nature, to_serve_x, to_serve_y)
+                        tav.open_service(self.nature, as_position)
 
 
 class OrderCommand(Command):
@@ -91,39 +93,32 @@ class BuyCommand(Command):
 
 
 class ReserveSeat(Command):
-    def __init__(self, x, y, cancel=False):
-        self.x = x
-        self.y = y
+    def __init__(self, position, cancel=False):
+        self.position = position
         self.cancel = cancel
 
     def execute(self, world):
         if self.cancel:
-            world.tavern_map.open_service(Functions.SITTING, self.x, self.y)
+            world.tavern_map.open_service(Functions.SITTING, self.position)
         else:
-            world.tavern_map.take_service(Functions.SITTING, self.x, self.y)
+            world.tavern_map.take_service(Functions.SITTING, self.position)
 
 
 class AddTask(Command):
-    def __init__(self, nature, x, y, task):
+    def __init__(self, nature, position, task):
         self.nature = nature
-        self.x = x
-        self.y = y
+        self.position = position
         self.task = task
 
     def execute(self, world):
-        coord = None
-        if self.x is not None and self.y is not None:
-            coord = (self.x, self.y)
-        world.tavern_map.add_task(self.nature, coord, self.task)
+        world.tavern_map.add_task(self.nature, self.position, self.task)
 
 
 class RemoveTask(Command):
-    def __init__(self, nature, x, y, task):
+    def __init__(self, nature, position, task):
+        self.position = position
         self.nature = nature
         self.task = task
 
     def execute(self, world):
-        coord = None
-        if self.x is not None and self.y is not None:
-            coord = (self.x, self.y)
-        world.tavern_map.remove_task(self.nature, coord, self.task)
+        world.tavern_map.remove_task(self.nature, self.position, self.task)
