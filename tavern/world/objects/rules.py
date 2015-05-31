@@ -1,5 +1,5 @@
 class Rule(object):
-    def check(self, world, x, y):
+    def check(self, world, pos):
         pass
 
     def get_error_message(self):
@@ -12,8 +12,8 @@ class RoomsRule(Rule):
     def __init__(self, rooms):
         self.rooms = rooms
 
-    def check(self, world_map, x, y):
-        room_type = world_map.get_room_at(x, y)
+    def check(self, world_map, pos):
+        room_type = world_map.get_room_at(pos)
         return room_type in self.rooms
 
     def get_error_message(self):
@@ -21,8 +21,8 @@ class RoomsRule(Rule):
 
 
 class NotWallRule(Rule):
-    def check(self, world_map, x, y):
-        tile = world_map.tiles[y][x]
+    def check(self, world_map, pos):
+        tile = world_map[pos]
         if tile.wall:
             self.error_message = 'Cannot put this object on a wall.'
             return False
@@ -32,8 +32,8 @@ class NotWallRule(Rule):
 class DefaultRule(Rule):
     """The default position rule, that makes sure
     the tile is built, that there is not already an object."""
-    def check(self, world_map, x, y):
-        tile = world_map.tiles[y][x]
+    def check(self, world_map, pos):
+        tile = world_map[pos]
         if tile.tile_object is not None:
             self.error_message = 'There is already an object here.'
             return False
@@ -50,20 +50,20 @@ class OrRule(Rule):
         self.one = one
         self.two = two
 
-    def check(self, world_map, x, y):
-        return (self.one.check(world_map, x, y) or
-                self.two.check(world_map, x, y))
+    def check(self, world_map, pos):
+        return (self.one.check(world_map, pos) or
+                self.two.check(world_map, pos))
 
 
 class NextToWallRule(Rule):
     """Only valid is next to a wall."""
-    def check(self, world_map, x, y):
-        wall_neihgbours = [t for t in world_map.get_neighboring_for(x, y)
+    def check(self, world_map, pos):
+        wall_neihgbours = [t for t in world_map.get_neighboring_for(pos)
                            if t.wall]
         return len(wall_neihgbours) > 0
 
 
 class ExteriorWallRule(Rule):
     """Only valid if the tile is a wall giving on the outside."""
-    def check(self, world_map, x, y):
-        return world_map.is_an_outside_wall(x, y)
+    def check(self, world_map, pos):
+        return world_map.is_an_outside_wall(pos)

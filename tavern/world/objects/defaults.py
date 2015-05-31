@@ -16,36 +16,37 @@ from tavern.people.tasks.tasks_employees import Serving
 # and I'd much prefer a better way of doing this.
 # TOPONDER : Find a better way of doing this.
 ###
-def add_counter_helping_task(object_type, world_map, x, y):
-    x2, y2 = world_map.find_closest_to_wall_neighbour(x, y)
-    world_map.add_task(Functions.ORDERING, (x2, y2),
-                       Serving(Functions.ORDERING, x2, y2, True))
+def add_counter_helping_task(object_type, world_map, pos):
+    p = world_map.find_closest_to_wall_neighbour(pos)
+    world_map.add_task(Functions.ORDERING, p,
+                       Serving(Functions.ORDERING, p, True))
 
 
-def add_entry_point(object_type, world_map, x, y):
-    tile = world_map.tiles[y][x]
+def add_entry_point(object_type, world_map, pos):
+    tile = world_map[pos]
     if tile.wall:
         tile.wall = False
         tile.built = True
-        world_map.entry_points.append((x, y))
-        world_map.add_walkable_tile(x, y)
+        world_map.entry_points.append(pos)
+        world_map.add_walkable_tile(pos)
 
 
-def open_service(object_type, world_map, x, y):
+def open_service(object_type, world_map, pos):
+    x, y, z = pos
     if object_type.is_multi_tile():
         for pos_x, pos_y in object_type.service_coords:
             x2, y2 = x + pos_x, y + pos_y
-            if world_map.tiles[y2][x2].is_walkable():
-                world_map.open_service(object_type.function, x2, y2)
+            if world_map.tiles[z][y2][x2].is_walkable():
+                world_map.open_service(object_type.function, (x2, y2, z))
     else:
         if object_type.blocks:
             # The object blocks : the service is on all neighbouring tiles
-            for (x2, y2) in world_map.get_immediate_neighboring_coords(x, y):
-                if world_map.tiles[y2][x2].is_walkable():
-                    world_map.open_service(object_type.function, x2, y2)
+            for (pos2) in world_map.get_immediate_neighboring_coords(pos):
+                if world_map[pos2].is_walkable():
+                    world_map.open_service(object_type.function, pos2)
         else:
             # The object does not block : the service is on the tile itself
-            world_map.open_service(object_type.function, x, y)
+            world_map.open_service(object_type.function, pos)
 
 door = ObjectTemplate('Door',
                       Functions.ROOM_SEPARATOR,
