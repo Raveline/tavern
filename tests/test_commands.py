@@ -11,9 +11,11 @@ from tavern.world.goods import GoodsType, DRINKS
 class TestAttendTo(TavernTest):
     def attend_to_counter(self, stop=False):
         # Attending below the counter at 9,11
+        counter_attending_pos = (TavernTest.COUNTER_X,
+                                 TavernTest.COUNTER_Y + 1,
+                                 0)
         self.call_command(AttendToCommand(Functions.ORDERING,
-                                          (TavernTest.COUNTER_X,
-                                           TavernTest.COUNTER_Y + 1),
+                                          counter_attending_pos,
                                           stop))
 
     def test_start_attending(self):
@@ -50,7 +52,7 @@ class TestAttendTo(TavernTest):
         """
         self.attend_to_counter()
         available = self.tavern_map.available_services[Functions.ORDERING]
-        tested_destination = (TavernTest.COUNTER_X, TavernTest.COUNTER_Y - 1)
+        tested_destination = (TavernTest.COUNTER_X, TavernTest.COUNTER_Y - 1, 0)
         self.assertEqual(tested_destination, available[0],
                          'AttendingTo did not open the proper coords.')
 
@@ -124,21 +126,23 @@ class TestReserveSeat(TavernTest):
     def test_reserve(self):
         """Reserving a seat should remove it from the available services."""
         # There must be an existing service first
+        self.chair_pos = (self.CHAIR_X, self.CHAIR_Y, 0)
         self.add_object(chair, self.CHAIR_X, self.CHAIR_Y)
         seatings = self.tavern_map.used_services[Functions.SITTING]
-        self.assertNotIn((self.CHAIR_X, self.CHAIR_Y), seatings)
-        self.call_command(ReserveSeat(self.CHAIR_X, self.CHAIR_Y))
-        self.assertIn((self.CHAIR_X, self.CHAIR_Y), seatings)
+        self.assertNotIn(self.chair_pos, seatings)
+        self.call_command(ReserveSeat(self.chair_pos))
+        self.assertIn(self.chair_pos, seatings)
 
     def test_cancel_reservation(self):
         """Canceling a seat reservation should put it pack amongst
         available services."""
+        self.chair_pos = (self.CHAIR_X, self.CHAIR_Y, 0)
         # There must be an existing service first
         self.add_object(chair, self.CHAIR_X, self.CHAIR_Y)
         # Reserve it then unreseve it
-        self.call_command(ReserveSeat(self.CHAIR_X, self.CHAIR_Y))
-        self.call_command(ReserveSeat(self.CHAIR_X, self.CHAIR_Y, True))
+        self.call_command(ReserveSeat(self.chair_pos))
+        self.call_command(ReserveSeat(self.chair_pos, True))
         busy_seatings = self.tavern_map.used_services[Functions.SITTING]
-        self.assertNotIn((self.CHAIR_X, self.CHAIR_Y), busy_seatings)
+        self.assertNotIn((self.chair_pos), busy_seatings)
         free_seatings = self.tavern_map.available_services[Functions.SITTING]
-        self.assertIn((self.CHAIR_X, self.CHAIR_Y), free_seatings)
+        self.assertIn((self.chair_pos), free_seatings)

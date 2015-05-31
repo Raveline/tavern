@@ -72,4 +72,4 @@ class TestEmployees(TavernTest):
         self.assertCanTickTill(employee_is_cutting_food, 80)
         self.assertCanTickTill(employee_is_cooking_food, 80)
         self.assertCanTickTill(employee_is_creating_meal, 20)
-        self.assertCanTickTill(employee_is_delivering, 100)
+        self.assertCanTickTill(employee_is_delivering, 200)

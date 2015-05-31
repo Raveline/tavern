@@ -54,14 +54,17 @@ class TavernTest(unittest.TestCase):
         self.received_events = defaultdict(list)
         bus.bus.subscribe(self, bus.STATUS_EVENT)
 
-    def _build_area(self, x, y, x2=None, y2=None):
-        area = Selection(x, y)
+    def _build_area(self, x, y, z=None, x2=None, y2=None, z2=None):
+        if z is None:
+            z = 0
+        area = Selection(x, y, z)
         if x2 is None:
             x2 = x
         if y2 is None:
             y2 = y
         area.x2 = x2
         area.y2 = y2
+        area.z2 = z2
         return area
 
     def add_drinks(self):
@@ -83,19 +86,20 @@ class TavernTest(unittest.TestCase):
     def bootstrap(self):
         # Build a storage area
         commands = []
-        commands.append(BuildCommand(self._build_area(2, 2, 5, 5)))
+        commands.append(BuildCommand(self._build_area(2, 2, 0, 5, 5)))
         # build a corridor to a tavern room
-        commands.append(BuildCommand(self._build_area(5, 3, 9, 4)))
-        commands.append(PutCommand(self._build_area(8, 3, 8, 4), door))
+        commands.append(BuildCommand(self._build_area(5, 3, 0, 9, 4)))
+        commands.append(PutCommand(self._build_area(8, 3, 0, 8, 4), door))
         # Build the tavern room
-        commands.append(BuildCommand(self._build_area(9, 2, 12, 12)))
-        commands.append(PutCommand(self._build_area(11, 1, 11, 1), door))
+        commands.append(BuildCommand(self._build_area(9, 2, 0, 12, 12)))
+        commands.append(PutCommand(self._build_area(11, 1), door))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
         commands = []
-        commands.append(RoomCommand(self.tavern.tavern_map.fill_from(3, 3), 1))
         commands.append(RoomCommand(
-            self.tavern.tavern_map.fill_from(10, 10), 0))
+            self.tavern.tavern_map.fill_from((3, 3, 0)), 1))
+        commands.append(RoomCommand(
+            self.tavern.tavern_map.fill_from((10, 10, 0)), 0))
         commands.append(PutCommand(self._build_area(TavernTest.COUNTER_X,
                                                     TavernTest.COUNTER_Y),
                                    counter))
@@ -105,15 +109,15 @@ class TavernTest(unittest.TestCase):
     def add_kitchen(self):
         # Build the kitchen
         commands = []
-        commands.append(BuildCommand(self._build_area(1, 7, 7, 14)))
-        commands.append(BuildCommand(self._build_area(8, 12, 8, 12)))
+        commands.append(BuildCommand(self._build_area(1, 7, 0, 7, 14)))
+        commands.append(BuildCommand(self._build_area(8, 12)))
         commands.append(PutCommand(self._build_area(8, 12), door))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
         commands = []
         commands.append(RoomCommand(
-            self.tavern.tavern_map.fill_from(3, 10), 2))
-        commands.append(PutCommand(self._build_area(5, 7, 7, 9), oven))
+            self.tavern.tavern_map.fill_from((3, 10, 0)), 2))
+        commands.append(PutCommand(self._build_area(5, 7, 0, 7, 9), oven))
         commands.append(PutCommand(self._build_area(4, 7), work_station))
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)

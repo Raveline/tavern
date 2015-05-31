@@ -9,10 +9,13 @@ class TestWorld(TavernTest):
         given as parameters."""
         self.assertEqual(self.tavern_map.width, TavernTest.TEST_WORLD_WIDTH)
         self.assertEqual(self.tavern_map.height, TavernTest.TEST_WORLD_HEIGHT)
-        self.assertEqual(len(self.tavern_map.tiles),
-                         TavernTest.TEST_WORLD_HEIGHT)
         self.assertEqual(len(self.tavern_map.tiles[0]),
+                         TavernTest.TEST_WORLD_HEIGHT)
+        self.assertEqual(len(self.tavern_map.tiles[0][0]),
                          TavernTest.TEST_WORLD_WIDTH)
+        # For the moment, worlds are created with a z size of 10
+        self.assertEqual(len(self.tavern_map.tiles),
+                         10)
 
     def test_world_add_creatures(self):
         self.assertEqual(len(self.tavern.creatures), 1,
