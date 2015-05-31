@@ -42,7 +42,7 @@ class Creature(object):
     DWARVES = 2
     HUMAN = 3
 
-    def __init__(self, char, level, race, examinable=False):
+    def __init__(self, char, level, race, name, examinable=False):
         # The character that will represent this creature
         self.char = char
         # The level of the creature, from 1 to 20
@@ -54,6 +54,7 @@ class Creature(object):
         self.activity_list = []
         self.race = race
         self.examinable = examinable
+        self.name = name
 
     def to_pos(self):
         return (self.x, self.y, self.z)
@@ -128,9 +129,10 @@ races_to_string = {
 
 class Patron(Creature):
     """A customer of the Tavern."""
-    def __init__(self, creature_class, race, level, money, needs):
+    def __init__(self, creature_class, race, level, name, money, needs):
         super(Patron, self).__init__(
-            creature_class_to_character[creature_class], level, race, True)
+            creature_class_to_character[creature_class],
+            level, race, name, True)
         self.creature_class = creature_class
         self.money = money
         self.needs = needs
@@ -190,7 +192,7 @@ class Patron(Creature):
         self.needs.cancel_needs()
 
     def __str__(self):
-        basic_display = "%s %s" %\
-            (creature_class_to_string[self.creature_class],
-             races_to_string[self.race])
+        basic_display = "%s --- %s %s" %\
+            (self.name, races_to_string[self.race],
+             creature_class_to_string[self.creature_class])
         return ' --- '.join([basic_display, super(Patron, self).__str__()])

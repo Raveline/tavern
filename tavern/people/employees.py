@@ -9,12 +9,12 @@ TAVERN_WAITER = [Functions.ORDERING, Functions.WORKSHOP, Functions.COOKING,
 
 class Employee(Creature):
     """An employee of the tavern."""
-    def __init__(self, x, y, z, functions, character='e'):
+    def __init__(self, x, y, z, functions, name, character='e'):
         """
         The "functions" parameters indicate what kind of activities this
         employee is susceptible to fill.
         """
-        super(Employee, self).__init__(character, 1, Creature.EMPLOYEE)
+        super(Employee, self).__init__(character, 1, Creature.EMPLOYEE, name)
         self.x = x
         self.y = y
         self.z = z
@@ -43,15 +43,13 @@ class Employee(Creature):
 class Publican(Employee):
     """The avatar of the player."""
     def __init__(self, x, y, z):
-        super(Publican, self).__init__(x, y, z, [Functions.ORDERING], '@')
-
-    def __str__(self):
-        return ' --- '.join(["You", super(Publican, self).__str__()])
+        super(Publican, self).__init__(x, y, z, [Functions.ORDERING],
+                                       'You !', '@')
 
 
 def make_recruit_out_of(creature, profile):
     employee = Employee(creature.x, creature.y, creature.z,
-                        profile)
+                        creature.name, profile)
     # Should make sure every tasks are finished.
     # Free the paths, open seats...
     if creature.current_activity:
