@@ -38,7 +38,7 @@ class Customers(object):
         return self.can_receive_customers
 
     def make_customer(self):
-        x, y = random.choice(self.tavern.tavern_map.entry_points)
+        x, y, z = random.choice(self.tavern.tavern_map.entry_points)
         if random.randint(1, 10) == 1:
             creature_class = random.choice(classes)
         else:
@@ -54,6 +54,7 @@ class Customers(object):
         new_customer = Patron(creature_class, race, level, money, needs)
         new_customer.x = x
         new_customer.y = y
+        new_customer.z = z
         bus.bus.publish({'customer': new_customer}, bus.CUSTOMER_EVENT)
 
     def tick(self):
