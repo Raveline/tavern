@@ -20,7 +20,7 @@ class Scape(object):
         self.block = False
 
     def set_multi_char(self, characters, width, height):
-        self.selection = Selection(self.getX(), self.getY())
+        self.selection = Selection(self.getX(), self.getY(), self.getZ())
         self.selection.x2 = self.selection.x + width - 1
         self.selection.y2 = self.selection.y + height - 1
         self.character = list(chain(*characters))
@@ -78,7 +78,7 @@ class Scape(object):
         self.frame.clip(self.world_frame)
 
     def enter_select(self):
-        self.selection = Selection(self.getX(), self.getY())
+        self.selection = Selection(self.getX(), self.getY(), self.getZ())
 
     def move_select(self):
         if self.block:
@@ -103,11 +103,12 @@ class Scape(object):
 
 
 class Selection(object):
-    def __init__(self, x, y):
+    def __init__(self, x, y, z):
         self.initial_x = x
         self.initial_y = y
         self.x = x
         self.y = y
+        self.z = z
         self.x2 = x
         self.y2 = y
 
@@ -136,21 +137,24 @@ class Selection(object):
     def to_rect(self):
         return {'x': self.x,
                 'y': self.y,
+                'z': self.z,
                 'x2': self.x2,
                 'y2': self.y2}
 
     def to_list_of_tiles(self):
-        return [(x, y) for y in range(self.y, self.y2 + 1)
+        return [(x, y, self.z) for y in range(self.y, self.y2 + 1)
                 for x in range(self.x, self.x2 + 1)]
 
     def __str__(self):
-        return 'x : %d, y : %d, x2 : %d, y2 : %d' % (self.x, self.y, self.x2, self.y2)
+        return 'Z: %d, x : %d, y : %d, x2 : %d, y2 : %d'\
+            % (self.z, self.x, self.y, self.x2, self.y2)
 
 
 class Crosshair(Scape):
     def __init__(self, w, h, world_frame):
         super(Crosshair, self).__init__(w, h, world_frame)
-        self.crosshair = (0, 0)
+        # (int, int, int) for (x, y, z)
+        self.crosshair = (0, 0, 0)
         self.scape = Scape(w, h, world_frame)
         self.world_frame = world_frame
         self.compute_maximum()
@@ -158,7 +162,7 @@ class Crosshair(Scape):
 
     def set_coords(self, selector):
         self.selection = None
-        self.crosshair = (selector.getX(), selector.getY())
+        self.crosshair = (selector.getX(), selector.getY(), selector.getZ())
 
     def compute_maximum(self):
         self.maxX = self.world_frame.w - (self.scape.frame.w / 2)
@@ -173,8 +177,11 @@ class Crosshair(Scape):
     def getY(self):
         return self.crosshair[1]
 
+    def getZ(self):
+        return self.crosshair[2]
+
     def change_frame(self, x, y):
-        self.crosshair = (self.getX() + x, self.getY() + y)
+        self.crosshair = (self.getX() + x, self.getY() + y, self.getZ())
         self.scape.change_focus(self)
 
     def rect_to_local(self):
@@ -187,7 +194,7 @@ class Crosshair(Scape):
         if self.selection:
             return self.selection.to_list_of_tiles()
         else:
-            return [(self.getX(), self.getY())]
+            return [(self.getX(), self.getY(), self.getZ())]
 
 
 class Fillhair(Crosshair):
@@ -203,7 +210,7 @@ class Fillhair(Crosshair):
                 self.selection.y2 - self.scape.frame.y)
 
     def set_selected(self):
-        self.selection = self.func_filler(self.getX(), self.getY())
+        self.selection = self.func_filler(self.getX(), self.getY(), self.getZ())
 
     def enter_select(self):
         self.set_selected()
