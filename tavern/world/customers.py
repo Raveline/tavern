@@ -4,11 +4,18 @@ from tavern.utils import bus
 from tavern.world.objects.functions import Functions
 from tavern.people.needs import Needs
 from tavern.people.characters import CreatureClass, Creature, Patron
+from tavern.world.names.proper import (
+    human_language, elfish_language, dwarven_language)
 
 
 races = [Creature.ELVEN,
          Creature.DWARVES,
          Creature.HUMAN]
+
+
+races_to_names_generator = {Creature.ELVEN: elfish_language,
+                            Creature.DWARVES: dwarven_language,
+                            Creature.HUMAN: human_language}
 
 classes = [CreatureClass.WARRIOR,
            CreatureClass.PRIEST,
@@ -51,7 +58,8 @@ class Customers(object):
         gamble = 0  # Will be random.randint(0,10)
         sleep = 0   # Will be random.randint(0,0)
         needs = Needs(thirst, hunger, gamble, sleep)
-        new_customer = Patron(creature_class, race, level, money, needs)
+        name = races_to_names_generator[race].generate()
+        new_customer = Patron(creature_class, race, level, name, money, needs)
         new_customer.x = x
         new_customer.y = y
         new_customer.z = z
