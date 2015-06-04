@@ -299,12 +299,13 @@ class ExamineMenu(MenuState):
 
     def build_data(self):
         data = {}
-        data['name'] = 'PLACEHOLDER'
+        data['name'] = self.creature.name
         data['level'] = str(self.creature.level)
         data['race'] = self.creature.race_string()
         data['class'] = self.creature.class_string()
         data['money'] = self.__money_to_string(self.creature.money)
         data['thirst'] = self.__desire_to_string(self.creature.needs.thirst)
+        data['hunger'] = self.__desire_to_string(self.creature.needs.hunger)
         data['activity'] = str(self.creature.current_activity)
         return data
 
