@@ -136,7 +136,6 @@ class Patron(Creature):
         self.creature_class = creature_class
         self.money = money
         self.needs = needs
-        self.seated = False
         self.has_a_drink = False
 
     def class_string(self):
