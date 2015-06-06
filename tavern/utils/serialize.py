@@ -1,23 +1,28 @@
 import struct
+import json
 
 # Temporary format for save format :
 # Tavern
 from tavern.people.characters import Patron
-from tavern.people.employee import Publican, Employee
-from tavern.people.tasks import Walking
-from tavern.people.tasks.tasks_employee import (
+from tavern.people.employees import Publican, Employee
+from tavern.people.tasks.tasks import Walking
+from tavern.people.tasks.tasks_employees import (
     ServeMealTask, DeliverTask, CreateMeal, Serving,
     TakeOrder, PrepareFood)
 
 
 class Serializer(object):
-    def __init__(self, world):
+    def serialize(self, world):
         self.world = world
+        serialized_dict = self.serialize_tavern(world)
+        as_json = json.dumps(serialized_dict)
+        with open('save', 'w') as f:
+            f.write(as_json)
 
     def serialize_tavern(self, tavern):
         return {
             'map': self.serialize_tavern_map(tavern.tavern_map),
-            'store': self.serialize_tavern_store(tavern.tavern_store),
+            'store': self.serialize_tavern_store(tavern.store),
             'cash': struct.pack('Q', tavern.cash),
             'creatures': [self.serialize_creature(c)
                           for c in tavern.creatures]
@@ -41,6 +46,17 @@ class Serializer(object):
                 'available_services': tavern_map.available_services,
                 'employee_tasks': self.serialize_task_list(tavern_map.employee_tasks)}
 
+    def serialize_task_list(self, task_list):
+        to_return = []
+        for func, content in task_list.iteritems():
+            tasks = []
+            for pos, task in content:
+                tasks.append({'position': pos,
+                              'task': self.serialize_task(task)})
+            to_return.append({'nature': func,
+                              'tasks': tasks})
+        return to_return
+
     def serialize_tavern_store(self, store):
         return {'cells': store.cells,
                 'store': store.store}
@@ -54,17 +70,18 @@ class Serializer(object):
                      'activity_list': [self.serialize_task(t)
                                        for t in creature.activity_list],
                      'race': creature.race,
-                     'current_activity': [self.activity_list]}
-        if isinstance(Patron, creature):
+                     'current_activity': self.serialize_task(
+                         creature.current_activity)}
+        if isinstance(creature, Patron):
             base_dict['type'] = 'Patron'
             base_dict['money'] = creature.money
             base_dict['has_a_drink'] = creature.has_a_drink
             base_dict['class'] = creature.creature_class
             base_dict['needs'] = self.serialize_needs(creature.needs)
-        elif isinstance(Employee, creature):
+        elif isinstance(creature, Employee):
             base_dict['functions'] = creature.functions
             base_dict['type'] = 'Employee'
-        elif isinstance(Publican, creature):
+        elif isinstance(creature, Publican):
             base_dict['type'] = 'Publican'
         return base_dict
 
@@ -75,11 +92,13 @@ class Serializer(object):
                 'sleep': needs.sleep}
 
     def serialize_task(self, task):
+        if not task:
+            return 'None'
         base_dict = {'tick_time': task.tick_time,
                      'length': task.length,
                      'failed': task.failed,
                      'finished': task.finished,
-                     'type': type(task)}
+                     'type': task.__class__.__name__}
         if isinstance(task, Walking):
             base_dict['dest'] = task.dest
             base_dict['tick_time'] = 0
@@ -115,8 +134,3 @@ class Serializer(object):
                 'wall': tile.wall,
                 'built': tile.built,
                 'object': tile_object}
-
-
-class Deserializer(object):
-    def __init__(self, bytestring):
-        self.bytestring = bytestring
