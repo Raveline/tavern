@@ -1,5 +1,6 @@
 import struct
 import json
+from zlib import compress
 
 # Temporary format for save format :
 # Tavern
@@ -16,8 +17,9 @@ class Serializer(object):
         self.world = world
         serialized_dict = self.serialize_tavern(world)
         as_json = json.dumps(serialized_dict)
+        compressed = compress(as_json)
         with open('save', 'w') as f:
-            f.write(as_json)
+            f.write(compressed)
 
     def serialize_tavern(self, tavern):
         return {
