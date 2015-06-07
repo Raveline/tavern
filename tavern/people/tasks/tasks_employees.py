@@ -2,6 +2,7 @@ from tavern.people.tasks.tasks import Task
 from tavern.world.commands import AttendToCommand
 from tavern.world.commands import AddTask
 from tavern.world.objects.functions import Functions
+from tavern.world.goods import recipes
 
 
 class Serving(Task):
@@ -61,7 +62,7 @@ class TakeOrder(Task):
         if hasattr(ordering, 'order'):
             ordered = ordering.order
             command = AddTask(Functions.COOKING, None,
-                              PrepareFood(ordered, self.creature))
+                              FollowRecipe(recipes[ordered], self.creature))
             self.call_command(command)
             ordering.order_taken = True
             # ... and we are done !
@@ -73,40 +74,48 @@ class TakeOrder(Task):
         return "Taking an order"
 
 
-class PrepareFood(Task):
-    def __init__(self, meal, recipient):
+class FollowRecipe(Task):
+    def __init__(self, recipe, recipient):
         # The meal to prepare
-        self.meal = meal
+        self.recipe = recipe
         # The person that will receive this meal
         self.recipient = recipient
-        super(PrepareFood, self).__init__()
+        super(FollowRecipe, self).__init__()
 
     def tick(self, world_map, creature):
-        workshop = world_map.find_closest_object(creature.to_pos(),
-                                                 Functions.WORKSHOP)
-        oven = world_map.find_closest_object(creature.to_pos(),
-                                             Functions.COOKING)
-        if workshop and oven:
-            creature.add_walking_then_or(world_map, workshop, [CutFood()])
-            creature.add_walking_then_or(world_map, oven, [CookFood(),
-                                         CreateMeal(self.meal,
-                                                    self.recipient)])
-            self.finish()
-        else:
-            self.fail()
+        for process in self.recipe.processes:
+            destination = world_map.find_closest_object(creature.to_pos(),
+                                                        process.function)
+            if destination:
+                creature.add_walking_then_or(world_map, destination,
+                                             [FollowProcess(process)])
+            else:
+                self.fail()
+                return
+        if self.recipient:
+            creature.add_activity(HaveSomethingDelivered(self.recipe.output,
+                                                         self.recipient))
+        self.finish()
 
     def __str__(self):
         return "Starting a meal"
 
 
-class CutFood(Task):
-    def __init__(self):
-        super(CutFood, self).__init__(length=10)
+class FollowProcess(Task):
+    def __init__(self, process):
+        self.process = process
+        super(FollowProcess, self).__init__(length=self.process.time)
 
     def tick(self, world, creature):
-        # TODO : Consomation of ingredient
+        # Consumation of ingredients the first tick
+        if self.tick_time == 0:
+            goods, quantity = self.process.goods_and_quantity
+            if world.store.can_take(goods, quantity):
+                self.take(goods, quantity)
+            else:
+                self.fail()
         self.check_length()
-        super(CutFood, self).tick(world, creature)
+        super(FollowProcess, self).tick(world, creature)
 
     def __str__(self):
         return "Cutting ingredients"
@@ -124,17 +133,17 @@ class CookFood(Task):
         return "Cooking"
 
 
-class CreateMeal(Task):
-    def __init__(self, meal, recipient):
-        # The meal to create
-        self.meal = meal
-        # The person that will receive this meal
+class HaveSomethingDelivered(Task):
+    def __init__(self, output, recipient):
+        # The thing that was just built
+        self.output = output
+        # The person that will receive it
         self.recipient = recipient
-        super(CreateMeal, self).__init__()
+        super(HaveSomethingDelivered, self).__init__()
 
     def tick(self, world_map, creature):
         command = AddTask(Functions.DELIVERING, creature.to_pos(),
-                          DeliverTask(self.meal, self.recipient))
+                          DeliverTask(self.output, self.recipient))
         self.call_command(command)
         self.finish()
 
