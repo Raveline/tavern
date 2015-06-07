@@ -58,6 +58,7 @@ class Walking(Task):
     def __init__(self, world_map, creature, pos):
         super(Walking, self).__init__()
         self.dest = pos
+        self.path = None
 
     def compute_path(self, world_map, creature):
         if not creature.is_at_pos(self.dest):
