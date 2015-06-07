@@ -48,8 +48,8 @@ class Publican(Employee):
 
 
 def make_recruit_out_of(creature, profile):
-    employee = Employee(creature.x, creature.y, creature.z,
-                        creature.name, profile)
+    employee = Employee(creature.x, creature.y, creature.z, profile,
+                        creature.name)
     # Should make sure every tasks are finished.
     # Free the paths, open seats...
     if creature.current_activity:
