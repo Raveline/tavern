@@ -1,6 +1,7 @@
 from tests import TavernTest
 from tavern.utils import bus
 from tavern.people.characters import Patron
+from tavern.people.needs import Needs
 from tavern.world.objects.functions import Functions
 from tavern.world.objects.defaults import chair
 from tavern.world.commands import AttendToCommand, OrderCommand, CreatureExit
@@ -59,7 +60,8 @@ class TestAttendTo(TavernTest):
 
 class TestOrder(TavernTest):
     def get_patron(self):
-        return Patron(0, 0, 1, 20, 1)
+        needs = Needs(1, 0, 0, 0)
+        return Patron(0, 0, 1, 'Name', 20, needs)
 
     def test_failing_order(self):
         """A failure to meet a customer order should send the drinks
