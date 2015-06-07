@@ -1,3 +1,6 @@
+from tavern.world.objects.functions import Functions
+
+
 class GoodsType:
     CLASSIC_DRINKS = 0
     FANCY_DRINKS = 1
@@ -14,7 +17,33 @@ goods_type_to_store_cell_cost = {
 }
 
 
-class Goods:
+class Processing(object):
+    """The general notion of having to handle one or several GOODS,
+    at a particular object having a FUNCTION for a given TIME."""
+    def __init__(self, goods_and_quantity, function, time, name):
+        # A list of pair (goods, quantity)
+        self.goods_and_quantity = goods_and_quantity
+        self.function = function
+        self.time = time
+        self.name = name
+
+
+class Recipe(object):
+    """The process or multi-process that is needed to
+    build one item."""
+    def __init__(self, processes, output):
+        self.processes = processes
+        self.output = output
+
+    def is_recipe_possible(self, store):
+        """Given the available things in store. Will NOT check if the
+        services needed are available in the tavern."""
+        for p in self.processes:
+            goods, amount = p.goods_and_quantity
+        return True
+
+
+class Goods(object):
     def __init__(self, name, goods_type, buying_price, selling_price):
         self.name = name
         self.goods_type = goods_type
@@ -25,11 +54,26 @@ class Goods:
     def __str__(self):
         return self.name
 
-DRINKS = [Goods('Ale', GoodsType.CLASSIC_DRINKS, 10, 12),
-          Goods('Wine', GoodsType.FANCY_DRINKS, 15, 20),
-          Goods('Spirits', GoodsType.CLASSIC_DRINKS, 10, 13)]
+# Goods
+ale = Goods('Ale', GoodsType.CLASSIC_DRINKS, 10, 12)
+wine = Goods('Wine', GoodsType.FANCY_DRINKS, 15, 20)
+spirits = Goods('Spirits', GoodsType.CLASSIC_DRINKS, 10, 13)
+meat = Goods('Meat', GoodsType.MEAT, 4, 0),
+vegetables = Goods('Vegetables', GoodsType.VEGETABLES, 1, 0)
+basic_meal = Goods('Basic Meal', GoodsType.FOOD, 6, 0)
 
-PRIMARY = [Goods('Meat', GoodsType.MEAT, 4, 0),
-           Goods('Vegetables', GoodsType.VEGETABLES, 1, 0)]
+# Goods type - TO PONDER : build this dynamically perhaps ?
+DRINKS = [ale, wine, spirits]
+PRIMARY = [meat, vegetables]
+FOOD = [basic_meal]
 
-FOOD = [Goods('Basic Meal', GoodsType.FOOD, 6, 0)]
+# Process step
+vegetable_preparation = Processing((vegetables, 1), Functions.WORKSHOP, 10,
+                                   "Cutting ingredients")
+meat_preparation = Processing((meat, 1), Functions.COOKING, 15, "Cooking meat")
+meal_finish = Processing((), Functions.WORKSHOP, 1,
+                         "Finishing to prepare a meal")
+
+# Recipes
+r_basic_meal = Recipe([vegetable_preparation, meat_preparation, meal_finish],
+                      basic_meal)
