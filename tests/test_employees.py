@@ -1,6 +1,6 @@
 from tests import TavernTest
 from tavern.people.tasks.tasks_employees import (
-    Serving, TakeOrder, PrepareFood, CutFood, CookFood, CreateMeal,
+    Serving, TakeOrder, FollowRecipe, FollowProcess, HaveSomethingDelivered,
     DeliverTask
 )
 
@@ -54,22 +54,18 @@ class TestEmployees(TavernTest):
         self.add_kitchen()
 
         def employee_is_preparing_food():
-            return isinstance(employee.current_activity, PrepareFood)
+            return isinstance(employee.current_activity, FollowRecipe)
 
         def employee_is_cutting_food():
-            return isinstance(employee.current_activity, CutFood)
-
-        def employee_is_cooking_food():
-            return isinstance(employee.current_activity, CookFood)
+            return isinstance(employee.current_activity, FollowProcess)
 
         def employee_is_creating_meal():
-            return isinstance(employee.current_activity, CreateMeal)
+            return isinstance(employee.current_activity, HaveSomethingDelivered)
 
         def employee_is_delivering():
             return isinstance(employee.current_activity, DeliverTask)
 
         self.assertCanTickTill(employee_is_preparing_food, 100)
         self.assertCanTickTill(employee_is_cutting_food, 80)
-        self.assertCanTickTill(employee_is_cooking_food, 80)
-        self.assertCanTickTill(employee_is_creating_meal, 20)
+        self.assertCanTickTill(employee_is_creating_meal, 80)
         self.assertCanTickTill(employee_is_delivering, 200)
