@@ -60,6 +60,19 @@ class OrderCommand(Command):
                              'flag': False}, bus.STATUS_EVENT)
 
 
+class RemoveFromStore(Command):
+    def __init__(self, goods, quantity, linked_task=None):
+        self.goods = goods
+        self.quantity = quantity
+        self.linked_task = linked_task
+
+    def execute(self, world):
+        if world.store.can_take(self.goods, self.quantity):
+            self.store.take(self.goods, self.quantity)
+        elif self.linked_task:
+            self.linked_task.fail()
+
+
 class CreatureExit(Command):
     def __init__(self, creature):
         self.creature = creature

@@ -1,6 +1,7 @@
 from tavern.people.tasks.tasks import Task
 from tavern.world.commands import AttendToCommand
 from tavern.world.commands import AddTask
+from tavern.world.commands import RemoveFromStore
 from tavern.world.objects.functions import Functions
 from tavern.world.goods import recipes
 
@@ -110,10 +111,8 @@ class FollowProcess(Task):
         # Consumation of ingredients the first tick
         if self.tick_time == 0:
             goods, quantity = self.process.goods_and_quantity
-            if world.store.can_take(goods, quantity):
-                self.take(goods, quantity)
-            else:
-                self.fail()
+            command = RemoveFromStore(goods, quantity, self)
+            self.call_command(command)
         self.check_length()
         super(FollowProcess, self).tick(world, creature)
 
