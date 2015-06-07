@@ -77,3 +77,5 @@ meal_finish = Processing((), Functions.WORKSHOP, 1,
 # Recipes
 r_basic_meal = Recipe([vegetable_preparation, meat_preparation, meal_finish],
                       basic_meal)
+
+recipes = {basic_meal: r_basic_meal}
