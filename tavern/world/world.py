@@ -110,7 +110,7 @@ class TavernMap():
         param pos: A set of 3D coords
         type pos: A tuple (int, int, int)
         """
-        for room_type, lists in self.rooms.iteritems():
+        for room_type, lists in self.rooms.items():
             for one_list in lists:
                 if pos in one_list:
                     return room_type
@@ -360,9 +360,9 @@ class TavernMap():
             dirx, diry = (px - x), (py - y)
             potentials[(px, py, z)] = self.distance_to_a_wall((px, py, pz),
                                                               (dirx, diry, pz))
-        minimum = potentials.values()[0]
-        result = potentials.keys()[0]
-        for k, v in potentials.iteritems():
+        minimum = list(potentials.values())[0]
+        result = list(potentials.keys())[0]
+        for k, v in potentials.items():
             if v < minimum:
                 minimum = v
                 result = k
