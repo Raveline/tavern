@@ -60,7 +60,9 @@ supplies_menu = {'type': 'RootComponent',
                              {'type': 'DynamicText',
                               'x': 25,
                               'source_builder': 'current'},
-                             {'type': 'Ruler',
+                             {'type': 'NumberPicker',
+                              'minimum': 1,
+                              'maximum': 100,
                               'x': 5,
                               'w': '80%'}]
                       }]}
