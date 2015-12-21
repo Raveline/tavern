@@ -1,4 +1,4 @@
-from tavern.utils import bus
+from groggy.events import bus
 from tavern.world.objects.defaults import (door, chair, table,
                                            counter, beam, oven,
                                            work_station)

@@ -1,6 +1,6 @@
 '''This module contains all building-related commands.'''
 
-from tavern.utils import bus
+from groggy.events import bus
 from tavern.world.commands import Command
 from tavern.world.objects.objects import Rooms, Materials, TavernObject
 from tavern.world.objects.rules import DefaultRule

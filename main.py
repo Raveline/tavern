@@ -1,37 +1,35 @@
 import libtcodpy as tcod
-import tavern.utils.bus as bus
-from tavern.inputs.input import Inputs
-from tavern.receivers.navigators import Crosshair, Fillhair, Selection
-from tavern.utils.tcod_wrapper import Console
-from tavern.utils.geom import Frame
+import groggy.events.bus as bus
+from groggy.game.game import Game
+from groggy.viewport.scape import Crosshair, Fillhair, Selection
+from groggy.utils.tcod_wrapper import Console
+from groggy.utils.geom import Frame
 from tavern.view.show_console import display, print_selection, display_text
 from tavern.view.show_console import display_creatures
-from tavern.ui.state import (GameState, MenuState, ExamineMenu,
-                             PricesMenuState, BuyMenuState, HelpMenuState)
-from tavern.ui.component_builder import build_menu
+from groggy.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
 from tavern.ui.status import Status
+from tavern.ui.state import MenuState, BuyMenuState, MenuState
 from tavern.world.customers import Customers
 from tavern.world.actions import door, counter, chair, oven, work_station
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
-from tavern.world.context import Context
 from tavern.world.world import Tavern
 from tavern.world.actions import action_tree
 from tavern.world import actions
 
 
-MAP_WIDTH = 200
-MAP_HEIGHT = 200
+MAP_WIDTH = 100
+MAP_HEIGHT = 100
 
 TITLE = 'The Tavern'
 
 
 def main():
-    game = Game()
+    game = TavernGame(TITLE, 80, 60)
     game.loop()
 
 
-class Game(object):
+class TavernGame(Game):
     def test_bootstrap(self):
         def build_area(x, y, z=None, x2=None, y2=None):
             if z is None:
@@ -73,16 +71,12 @@ class Game(object):
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
         self.customers.tick_counter += 100
 
-    def __init__(self):
-        self.context = Context()
-        width = self.context.width
-        height = self.context.height
-        tcod.console_init_root(width, height, TITLE)
-        self.status_console = Console(0, 0, width, 1)
-        self.world_console = Console(0, 1, width, height - 3)
-        self.text_console = Console(0, height - 2, width, 2)
-        self.inputs = Inputs(bus.bus)
+    def initialize_consoles(self):
+        self.status_console = Console(0, 0, self.width, 1)
+        self.world_console = Console(0, 1, self.width, self.height - 3)
+        self.text_console = Console(0, self.height - 2, self.width, 2)
 
+    def initialize_world(self):
         self.tavern = Tavern(MAP_WIDTH, MAP_HEIGHT)
         bus.bus.subscribe(self.tavern, bus.WORLD_EVENT)
         bus.bus.subscribe(self.tavern, bus.CUSTOMER_EVENT)
@@ -95,10 +89,11 @@ class Game(object):
         bus.bus.subscribe(self.status, bus.STATUS_EVENT)
 
         self.world_frame = Frame(0, 0, MAP_WIDTH, MAP_HEIGHT)
-        self.cross = Crosshair(width, height, self.world_frame)
-        self.filler = Fillhair(width, height, self.world_frame,
+        self.cross = Crosshair(self.width, self.height, self.world_frame)
+        self.filler = Fillhair(self.width, self.height, self.world_frame,
                                self.tavern.tavern_map.fill_from)
-        self.state = None
+
+    def setup_first_state(self):
         self.change_state(GameState(action_tree, self.cross))
         bus.bus.subscribe(self, bus.GAME_EVENT)
         bus.bus.subscribe(self, bus.NEW_STATE)
@@ -133,37 +128,24 @@ class Game(object):
             else:
                 self.describe_area()
 
+    def model_tick(self):
+        self.tavern.tick()
+        self.customers.tick()
+
+    def display(self, blink):
+        self.display_background()
+        self.display_characters()
+        self.display_status()
+        self.display_text()
+        self.display_navigation(blink)
+        self.world_console.blit_on(0)
+        self.text_console.blit_on(0)
+        self.status_console.blit_on(0)
+        self.state.display(0)
+
     def loop(self):
-        tcod.sys_set_fps(50)
-        # Couting elapsed milliseconds
-        counter = 0
-        # Flag : should the cursor be blinking ?
-        blink = False
-        # Flag : should tick happen during this loop ?
-        tick = False
-        # ONLY FOR TESTING PURPOSE, REMOVE
         self.test_bootstrap()
-        while self.continue_game:
-            counter += tcod.sys_get_last_frame_length()
-            if counter >= .4:
-                blink = not blink
-                tick = True
-                counter = 0
-            if tick and not self.state.pauses_game:
-                self.tavern.tick()
-                self.customers.tick()
-            self.display_background()
-            self.display_characters()
-            self.display_status()
-            self.display_text()
-            self.display_navigation(blink)
-            self.inputs.poll()
-            self.world_console.blit_on(0)
-            self.text_console.blit_on(0)
-            self.status_console.blit_on(0)
-            self.state.display(0)
-            tcod.console_flush()
-            tick = False
+        super(TavernGame, self).loop()
 
     def display_status(self):
         self.status.pause = self.state.pauses_game

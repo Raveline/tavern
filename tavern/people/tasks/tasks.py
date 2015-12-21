@@ -1,7 +1,7 @@
 import libtcodpy as tcod
 from random import choice, randint
 
-from tavern.utils import bus
+from groggy.events import bus
 
 
 class ImpossibleTask(Exception):
