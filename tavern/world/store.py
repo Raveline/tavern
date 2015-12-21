@@ -44,7 +44,7 @@ class StorageSystem(object):
 
     def available_products_of_kind(self, goods_type):
         result = []
-        for k, v in self.store.iteritems():
+        for k, v in self.store.items():
             if k.goods_type == goods_type and v > 0:
                 result.append(k)
         return result
@@ -90,7 +90,7 @@ class StorageSystem(object):
 
     def current_occupied_cells(self):
         current_occupied_cells = 0
-        for goods, amount in self.store.iteritems():
+        for goods, amount in self.store.items():
             occupancy = self.goods_quantity_to_cell(goods, amount)
             current_occupied_cells += occupancy
         return current_occupied_cells

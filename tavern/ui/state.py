@@ -98,7 +98,11 @@ class BuyMenuState(StoreMenuState):
                 'minimum': minimum,
                 'current': quantity,
                 'maximum': quantity + min(storable, affordable)}
-        data['storage'] = str(available_room)
+        data['storage'] = {
+            'minimum': 0,
+            'maximum': store.current_available_cells(),
+            'current': store.current_occupied_cells()
+        }
         data['cash'] = str(cash)
         if not self.initial_data:
             self.initial_data = data.copy()
