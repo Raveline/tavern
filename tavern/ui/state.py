@@ -13,7 +13,7 @@ NEW_STATE = 0
 
 class TavernGameState(ScapeState):
     def __init__(self, state_tree, scape=None, parent_state=None):
-        super(TavernGameState, super).__init__(state_tree, scape, parent_state)
+        super(TavernGameState, self).__init__(state_tree, scape, parent_state)
         self.sub_object = None
         self.sub_object_display = None
         """This sub_object should also have a way to be displayed."""
