@@ -8,6 +8,7 @@ from groggy.ui.state import MenuState
 from groggy.ui.component_builder import build_menu
 from groggy.ui.informer import Informer
 
+from tavern.world.goods import DRINKS
 from tavern.view.show_console import display, print_selection, display_text
 from tavern.view.show_console import display_creatures
 from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT
@@ -164,14 +165,17 @@ class TavernGame(Game):
                                        0)
 
     def __build_menu_state(self, tree):
-        context = self.context.to_context_dict()
+        context = {'width': self.width,
+                   'height': self.height}
         clazz = MenuState
         data = self.tavern
         menu_type = tree.get('menu_type')
         if menu_type == 'BuyMenu':
             clazz = BuyMenuState
+            context['goods'] = {'supplies': DRINKS}
         elif menu_type == 'PricesMenu':
             clazz = PricesMenuState
+            context['goods'] = {'supplies': DRINKS}
         elif menu_type == 'Help':
             clazz = HelpMenuState
             data = self.state
