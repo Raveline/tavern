@@ -188,7 +188,7 @@ class TavernGame(Game):
             else:
                 return None
         root_component = build_menu(context, tree.get('content'), True)
-        return clazz({}, root_component, self.state, data)
+        return clazz({'name':'Menu'}, root_component, self.state, data)
 
     def build_state(self, tree):
         if tree.get('type', '') == 'menu':
