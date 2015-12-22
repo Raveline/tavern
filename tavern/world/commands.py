@@ -1,4 +1,4 @@
-from tavern.utils import bus
+from groggy.events.bus import bus
 from tavern.world.objects.functions import Functions
 
 
