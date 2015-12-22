@@ -1,6 +1,8 @@
 import random
 
 from groggy.events import bus
+
+from tavern.events.events import CUSTOMER_EVENT
 from tavern.world.objects.functions import Functions
 from tavern.people.needs import Needs
 from tavern.people.characters import CreatureClass, Creature, Patron
@@ -63,7 +65,7 @@ class Customers(object):
         new_customer.x = x
         new_customer.y = y
         new_customer.z = z
-        bus.bus.publish({'customer': new_customer}, bus.CUSTOMER_EVENT)
+        bus.bus.publish({'customer': new_customer}, CUSTOMER_EVENT)
 
     def tick(self):
         self.tick_counter += 1
