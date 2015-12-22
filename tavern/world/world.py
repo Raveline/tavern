@@ -3,6 +3,8 @@ from collections import defaultdict
 import libtcodpy as tcod
 from groggy.events import bus
 from groggy.utils.geom import manhattan
+
+from tavern.events.events import CUSTOMER_EVENT
 from tavern.world.objects.functions import Functions
 from tavern.world.objects.objects import rooms_to_name
 from tavern.world.store import StorageSystem
@@ -48,7 +50,7 @@ class Tavern(object):
 
     def receive(self, event):
         event_data = event.get('data')
-        if event.get('type') == bus.CUSTOMER_EVENT:
+        if event.get('type') == CUSTOMER_EVENT:
             self.handle_customer_event(event_data)
         elif event.get('type') == bus.WORLD_EVENT:
             command = event_data.get('command')
