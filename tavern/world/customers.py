@@ -1,6 +1,6 @@
 import random
 
-from tavern.utils import bus
+from groggy.events import bus
 from tavern.world.objects.functions import Functions
 from tavern.people.needs import Needs
 from tavern.people.characters import CreatureClass, Creature, Patron

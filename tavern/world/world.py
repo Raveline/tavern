@@ -1,8 +1,8 @@
 from collections import defaultdict
 
 import libtcodpy as tcod
-from tavern.utils import bus
-from tavern.utils.geom import manhattan
+from groggy.events import bus
+from groggy.utils.geom import manhattan
 from tavern.world.objects.functions import Functions
 from tavern.world.objects.objects import rooms_to_name
 from tavern.world.store import StorageSystem
