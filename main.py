@@ -4,12 +4,15 @@ from groggy.game.game import Game
 from groggy.viewport.scape import Crosshair, Fillhair, Selection
 from groggy.utils.tcod_wrapper import Console
 from groggy.utils.geom import Frame
+from groggy.ui.state import MenuState
 from tavern.view.show_console import display, print_selection, display_text
 from tavern.view.show_console import display_creatures
 from groggy.ui.component_builder import build_menu
-from tavern.ui.informer import Informer
+from groggy.ui.informer import Informer
 from tavern.ui.status import Status
-from tavern.ui.state import MenuState, BuyMenuState, MenuState
+from tavern.ui.state import (
+    TavernGameState, BuyMenuState, HelpMenuState, PricesMenuState,
+    ExamineMenu)
 from tavern.world.customers import Customers
 from tavern.world.actions import door, counter, chair, oven, work_station
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
@@ -21,7 +24,7 @@ from tavern.world import actions
 MAP_WIDTH = 100
 MAP_HEIGHT = 100
 
-TITLE = 'The Tavern'
+TITLE = b'The Tavern'
 
 
 def main():
@@ -94,7 +97,7 @@ class TavernGame(Game):
                                self.tavern.tavern_map.fill_from)
 
     def setup_first_state(self):
-        self.change_state(GameState(action_tree, self.cross))
+        self.change_state(TavernGameState(action_tree, scape=self.cross))
         bus.bus.subscribe(self, bus.GAME_EVENT)
         bus.bus.subscribe(self, bus.NEW_STATE)
         bus.bus.subscribe(self, bus.PREVIOUS_STATE)
@@ -118,10 +121,10 @@ class TavernGame(Game):
         self.informer.display()
 
     def display_navigation(self, blink):
-        if self.state.navigator:
+        if self.state.scape:
             if not blink:
                 print_selection(self.world_console.console,
-                                self.state.navigator)
+                                self.state.scape)
             cre = self.get_selected_customer()
             if cre:
                 self.describe_creature(cre)
@@ -154,8 +157,8 @@ class TavernGame(Game):
         self.status.display()
 
     def get_selected_customer(self):
-        return self.tavern.creature_at(self.state.navigator.getX(),
-                                       self.state.navigator.getY(),
+        return self.tavern.creature_at(self.state.scape.getX(),
+                                       self.state.scape.getY(),
                                        0)
 
     def __build_menu_state(self, tree):
@@ -192,7 +195,7 @@ class TavernGame(Game):
             elif tree.get('selector', actions.FILLER) == actions.FILLER:
                 navigator = self.filler
             navigator.set_coords(self.state.navigator)
-            return GameState(tree, navigator, self.state)
+            return TavernGameState(tree, self.state, navigator)
 
     def change_state(self, new_state):
         if self.state is not None:
@@ -207,8 +210,8 @@ class TavernGame(Game):
         self.state.activate()
 
     def describe_area(self):
-        x, y = self.state.navigator.getX(), self.state.navigator.getY()
-        pos = (x, y, self.state.navigator.getZ())
+        x, y = self.state.scape.getX(), self.state.scape.getY()
+        pos = (x, y, self.state.scape.getZ())
         tile = self.tavern.tavern_map[pos]
         text = "(%d, %d) - %s" % (x, y, tile.describe())
         display_text(self.text_console.console, text, 0, 0)

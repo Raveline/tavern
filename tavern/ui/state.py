@@ -12,8 +12,8 @@ NEW_STATE = 0
 
 
 class TavernGameState(ScapeState):
-    def __init__(self, state_tree, scape=None, parent_state=None):
-        super(TavernGameState, super).__init__(state_tree, scape, parent_state)
+    def __init__(self, state_tree, parent_state=None, scape=None):
+        super(TavernGameState, self).__init__(state_tree, parent_state, scape)
         self.sub_object = None
         self.sub_object_display = None
         """This sub_object should also have a way to be displayed."""
@@ -36,19 +36,20 @@ class TavernGameState(ScapeState):
     def change_sub_object_display(self):
         if not isinstance(self.sub_object, int):
             if self.sub_object.is_multi_tile():
-                self.navigator.set_multi_char(self.sub_object.character,
+                self.scape.set_multi_char(self.sub_object.character,
                                               self.sub_object.width,
                                               self.sub_object.height)
             else:
-                self.navigator.set_char(self.sub_object.character)
+                self.scape.set_char(self.sub_object.character)
 
     def dispatch_input_event(self, event_data):
         if not (self.pick_substate(event_data) or
                 self.pick_subobject(event_data) or
                 self.check_pause(event_data)):
-            self.navigator.receive(event_data)
+            self.scape.receive(event_data)
 
     def send_command(self, area):
+        command = None
         if self.action == Actions.BUILD:
             command = BuildCommand(area)
         elif self.action == Actions.PUT:
@@ -56,7 +57,7 @@ class TavernGameState(ScapeState):
             self.change_sub_object_display()
         elif self.action == Actions.ROOMS:
             command = RoomCommand(area, self.sub_object)
-        if command is not None:
+        if command:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
 
 
