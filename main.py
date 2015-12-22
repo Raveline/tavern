@@ -5,10 +5,12 @@ from groggy.viewport.scape import Crosshair, Fillhair, Selection
 from groggy.utils.tcod_wrapper import Console
 from groggy.utils.geom import Frame
 from groggy.ui.state import MenuState
-from tavern.view.show_console import display, print_selection, display_text
-from tavern.view.show_console import display_creatures
 from groggy.ui.component_builder import build_menu
 from groggy.ui.informer import Informer
+
+from tavern.view.show_console import display, print_selection, display_text
+from tavern.view.show_console import display_creatures
+from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT
 from tavern.ui.status import Status
 from tavern.ui.state import (
     TavernGameState, BuyMenuState, HelpMenuState, PricesMenuState,
@@ -82,14 +84,14 @@ class TavernGame(Game):
     def initialize_world(self):
         self.tavern = Tavern(MAP_WIDTH, MAP_HEIGHT)
         bus.bus.subscribe(self.tavern, bus.WORLD_EVENT)
-        bus.bus.subscribe(self.tavern, bus.CUSTOMER_EVENT)
+        bus.bus.subscribe(self.tavern, CUSTOMER_EVENT)
         self.customers = Customers(self.tavern)
 
         self.informer = Informer(self.text_console)
         bus.bus.subscribe(self.informer, bus.FEEDBACK_EVENT)
 
         self.status = Status(self.status_console)
-        bus.bus.subscribe(self.status, bus.STATUS_EVENT)
+        bus.bus.subscribe(self.status, STATUS_EVENT)
 
         self.world_frame = Frame(0, 0, MAP_WIDTH, MAP_HEIGHT)
         self.cross = Crosshair(self.width, self.height, self.world_frame)
