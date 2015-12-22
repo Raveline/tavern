@@ -99,7 +99,7 @@ class TavernGame(Game):
                                self.tavern.tavern_map.fill_from)
 
     def setup_first_state(self):
-        self.change_state(TavernGameState(action_tree, self.cross))
+        self.change_state(TavernGameState(action_tree, scape=self.cross))
         bus.bus.subscribe(self, bus.GAME_EVENT)
         bus.bus.subscribe(self, bus.NEW_STATE)
         bus.bus.subscribe(self, bus.PREVIOUS_STATE)
@@ -123,10 +123,10 @@ class TavernGame(Game):
         self.informer.display()
 
     def display_navigation(self, blink):
-        if self.state.navigator:
+        if self.state.scape:
             if not blink:
                 print_selection(self.world_console.console,
-                                self.state.navigator)
+                                self.state.scape)
             cre = self.get_selected_customer()
             if cre:
                 self.describe_creature(cre)
@@ -159,8 +159,8 @@ class TavernGame(Game):
         self.status.display()
 
     def get_selected_customer(self):
-        return self.tavern.creature_at(self.state.navigator.getX(),
-                                       self.state.navigator.getY(),
+        return self.tavern.creature_at(self.state.scape.getX(),
+                                       self.state.scape.getY(),
                                        0)
 
     def __build_menu_state(self, tree):
@@ -197,7 +197,7 @@ class TavernGame(Game):
             elif tree.get('selector', actions.FILLER) == actions.FILLER:
                 navigator = self.filler
             navigator.set_coords(self.state.navigator)
-            return TavernGameState(tree, navigator, self.state)
+            return TavernGameState(tree, self.state, navigator)
 
     def change_state(self, new_state):
         if self.state is not None:
@@ -212,8 +212,8 @@ class TavernGame(Game):
         self.state.activate()
 
     def describe_area(self):
-        x, y = self.state.navigator.getX(), self.state.navigator.getY()
-        pos = (x, y, self.state.navigator.getZ())
+        x, y = self.state.scape.getX(), self.state.scape.getY()
+        pos = (x, y, self.state.scape.getZ())
         tile = self.tavern.tavern_map[pos]
         text = "(%d, %d) - %s" % (x, y, tile.describe())
         display_text(self.text_console.console, text, 0, 0)
