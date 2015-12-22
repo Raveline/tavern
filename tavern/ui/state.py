@@ -1,4 +1,4 @@
-from groggy.utils import bus
+from groggy.events import bus
 from groggy.utils.dict_path import read_path_dict
 from groggy.ui.component_builder import make_questionbox
 from groggy.inputs.input import Inputs
