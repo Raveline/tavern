@@ -4,8 +4,8 @@ from groggy.game.game import Game
 from groggy.viewport.scape import Crosshair, Fillhair, Selection
 from groggy.utils.tcod_wrapper import Console
 from groggy.utils.geom import Frame
-from groggy.view.show_console import display, print_selection, display_text
-from groggy.view.show_console import display_creatures
+from tavern.view.show_console import display, print_selection, display_text
+from tavern.view.show_console import display_creatures
 from groggy.ui.component_builder import build_menu
 from tavern.ui.informer import Informer
 from tavern.ui.status import Status
