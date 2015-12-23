@@ -9,8 +9,8 @@ from groggy.ui.component_builder import build_menu
 from groggy.ui.informer import Informer
 
 from tavern.world.goods import DRINKS
-from tavern.view.show_console import display, print_selection, display_text
 from tavern.view.show_console import display_creatures
+from tavern.view.show_console import display_text
 from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT
 from tavern.ui.status import Status
 from tavern.ui.state import (
@@ -108,42 +108,14 @@ class TavernGame(Game):
         self.receiver = self.cross
         self.continue_game = True
 
-    def display_background(self):
-        display(self.clip_world(self.tavern.tavern_map.tiles[0],
-                                self.receiver.scape.frame),
-                self.world_console.console)
-
-    def display_characters(self):
-        display_list = [crea for crea in self.tavern.creatures
-                        if self.receiver.scape.frame.contains(crea.x, crea.y)]
-        display_creatures(self.world_console.console, display_list,
-                          self.cross.global_to_local)
-
-    def display_text(self):
-        tcod.console_clear(self.text_console.console)
-        self.informer.display()
-
-    def display_navigation(self, blink):
-        if self.state.scape:
-            if not blink:
-                print_selection(self.world_console.console,
-                                self.state.scape)
-            cre = self.get_selected_customer()
-            if cre:
-                self.describe_creature(cre)
-            else:
-                self.describe_area()
-
     def model_tick(self):
         self.tavern.tick()
         self.customers.tick()
 
     def display(self, blink):
-        self.display_background()
-        self.display_characters()
-        self.display_status()
+        super(TavernGameState, self).display(blink)
         self.display_text()
-        self.display_navigation(blink)
+        self.display_status()
         self.world_console.blit_on(0)
         self.text_console.blit_on(0)
         self.status_console.blit_on(0)
@@ -188,7 +160,7 @@ class TavernGame(Game):
             else:
                 return None
         root_component = build_menu(context, tree.get('content'), True)
-        return clazz({'name':'Menu'}, root_component, self.state, data)
+        return clazz({'name': 'Menu'}, root_component, self.state, data)
 
     def build_state(self, tree):
         if tree.get('type', '') == 'menu':
@@ -214,6 +186,10 @@ class TavernGame(Game):
         bus.bus.subscribe(self.state, bus.INPUT_EVENT)
         bus.bus.subscribe(self.state, bus.AREA_SELECT)
         self.state.activate()
+
+    def display_text(self):
+        tcod.console_clear(self.text_console.console)
+        self.informer.display()
 
     def describe_area(self):
         x, y = self.state.scape.getX(), self.state.scape.getY()

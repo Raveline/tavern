@@ -8,6 +8,7 @@ from tavern.world.commands import BuyCommand
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
 from tavern.world.goods import DRINKS
 from tavern.people.employees import TAVERN_WAITER
+from tavern.view.show_console import display, print_selection, display_text
 NEW_STATE = 0
 
 
@@ -37,8 +38,8 @@ class TavernGameState(ScapeState):
         if not isinstance(self.sub_object, int):
             if self.sub_object.is_multi_tile():
                 self.scape.set_multi_char(self.sub_object.character,
-                                              self.sub_object.width,
-                                              self.sub_object.height)
+                                          self.sub_object.width,
+                                          self.sub_object.height)
             else:
                 self.scape.set_char(self.sub_object.character)
 
@@ -59,6 +60,29 @@ class TavernGameState(ScapeState):
             command = RoomCommand(area, self.sub_object)
         if command:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
+
+    def display(self, blink, console):
+        self.display_background()
+        self.display_characters()
+        self.display_navigation(blink)
+        if not blink:
+            self.print_selection(console, self.state.scape)
+        cre = self.get_selected_customer()
+        if cre:
+            self.describe_creature(cre)
+        else:
+            self.describe_area()
+
+    def display_background(self):
+        display(self.clip_world(self.tavern.tavern_map.tiles[0],
+                                self.receiver.scape.frame),
+                self.world_console.console)
+
+    def display_characters(self):
+        display_list = [crea for crea in self.tavern.creatures
+                        if self.receiver.scape.frame.contains(crea.x, crea.y)]
+        self.display_creatures(self.world_console.console, display_list,
+                               self.cross.global_to_local)
 
 
 class StoreMenuState(MenuState):
