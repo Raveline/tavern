@@ -1,5 +1,5 @@
 from tests import TavernTest
-from tavern.utils import bus
+from tavern.events.events import STATUS_EVENT
 from tavern.people.characters import Patron
 from tavern.people.needs import Needs
 from tavern.world.objects.functions import Functions
@@ -69,7 +69,7 @@ class TestOrder(TavernTest):
         patron = self.get_patron()
         self.assertEqual(0, self.tavern.store.amount_of(DRINKS[0]))
         self.call_command(OrderCommand(GoodsType.CLASSIC_DRINKS, patron))
-        self.assertReceived(bus.STATUS_EVENT,
+        self.assertReceived(STATUS_EVENT,
                             {'status': 'drinks', 'flag': False})
         self.assertFalse(patron.has_a_drink)
 
@@ -79,7 +79,7 @@ class TestOrder(TavernTest):
         self.tavern.store.add(DRINKS[0], 1)
         patron = self.get_patron()
         self.call_command(OrderCommand(GoodsType.CLASSIC_DRINKS, patron))
-        self.assertReceived(bus.STATUS_EVENT,
+        self.assertReceived(STATUS_EVENT,
                             {'status': 'drinks', 'flag': True})
         self.assertTrue(patron.has_a_drink)
         self.assertEqual(patron.money, 20 - DRINKS[0].selling_price)
