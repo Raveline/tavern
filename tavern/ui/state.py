@@ -37,8 +37,8 @@ class TavernGameState(ScapeState):
         if not isinstance(self.sub_object, int):
             if self.sub_object.is_multi_tile():
                 self.scape.set_multi_char(self.sub_object.character,
-                                              self.sub_object.width,
-                                              self.sub_object.height)
+                                          self.sub_object.width,
+                                          self.sub_object.height)
             else:
                 self.scape.set_char(self.sub_object.character)
 
