@@ -1,4 +1,5 @@
 from groggy.events.bus import bus
+from tavern.events.events import STATUS_EVENT
 from tavern.world.objects.functions import Functions
 
 
@@ -52,12 +53,12 @@ class OrderCommand(Command):
                 world.cash += drink.selling_price
                 self.creature.money -= drink.selling_price
                 self.creature.has_a_drink = True
-                bus.bus.publish({'status': 'drinks',
-                                 'flag': True}, bus.STATUS_EVENT)
+                bus.publish({'status': 'drinks',
+                             'flag': True}, STATUS_EVENT)
                 return
         if not drinks:
-            bus.bus.publish({'status': 'drinks',
-                             'flag': False}, bus.STATUS_EVENT)
+            bus.publish({'status': 'drinks',
+                         'flag': False}, STATUS_EVENT)
 
 
 class RemoveFromStore(Command):

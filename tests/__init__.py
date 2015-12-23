@@ -1,8 +1,9 @@
 import unittest
 from collections import defaultdict
 
-import tavern.utils.bus as bus
-from tavern.receivers.navigators import Selection
+import groggy.events.bus as bus
+from groggy.viewport.scape import Selection
+from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT
 from tavern.world.world import Tavern
 from tavern.world.customers import Customers
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
@@ -48,11 +49,11 @@ class TavernTest(unittest.TestCase):
                              TavernTest.TEST_WORLD_HEIGHT)
         self.tavern_map = self.tavern.tavern_map
         bus.bus.subscribe(self.tavern, bus.WORLD_EVENT)
-        bus.bus.subscribe(self.tavern, bus.CUSTOMER_EVENT)
+        bus.bus.subscribe(self.tavern, CUSTOMER_EVENT)
         self.customers = Customers(self.tavern)
         self.bootstrap()
         self.received_events = defaultdict(list)
-        bus.bus.subscribe(self, bus.STATUS_EVENT)
+        bus.bus.subscribe(self, STATUS_EVENT)
 
     def _build_area(self, x, y, z=None, x2=None, y2=None, z2=None):
         if z is None:
@@ -80,7 +81,7 @@ class TavernTest(unittest.TestCase):
         self.customers.make_customer()
         patron = self.tavern.creatures[-1]
         bus.bus.publish({'recruit': patron,
-                         'profile': TAVERN_WAITER}, bus.CUSTOMER_EVENT)
+                         'profile': TAVERN_WAITER}, CUSTOMER_EVENT)
         return self.tavern.creatures[1]
 
     def bootstrap(self):
