@@ -1,4 +1,3 @@
-import libtcodpy as tcod
 import groggy.events.bus as bus
 from groggy.game.game import Game
 from groggy.viewport.scape import Crosshair, Fillhair, Selection
@@ -8,9 +7,10 @@ from groggy.ui.state import MenuState
 from groggy.ui.component_builder import build_menu
 from groggy.ui.informer import Informer
 
+from tavern.view.displayer import (
+    STATUS_CONSOLE, WORLD_CONSOLE, TEXT_CONSOLE, TavernDisplayer
+)
 from tavern.world.goods import DRINKS
-from tavern.view.show_console import display_creatures
-from tavern.view.show_console import display_text
 from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT
 from tavern.ui.status import Status
 from tavern.ui.state import (
@@ -78,9 +78,14 @@ class TavernGame(Game):
         self.customers.tick_counter += 100
 
     def initialize_consoles(self):
-        self.status_console = Console(0, 0, self.width, 1)
-        self.world_console = Console(0, 1, self.width, self.height - 3)
-        self.text_console = Console(0, self.height - 2, self.width, 2)
+        return {
+            STATUS_CONSOLE: Console(0, 0, self.width, 1),
+            WORLD_CONSOLE: Console(0, 1, self.width, self.height - 3),
+            TEXT_CONSOLE: Console(0, self.height - 2, self.width, 2)
+        }
+
+    def initialize_displayer(self):
+        return TavernDisplayer(self.tavern, self.informer, self.status)
 
     def initialize_world(self):
         self.tavern = Tavern(MAP_WIDTH, MAP_HEIGHT)
@@ -88,10 +93,10 @@ class TavernGame(Game):
         bus.bus.subscribe(self.tavern, CUSTOMER_EVENT)
         self.customers = Customers(self.tavern)
 
-        self.informer = Informer(self.text_console)
+        self.informer = Informer()
         bus.bus.subscribe(self.informer, bus.FEEDBACK_EVENT)
 
-        self.status = Status(self.status_console)
+        self.status = Status()
         bus.bus.subscribe(self.status, STATUS_EVENT)
 
         self.world_frame = Frame(0, 0, MAP_WIDTH, MAP_HEIGHT)
@@ -111,30 +116,16 @@ class TavernGame(Game):
     def model_tick(self):
         self.tavern.tick()
         self.customers.tick()
-
-    def display(self, blink):
-        super(TavernGameState, self).display(blink)
-        self.display_text()
-        self.display_status()
-        self.world_console.blit_on(0)
-        self.text_console.blit_on(0)
-        self.status_console.blit_on(0)
-        self.state.display(0)
+        self.update_status()
 
     def loop(self):
         self.test_bootstrap()
         super(TavernGame, self).loop()
 
-    def display_status(self):
+    def update_status(self):
         self.status.pause = self.state.pauses_game
         self.status.money = self.tavern.cash
         self.status.current_state = str(self.state)
-        self.status.display()
-
-    def get_selected_customer(self):
-        return self.tavern.creature_at(self.state.scape.getX(),
-                                       self.state.scape.getY(),
-                                       0)
 
     def __build_menu_state(self, tree):
         context = {'width': self.width,
@@ -187,20 +178,6 @@ class TavernGame(Game):
         bus.bus.subscribe(self.state, bus.AREA_SELECT)
         self.state.activate()
 
-    def display_text(self):
-        tcod.console_clear(self.text_console.console)
-        self.informer.display()
-
-    def describe_area(self):
-        x, y = self.state.scape.getX(), self.state.scape.getY()
-        pos = (x, y, self.state.scape.getZ())
-        tile = self.tavern.tavern_map[pos]
-        text = "(%d, %d) - %s" % (x, y, tile.describe())
-        display_text(self.text_console.console, text, 0, 0)
-
-    def describe_creature(self, c):
-        display_text(self.text_console.console, str(c), 0, 0)
-
     def receive(self, event):
         event_data = event.get('data')
         if event.get('type', '') == bus.NEW_STATE:
@@ -211,11 +188,6 @@ class TavernGame(Game):
             self.change_state(event_data)
         elif event_data == 'quit':
             self.continue_game = False
-
-    def clip_world(self, tiles, clip_box):
-        clipped_y = tiles[clip_box.y:clip_box.y + clip_box.h]
-        clipped = [t[clip_box.x:clip_box.x + clip_box.w] for t in clipped_y]
-        return clipped
 
     def __repr__(self):
         return "Main"
