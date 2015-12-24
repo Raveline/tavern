@@ -23,12 +23,13 @@ class TavernDisplayer(Displayer):
             self.display_background(state, world_console)
             self.display_characters(state, world_console)
             if not blink:
-                print_selection(world_console, state.scape)
-            cre = self.get_selected_customer()
+                print_selection(world_console.console, state.scape)
+            cre = self.get_selected_customer(state)
+            text_console = consoles[TEXT_CONSOLE]
             if cre:
-                self.describe_creature(cre)
+                self.describe_creature(cre, text_console)
             else:
-                self.describe_area()
+                self.describe_area(state, text_console)
         else:
             # Menu display
             state.root_component.display(world_console)
@@ -65,12 +66,12 @@ class TavernDisplayer(Displayer):
         display_text(console.console, self.informer.text, 0, 1)
         self.informer.display()
 
-    def describe_creature(self, c):
-        display_text(self.text_console.console, str(c), 0, 0)
+    def describe_creature(self, creature, console):
+        display_text(console.console, str(creature), 0, 0)
 
-    def describe_area(self):
-        x, y = self.state.scape.getX(), self.state.scape.getY()
-        pos = (x, y, self.state.scape.getZ())
+    def describe_area(self, state, console):
+        x, y = state.scape.getX(), state.scape.getY()
+        pos = (x, y, state.scape.getZ())
         tile = self.tavern.tavern_map[pos]
         text = "(%d, %d) - %s" % (x, y, tile.describe())
-        display_text(self.text_console.console, text, 0, 0)
+        display_text(console.console, text, 0, 0)
