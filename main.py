@@ -158,9 +158,10 @@ class TavernGame(Game):
         return clazz({'name': 'Menu'}, root_component, self.state, data)
 
     def build_state(self, tree):
-        if tree.get('type', '') == 'menu':
+        tree_type = tree.get('type', '')
+        if tree_type == 'menu':
             return self.__build_menu_state(tree)
-        elif tree.get('type', '') == 'box':
+        elif tree_type == 'box':
             return MenuState({}, tree.get('box'), self.state)
         else:
             if tree.get('selector', actions.CROSSHAIR) == actions.CROSSHAIR:
@@ -172,11 +173,12 @@ class TavernGame(Game):
 
     def receive(self, event):
         event_data = event.get('data')
-        if event.get('type', '') == bus.NEW_STATE:
+        event_type = event.get('type')
+        if event_type == bus.NEW_STATE:
             new_state = self.build_state(event_data)
             if new_state is not None:
                 self.change_state(new_state)
-        elif event.get('type', '') == bus.PREVIOUS_STATE:
+        elif event_type == bus.PREVIOUS_STATE:
             self.change_state(event_data)
         elif event_data == 'quit':
             self.continue_game = False
