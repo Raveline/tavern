@@ -31,8 +31,9 @@ TITLE = b'The Tavern'
 
 
 def main():
+    bus.bus.debug = True
     game = TavernGame(TITLE, 80, 60)
-    game.loop()
+    game.start_loop()
 
 
 class TavernGame(Game):
@@ -118,9 +119,12 @@ class TavernGame(Game):
         self.customers.tick()
         self.update_status()
 
-    def loop(self):
+    def before_loop(self):
         self.test_bootstrap()
-        super(TavernGame, self).loop()
+
+    def loop_content(self, tick, blink):
+        self.update_status()
+        super(TavernGame, self).loop_content(tick, blink)
 
     def update_status(self):
         self.status.pause = self.state.pauses_game
@@ -163,20 +167,8 @@ class TavernGame(Game):
                 navigator = self.cross
             elif tree.get('selector', actions.FILLER) == actions.FILLER:
                 navigator = self.filler
-            navigator.set_coords(self.state.navigator)
+            navigator.set_coords(self.state.scape)
             return TavernGameState(tree, self.state, navigator)
-
-    def change_state(self, new_state):
-        if self.state is not None:
-            # Remove the old state from input receiving
-            bus.bus.unsubscribe(self.state, bus.INPUT_EVENT)
-            bus.bus.unsubscribe(self.state, bus.AREA_SELECT)
-            self.state.deactivate()
-        self.state = new_state
-        # Add the new state to input receiving
-        bus.bus.subscribe(self.state, bus.INPUT_EVENT)
-        bus.bus.subscribe(self.state, bus.AREA_SELECT)
-        self.state.activate()
 
     def receive(self, event):
         event_data = event.get('data')
