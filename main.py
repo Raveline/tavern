@@ -107,9 +107,6 @@ class TavernGame(Game):
 
     def setup_first_state(self):
         self.change_state(TavernGameState(action_tree, scape=self.cross))
-        bus.bus.subscribe(self, bus.GAME_EVENT)
-        bus.bus.subscribe(self, bus.NEW_STATE)
-        bus.bus.subscribe(self, bus.PREVIOUS_STATE)
 
         self.receiver = self.cross
         self.continue_game = True
@@ -170,18 +167,6 @@ class TavernGame(Game):
                 navigator = self.filler
             navigator.set_coords(self.state.scape)
             return TavernGameState(tree, self.state, navigator)
-
-    def receive(self, event):
-        event_data = event.get('data')
-        event_type = event.get('type')
-        if event_type == bus.NEW_STATE:
-            new_state = self.build_state(event_data)
-            if new_state is not None:
-                self.change_state(new_state)
-        elif event_type == bus.PREVIOUS_STATE:
-            self.change_state(event_data)
-        elif event_data == 'quit':
-            self.continue_game = False
 
     def __repr__(self):
         return "Main"
