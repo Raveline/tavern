@@ -34,6 +34,9 @@ class Task(object):
     def finish(self):
         self.finished = True
 
+    def __repr__(self):
+        return self.__str__()
+
 
 class Wandering(Task):
     """Fool around for 10 ticks."""
