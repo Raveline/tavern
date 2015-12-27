@@ -66,6 +66,8 @@ basic_meal = Goods('Basic Meal', GoodsType.FOOD, 6, 0)
 DRINKS = [ale, wine, spirits]
 PRIMARY = [meat, vegetables]
 FOOD = [basic_meal]
+SUPPLIES = DRINKS + PRIMARY
+SELLABLES = DRINKS + FOOD
 
 # Process step
 vegetable_preparation = Processing((vegetables, 1), Functions.WORKSHOP, 10,

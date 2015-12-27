@@ -6,7 +6,7 @@ from groggy.ui.state import ScapeState, MenuState
 from tavern.world.actions import Actions
 from tavern.world.commands import BuyCommand
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
-from tavern.world.goods import DRINKS
+from tavern.world.goods import SELLABLES, SUPPLIES
 from tavern.people.employees import TAVERN_WAITER
 NEW_STATE = 0
 
@@ -88,7 +88,7 @@ class BuyMenuState(StoreMenuState):
         available_room = store.current_available_cells()
         # Currently, we will do this only for drinks, but chances are
         # this will need to be abstracted
-        for goods in DRINKS:
+        for goods in SUPPLIES:
             quantity = store.amount_of(goods)
             storable = store.cell_to_goods_quantity(available_room, goods)
             affordable = int(cash / goods.buying_price)
@@ -127,7 +127,7 @@ class BuyMenuState(StoreMenuState):
 class PricesMenuState(StoreMenuState):
     def build_data(self):
         data = {}
-        for goods in DRINKS:
+        for goods in SELLABLES:
             data[goods.name] = {
                 'obj': goods,
                 'minimum': 0,

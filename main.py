@@ -10,7 +10,7 @@ from groggy.ui.informer import Informer
 from tavern.view.displayer import (
     STATUS_CONSOLE, WORLD_CONSOLE, TEXT_CONSOLE, TavernDisplayer
 )
-from tavern.world.goods import DRINKS
+from tavern.world.goods import SUPPLIES, SELLABLES
 from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT
 from tavern.ui.status import Status
 from tavern.ui.state import (
@@ -136,10 +136,10 @@ class TavernGame(Game):
         menu_type = tree.get('menu_type')
         if menu_type == 'BuyMenu':
             clazz = BuyMenuState
-            context['goods'] = {'supplies': DRINKS}
+            context['goods'] = {'supplies': SUPPLIES}
         elif menu_type == 'PricesMenu':
             clazz = PricesMenuState
-            context['goods'] = {'supplies': DRINKS}
+            context['goods'] = {'supplies': SELLABLES}
         elif menu_type == 'Help':
             clazz = HelpMenuState
             data = self.state
