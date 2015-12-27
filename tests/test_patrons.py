@@ -57,7 +57,10 @@ class TestPatron(TavernTest):
         self.assertCanTickTillPatronTaskIs(patron, TableOrder, 70)
 
         # Customer will then leave...
-        self.assertCanTickTillPatronTaskIs(patron, Leaving, 200)
+        # (After a wait determined by the task + the time required
+        # to move from the chair to the exit...)
+        self.assertCanTickTillPatronTaskIs(patron, Leaving,
+                                           TableOrder.ORDER_WAITING + 100)
 
     def test_order_food_complete(self):
         """Customers should be able to order (and eat !) food."""

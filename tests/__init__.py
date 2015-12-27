@@ -45,13 +45,28 @@ class TavernTest(unittest.TestCase):
     def assertCanTickTillPatronTaskIs(self, patron, task_type, tick_number,
                                       msg=None):
         counter = 0
+        task_list = []
         while not isinstance(patron.current_activity, task_type):
+            current_type = type(patron.current_activity)
+            if not len(task_list) or current_type != task_list[-1][1]:
+                task_list.append((counter, current_type, patron.activity_list))
             counter += 1
             self.tick_for()
-        if counter > tick_number:
-            raise AssertionError(msg or ('Waited %d tick without patron '
-                                         'having task of type %s'
-                                         % (counter, task_type)))
+            if counter > tick_number:
+                raise AssertionError(
+                    msg or ('Waited %d ticks without patron '
+                            'having task of type %s. '
+                            'Expected to wait up to %d ticks. '
+                            'Patron behaviour : \n%s'
+                            % (counter, task_type, tick_number,
+                               self.display_task_list(task_list))))
+                break
+
+    def display_task_list(self, task_list):
+        return '\n'.join(
+            ['At tick %d : %s (%s)' % (t[0], t[1].__name__, t[2])
+             for t in task_list]
+        )
 
     # SETUP AND UTILITIES TO PREPARE TESTS
 
@@ -140,7 +155,7 @@ class TavernTest(unittest.TestCase):
     def _build_thirsty_customer(self):
         self.customers.make_customer()
         patron = self.tavern.creatures[-1]
-        # This fellow will want to drink, and only drink
+        # This fellow will want to drink, and only drink. And just a bit !
         patron.needs.thirst = 1
         patron.needs.hunger = 0
         patron.needs.gamble = 0
