@@ -48,6 +48,7 @@ supplies_menu = {'type': 'RootComponent',
                       'x': 20,
                       'y': 2,
                       'source': 'storage',
+                      'selectable': False
                       },
                      {'type': 'Line',
                       'x': 0,
