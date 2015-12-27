@@ -144,6 +144,9 @@ class TavernGame(Game):
             clazz = HelpMenuState
             data = self.state
             context['state'] = self.state.to_keys_array()
+        elif menu_type == 'TaskMenu':
+            clazz = MenuState
+            context['tasks'] = self.tavern.tasks.current_task_list()
         elif menu_type == 'ExamineMenu':
             examined = self.displayer.get_selected_customer(self.state)
             if examined and examined.examinable:

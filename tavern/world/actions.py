@@ -167,6 +167,22 @@ examine_menu = {'type': 'RootComponent',
                      'event': 'recruit',
                      'event_type': bus.MENU_MODEL_EVENT}]}
 
+task_menu= {'type': 'RootComponent',
+            'template': 'centered 5',
+            'title': 'Tasks',
+            'children': [
+                {'type': 'Line',
+                 'x': 0,
+                 'w': '100%',
+                 'y': 3},
+                {'type': 'Foreach',
+                 'source': 'tasks',
+                 'do': [{'type': 'StaticText',
+                         'x': 5}]
+                 }
+            ]
+            }
+
 action_tree = {'name': 'Main mode',
                'pauses_game': False,
                'actions': {
@@ -190,6 +206,10 @@ action_tree = {'name': 'Main mode',
                          'name': 'Fix prices',
                          'menu_type': 'PricesMenu',
                          'content': prices_menu},
+                   't': {'type': 'menu',
+                         'name': 'Task menu',
+                         'menu_type': 'TaskMenu',
+                         'content': task_menu},
                    'e': {'type': 'menu',
                          'name': 'Examine',
                          'menu_type': 'ExamineMenu',

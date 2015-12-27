@@ -1,4 +1,5 @@
 from collections import defaultdict
+from itertools import chain
 
 class TaskList(object):
     """
@@ -24,3 +25,10 @@ class TaskList(object):
             print("Current list : %s" % self.employee_tasks)
             print("History : %s" % self.task_history)
             raise Exception('Bad bad bad')
+
+    def current_task_list(self):
+        return [t[1] for t
+                in chain.from_iterable(self.employee_tasks.values())]
+
+    def previous_task_list(self):
+        return [t[1] for t in t]
