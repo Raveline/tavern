@@ -31,7 +31,7 @@ TITLE = b'The Tavern'
 
 
 def main():
-    bus.bus.debug = True
+    bus.bus.activate_debug_mode(True, [bus.INPUT_EVENT])
     game = TavernGame(TITLE, 80, 60)
     game.start_loop()
 
