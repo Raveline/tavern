@@ -3,6 +3,8 @@ from groggy.utils.dict_path import read_path_dict
 from groggy.ui.component_builder import make_questionbox
 from groggy.inputs.input import Inputs
 from groggy.ui.state import ScapeState, MenuState
+
+from tavern.events.events import CUSTOMER_EVENT
 from tavern.world.actions import Actions
 from tavern.world.commands import BuyCommand
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
@@ -170,7 +172,7 @@ class ExamineMenu(MenuState):
                                'customer ?', self, [{'recruit': self.creature,
                                                      'profile': TAVERN_WAITER},
                                                     self.parent_state],
-                               [bus.CUSTOMER_EVENT, bus.PREVIOUS_STATE])
+                               [CUSTOMER_EVENT, bus.PREVIOUS_STATE])
         bus.bus.publish({'type': 'box', 'box': box}, bus.NEW_STATE)
 
     def build_data(self):
