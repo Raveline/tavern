@@ -96,6 +96,7 @@ class Creature(object):
                 # Empty the activity list
                 for activity in self.activity_list:
                     activity.fail()
+                self.activity_list = []
                 self.current_activity.finished = True
             if self.current_activity.finished:
                 self.current_activity = None
