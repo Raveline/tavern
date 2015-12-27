@@ -13,6 +13,7 @@ class StorageSystem(object):
         if initial_goods is None:
             initial_goods = {}
         self.store = defaultdict(int, initial_goods)
+        self.cell_representation = []
 
     def add_cells(self, quantity):
         self.cells += quantity
@@ -89,6 +90,7 @@ class StorageSystem(object):
         return math.ceil(cells / goods.store_cell_cost)
 
     def current_occupied_cells(self):
+        """Compute the numbers of storage cells that are occupied."""
         current_occupied_cells = 0
         for goods, amount in self.store.items():
             occupancy = self.goods_quantity_to_cell(goods, amount)
@@ -96,4 +98,12 @@ class StorageSystem(object):
         return current_occupied_cells
 
     def current_available_cells(self):
+        """Compute the numbers of storage cells that are free."""
         return self.cells - self.current_occupied_cells()
+
+    def to_list_of_goods(self):
+        as_cells = []
+        for goods_types, quantity in self.store.items():
+            cell_number = self.goods_quantity_to_cell(goods, amount)
+            as_cells += repeat(goods_types, cell_number)
+        self.cell_representation = as_cells
