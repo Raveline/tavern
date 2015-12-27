@@ -1,3 +1,9 @@
+'''
+Entrance point for Tavern. Build the game (and defines the TavernGame class,
+an extension of groggy's Game class).
+This is still a dev / sandbox version, and is bloated with testing utilities,
+unperfect process, etc.
+'''
 import groggy.events.bus as bus
 from groggy.game.game import Game
 from groggy.viewport.scape import Crosshair, Fillhair, Selection
@@ -37,6 +43,10 @@ def main():
 
 
 class TavernGame(Game):
+    """
+    Main engine, makes everything run.
+    """
+
     def test_bootstrap(self):
         def build_area(x, y, z=None, x2=None, y2=None):
             if z is None:
@@ -65,7 +75,8 @@ class TavernGame(Game):
         for command in commands:
             bus.bus.publish({'command': command}, bus.WORLD_EVENT)
         commands = []
-        commands.append(RoomCommand(self.tavern.tavern_map.fill_from((3, 3, 0)), 1))
+        commands.append(RoomCommand(self.tavern.tavern_map.fill_from(
+            (3, 3, 0)), 1))
         commands.append(RoomCommand(
             self.tavern.tavern_map.fill_from((10, 10, 0)), 0))
         commands.append(RoomCommand(
@@ -162,7 +173,7 @@ class TavernGame(Game):
         if tree_type == 'menu':
             return self.__build_menu_state(tree)
         elif tree_type == 'box':
-            return MenuState({}, tree.get('box'), self.state)
+            return MenuState({'name': 'Box'}, tree.get('box'), self.state)
         else:
             if tree.get('selector', actions.CROSSHAIR) == actions.CROSSHAIR:
                 navigator = self.cross
