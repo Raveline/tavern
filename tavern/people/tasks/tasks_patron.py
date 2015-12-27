@@ -24,6 +24,9 @@ class ReserveSeat(Task):
         self.call_command(command)
         super(ReserveSeat, self).finish()
 
+    def __str__(self):
+        return "Picking a seat"
+
 
 class OpenSeat(Task):
     def __init__(self, pos):
@@ -37,6 +40,9 @@ class OpenSeat(Task):
         command = ReserveCommand(self.pos, True)
         self.call_command(command)
         super(OpenSeat, self).finish()
+
+    def __str__(self):
+        return "Leaving his seat"
 
 
 class Consuming(Task):
@@ -180,6 +186,9 @@ class TableOrder(Task):
     def fail(self):
         self.call_command(self.reverse)
 
+    def __str__(self):
+        return "Waiting to order"
+
 
 class WaitForOrder(Task):
     MAX_WAIT = 400
@@ -196,3 +205,6 @@ class WaitForOrder(Task):
                               % str(creature))
             self.fail()
         super(WaitForOrder, self).tick(world_map, creature)
+
+    def __str__(self):
+        return "Waiting for his meal"
