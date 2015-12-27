@@ -184,6 +184,7 @@ class TableOrder(Task):
         super(TableOrder, self).tick(world_map, creature)
 
     def fail(self):
+        super(TableOrder, self).fail()
         self.call_command(self.reverse)
 
     def __str__(self):
