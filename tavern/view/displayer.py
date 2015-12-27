@@ -27,6 +27,7 @@ class TavernDisplayer(Displayer):
                 print_selection(world_console.console, state.scape)
             cre = self.get_selected_customer(state)
             text_console = consoles[TEXT_CONSOLE]
+            self.display_informer(text_console)
             if cre:
                 self.describe_creature(cre, text_console)
             else:
@@ -65,7 +66,6 @@ class TavernDisplayer(Displayer):
     def display_informer(self, console):
         tcod.console_clear(console.console)
         display_text(console.console, self.informer.text, 0, 1)
-        self.informer.display()
 
     def describe_creature(self, creature, console):
         display_text(console.console, str(creature), 0, 0)
