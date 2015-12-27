@@ -42,6 +42,17 @@ class TavernTest(unittest.TestCase):
             raise AssertionError(msg or ('Waited %d tick without predicate '
                                          'becoming true.' % (tick_number)))
 
+    def assertCanTickTillPatronTaskIs(self, patron, task_type, tick_number,
+                                      msg=None):
+        counter = 0
+        while not isinstance(patron.current_activity, task_type):
+            counter += 1
+            self.tick_for()
+        if counter > tick_number:
+            raise AssertionError(msg or ('Waited %d tick without patron '
+                                         'having task of type %s'
+                                         % (counter, task_type)))
+
     # SETUP AND UTILITIES TO PREPARE TESTS
 
     def setUp(self):
