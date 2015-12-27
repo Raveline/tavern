@@ -69,7 +69,7 @@ class RemoveFromStore(Command):
 
     def execute(self, world):
         if world.store.can_take(self.goods, self.quantity):
-            self.store.take(self.goods, self.quantity)
+            world.store.take(self.goods, self.quantity)
         elif self.linked_task:
             self.linked_task.fail()
 
