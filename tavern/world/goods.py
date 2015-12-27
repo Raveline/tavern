@@ -58,7 +58,7 @@ class Goods(object):
 ale = Goods('Ale', GoodsType.CLASSIC_DRINKS, 10, 12)
 wine = Goods('Wine', GoodsType.FANCY_DRINKS, 15, 20)
 spirits = Goods('Spirits', GoodsType.CLASSIC_DRINKS, 10, 13)
-meat = Goods('Meat', GoodsType.MEAT, 4, 0),
+meat = Goods('Meat', GoodsType.MEAT, 4, 0)
 vegetables = Goods('Vegetables', GoodsType.VEGETABLES, 1, 0)
 basic_meal = Goods('Basic Meal', GoodsType.FOOD, 6, 0)
 
