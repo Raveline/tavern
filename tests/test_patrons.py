@@ -11,16 +11,10 @@ class TestPatron(TavernTest):
         If he cannot, he will leave."""
         patron = self._build_thirsty_customer()
 
-        def is_ordering():
-            return isinstance(patron.current_activity, Ordering)
-
-        self.assertCanTickTill(is_ordering, 30)
-
-        def is_leaving():
-            return isinstance(patron.current_activity, Leaving)
+        self.assertCanTickTillPatronTaskIs(patron, Ordering, 30)
 
         # Here, since we do not have drinks to give him, he should leave
-        self.assertCanTickTill(is_leaving, 50)
+        self.assertCanTickTillPatronTaskIs(patron, Leaving, 50)
 
     def test_order_sit_drink_leave(self):
         """Thirsty patrons will order a drink and, if they get one,
@@ -42,11 +36,8 @@ class TestPatron(TavernTest):
         self.assertCanTickTill(one_chair_is_reserved, 30,
                                'No chair was reserved.')
 
-        def customer_is_drinking():
-            return isinstance(patron.current_activity, Drinking)
-
         # Customer will then drink
-        self.assertCanTickTill(customer_is_drinking, 10)
+        self.assertCanTickTillPatronTaskIs(patron, Drinking, 10)
         # Customer should still be in the list of tavern creatures
         self.assertIn(patron, self.tavern.creatures)
         # Wait for the customer to stop drinking and leave
@@ -62,11 +53,11 @@ class TestPatron(TavernTest):
         self.add_drinks()
         self.add_chair()
 
-        def customer_want_to_order_something_to_eat():
-            return isinstance(patron.current_activity, TableOrder)
-
         # Customer will be waiting for someone to take his/her order.
-        self.assertCanTickTill(customer_want_to_order_something_to_eat, 70)
+        self.assertCanTickTillPatronTaskIs(patron, TableOrder, 70)
+
+        # Customer will then leave...
+        self.assertCanTickTillPatronTaskIs(patron, Leaving, 200)
 
     def test_order_food_complete(self):
         """Customers should be able to order (and eat !) food."""
@@ -80,7 +71,4 @@ class TestPatron(TavernTest):
         self.add_drinks()
         self.add_chair()
 
-        def customer_is_eating():
-            return isinstance(patron.current_activity, Eating)
-
-        self.assertCanTickTill(customer_is_eating, 300)
+        self.assertCanTickTillPatronTaskIs(patron, Eating, 300)
