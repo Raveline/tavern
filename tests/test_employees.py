@@ -18,6 +18,9 @@ class TestEmployees(TavernTest):
         self.assertCanTickTill(publican_is_serving, 20)
 
     def base_conditions(self):
+        """
+        Build a patron that is thirsty and hungry.
+        """
         patron = self._build_thirsty_customer()
         patron.needs.hunger = 1
         self.add_drinks()
