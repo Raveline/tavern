@@ -6,6 +6,7 @@ from groggy.utils.geom import manhattan
 
 from tavern.events.events import CUSTOMER_EVENT
 from tavern.world.objects.functions import Functions
+from tavern.world.task_list import TaskList
 from tavern.world.objects.objects import rooms_to_name
 from tavern.world.store import StorageSystem
 from tavern.people.employees import make_recruit_out_of
@@ -24,6 +25,8 @@ class Tavern(object):
         self.cash = cash
         # Creatures
         self.creatures = []
+        # Task list
+        self.tasks = TaskList()
 
     def add_creature(self, creature):
         self.creatures.append(creature)
@@ -33,7 +36,7 @@ class Tavern(object):
 
     def tick(self):
         for crea in self.creatures:
-            crea.tick(self.tavern_map)
+            crea.tick(self.tavern_map, self.tasks)
 
     def handle_customer_event(self, event_data):
         if event_data.get('customer'):
@@ -87,10 +90,6 @@ class TavernMap():
         self.used_services = defaultdict(list)
         # A dict of all objects currently being attended to by employees
         self.available_services = defaultdict(list)
-        # Tasks requiring an employee
-        # Those are accessible with Functions as key
-        # The values is a ((x, y), task) tuple
-        self.employee_tasks = defaultdict(list)
 
     def service_list(self, service):
         return self.available_services[service]
@@ -118,12 +117,6 @@ class TavernMap():
                     return room_type
         return None
 
-    def add_task(self, nature, coord, task):
-        self.employee_tasks[nature].append((coord, task))
-
-    def remove_task(self, nature, coord, task):
-        self.employee_tasks[nature].remove((coord, task))
-
     def take_service(self, function, pos):
         """
         Make the service at position pos temporarily unavailable because
@@ -140,7 +133,7 @@ class TavernMap():
             self.available_services[function].remove(pos)
         except:
             print("There was no available service of type %d in %d, %d, %d"
-                  % (function, pos))
+                  % (function, pos[0], pos[1], pos[2]))
             exit(0)
 
     def open_service(self, function, pos):

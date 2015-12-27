@@ -125,7 +125,7 @@ class AddTask(Command):
         self.task = task
 
     def execute(self, world):
-        world.tavern_map.add_task(self.nature, self.position, self.task)
+        world.tasks.add_task(self.nature, self.position, self.task)
 
 
 class RemoveTask(Command):
@@ -135,4 +135,4 @@ class RemoveTask(Command):
         self.task = task
 
     def execute(self, world):
-        world.tavern_map.remove_task(self.nature, self.position, self.task)
+        world.tasks.remove_task(self.nature, self.position, self.task)

@@ -20,10 +20,10 @@ class Employee(Creature):
         self.z = z
         self.functions = functions
 
-    def find_activity(self, world_map):
+    def find_activity(self, world_map, tasks_list):
         # For the moment, just wander !
         for f in self.functions:
-            tasks = world_map.employee_tasks[f]
+            tasks = tasks_list.employee_tasks[f]
             if tasks:
                 # For the moment, let's take the last opened task...
                 task = tasks.pop()

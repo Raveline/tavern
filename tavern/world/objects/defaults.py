@@ -16,13 +16,14 @@ from tavern.people.tasks.tasks_employees import Serving
 # and I'd much prefer a better way of doing this.
 # TOPONDER : Find a better way of doing this.
 ###
-def add_counter_helping_task(object_type, world_map, pos):
-    p = world_map.find_closest_to_wall_neighbour(pos)
-    world_map.add_task(Functions.ORDERING, p,
-                       Serving(Functions.ORDERING, p, True))
+def add_counter_helping_task(object_type, world, pos):
+    p = world.tavern_map.find_closest_to_wall_neighbour(pos)
+    world.tasks.add_task(Functions.ORDERING, p,
+                         Serving(Functions.ORDERING, p, True))
 
 
-def add_entry_point(object_type, world_map, pos):
+def add_entry_point(object_type, world, pos):
+    world_map = world.tavern_map
     tile = world_map[pos]
     if tile.wall:
         tile.wall = False
@@ -31,7 +32,8 @@ def add_entry_point(object_type, world_map, pos):
         world_map.add_walkable_tile(pos)
 
 
-def open_service(object_type, world_map, pos):
+def open_service(object_type, world, pos):
+    world_map = world.tavern_map
     x, y, z = pos
     if object_type.is_multi_tile():
         for pos_x, pos_y in object_type.service_coords:

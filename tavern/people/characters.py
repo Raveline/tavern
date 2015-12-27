@@ -87,9 +87,9 @@ class Creature(object):
                 or_acts = [Wandering()]
             self.add_activities(or_acts)
 
-    def tick(self, world_map):
+    def tick(self, world_map, tasks_list):
         if not self.current_activity:
-            self.find_activity(world_map)
+            self.find_activity(world_map, tasks_list)
         if self.current_activity:
             self.current_activity.tick(world_map, self)
             if self.current_activity.failed:
@@ -99,20 +99,20 @@ class Creature(object):
                 self.current_activity.finished = True
             if self.current_activity.finished:
                 self.current_activity = None
-                self.next_activity(world_map)
+                self.next_activity(world_map, tasks_list)
 
     def move(self, pos):
         self.x = pos[0]
         self.y = pos[1]
         self.z = pos[2]
 
-    def next_activity(self, world_map):
+    def next_activity(self, world_map, tasks_list):
         # If we had a to-do list, go on the next item
         if self.activity_list:
             self.current_activity = self.activity_list[0]
             self.activity_list = self.activity_list[1:]
         else:
-            self.find_activity(world_map)
+            self.find_activity(world_map, tasks_list)
 
     def __str__(self):
         if self.current_activity:
@@ -167,7 +167,7 @@ class Patron(Creature):
             # For the moment, just wait
             self.add_activity(Wandering())
 
-    def find_activity(self, world_map):
+    def find_activity(self, world_map, tasks_list):
         if not self.needs.has_needs():
             self.leave(world_map)
         elif not self.has_a_drink:

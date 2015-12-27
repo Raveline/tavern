@@ -81,7 +81,7 @@ class PutCommand(MapCommand):
 
     def execute(self, world):
         if self.object_type.is_multi_tile():
-            self.put_multi_objects(world.tavern_map, self.object_type)
+            self.put_multi_objects(world, self.object_type)
             counter = 1
         else:
             preview_cost = self.get_area_size(self.area) * self.object_type.price
@@ -89,11 +89,12 @@ class PutCommand(MapCommand):
                 bus.bus.publish('Not enough money to do this !')
                 return
             counter = self.apply_to_area(self.area, self.put_object,
-                                         world.tavern_map, self.object_type)
+                                         world, self.object_type)
         world.cash -= (counter * self.object_type.price)
 
-    def put_multi_objects(self, world_map, object_type):
+    def put_multi_objects(self, world, object_type):
         rules = object_type.rules + [DefaultRule()]
+        world_map = world.tavern_map
 
         rect = self.area
         z = rect.z
@@ -118,10 +119,11 @@ class PutCommand(MapCommand):
                 tile.tile_object = new_object
         after_put = object_type.after_put
         if after_put is not None:
-            after_put(object_type, world_map, (rect.x, rect.y, z))
+            after_put(object_type, world, (rect.x, rect.y, z))
         return True
 
-    def put_object(self, pos, world_map, object_type):
+    def put_object(self, pos, world, object_type):
+        world_map = world.tavern_map
         tile = world_map[pos]
         for rule in object_type.rules + [DefaultRule()]:
             if not rule.check(world_map, pos):
@@ -132,7 +134,7 @@ class PutCommand(MapCommand):
         world_map.update_tile_walkability(pos)
         after_put = object_type.after_put
         if after_put is not None:
-            after_put(object_type, world_map, pos)
+            after_put(object_type, world, pos)
         return True
 
 
