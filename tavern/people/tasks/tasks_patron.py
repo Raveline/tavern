@@ -180,6 +180,8 @@ class TableOrder(Task):
                 self.finish()
             else:
                 if self.tick_time > self.length:
+                    # We're pissed, we don't want to stay here anymore !
+                    creature.needs.cancel_needs()
                     self.fail()
         super(TableOrder, self).tick(world_map, creature)
 
