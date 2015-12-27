@@ -8,7 +8,7 @@ from tavern.world.world import Tavern
 from tavern.world.customers import Customers
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
 from tavern.world.actions import door, counter, chair, oven, work_station
-from tavern.world.goods import DRINKS
+from tavern.world.goods import DRINKS, PRIMARY
 from tavern.people.employees import TAVERN_WAITER
 
 
@@ -42,22 +42,22 @@ class TavernTest(unittest.TestCase):
             raise AssertionError(msg or ('Waited %d tick without predicate '
                                          'becoming true.' % (tick_number)))
 
-    def assertCanTickTillPatronTaskIs(self, patron, task_type, tick_number,
+    def assertCanTickTillTaskIs(self, creature, task_type, tick_number,
                                       msg=None):
         counter = 0
         task_list = []
-        while not isinstance(patron.current_activity, task_type):
-            current_type = type(patron.current_activity)
+        while not isinstance(creature.current_activity, task_type):
+            current_type = type(creature.current_activity)
             if not len(task_list) or current_type != task_list[-1][1]:
-                task_list.append((counter, current_type, patron.activity_list))
+                task_list.append((counter, current_type, creature.activity_list))
             counter += 1
             self.tick_for()
             if counter > tick_number:
                 raise AssertionError(
-                    msg or ('Waited %d ticks without patron '
+                    msg or ('Waited %d ticks without creature '
                             'having task of type %s. '
                             'Expected to wait up to %d ticks. '
-                            'Patron behaviour : \n%s'
+                            'creature behaviour : \n%s'
                             % (counter, task_type, tick_number,
                                self.display_task_list(task_list))))
                 break
@@ -96,6 +96,10 @@ class TavernTest(unittest.TestCase):
 
     def add_drinks(self):
         self.tavern.store.add(DRINKS[0], 10)
+
+    def add_ingredients(self):
+        self.tavern.store.add(PRIMARY[0], 10)
+        self.tavern.store.add(PRIMARY[1], 10)
 
     def add_chair(self):
         self.add_object(chair, 9, 6)

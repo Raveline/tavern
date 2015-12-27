@@ -6,16 +6,6 @@ from tavern.people.tasks.tasks_employees import (
 
 
 class TestEmployees(TavernTest):
-    def test_publican_go_to_counter(self):
-        """If there is no other task, and a counter is there,
-        the Publican will go there."""
-        # By defaut, our tavern is created with a publican
-        publican = self.tavern.creatures[0]
-
-        def publican_is_serving():
-            return isinstance(publican.current_activity, Serving)
-
-        self.assertCanTickTill(publican_is_serving, 20)
 
     def base_conditions(self):
         """
@@ -27,15 +17,18 @@ class TestEmployees(TavernTest):
         self.add_chair()
         return patron
 
+    def test_publican_go_to_counter(self):
+        """If there is no other task, and a counter is there,
+        the Publican will go there."""
+        # By defaut, our tavern is created with a publican
+        publican = self.tavern.creatures[0]
+        self.assertCanTickTillTaskIs(publican, Serving, 20)
+
     def test_employee_will_go_pick_order(self):
         """A free employee with an order to pick should go and pick it up."""
         employee = self._make_employee()
         self.base_conditions()
-
-        def assert_is_taking_order():
-            return isinstance(employee.current_activity, TakeOrder)
-
-        self.assertCanTickTill(assert_is_taking_order, 100)
+        self.assertCanTickTillTaskIs(employee, TakeOrder, 100)
 
     def test_failed_order(self):
         """If an order has been passed, but is not satisfied,
@@ -55,6 +48,8 @@ class TestEmployees(TavernTest):
         self.base_conditions()
         # We need the kitchen for the test to work
         self.add_kitchen()
+        # And kitchen ingredients in storage !
+        self.add_ingredients()
 
         def employee_is_preparing_food():
             return isinstance(employee.current_activity, FollowRecipe)
@@ -68,7 +63,7 @@ class TestEmployees(TavernTest):
         def employee_is_delivering():
             return isinstance(employee.current_activity, DeliverTask)
 
-        self.assertCanTickTill(employee_is_preparing_food, 100)
-        self.assertCanTickTill(employee_is_cutting_food, 80)
-        self.assertCanTickTill(employee_is_creating_meal, 80)
-        self.assertCanTickTill(employee_is_delivering, 200)
+        self.assertCanTickTillTaskIs(employee, FollowRecipe, 100)
+        self.assertCanTickTillTaskIs(employee, FollowProcess, 80)
+        self.assertCanTickTillTaskIs(employee, HaveSomethingDelivered, 80)
+        self.assertCanTickTillTaskIs(employee, DeliverTask, 200)

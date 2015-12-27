@@ -11,10 +11,10 @@ class TestPatron(TavernTest):
         If he cannot, he will leave."""
         patron = self._build_thirsty_customer()
 
-        self.assertCanTickTillPatronTaskIs(patron, Ordering, 30)
+        self.assertCanTickTillTaskIs(patron, Ordering, 30)
 
         # Here, since we do not have drinks to give him, he should leave
-        self.assertCanTickTillPatronTaskIs(patron, Leaving, 50)
+        self.assertCanTickTillTaskIs(patron, Leaving, 50)
 
     def test_order_sit_drink_leave(self):
         """Thirsty patrons will order a drink and, if they get one,
@@ -37,7 +37,7 @@ class TestPatron(TavernTest):
                                'No chair was reserved.')
 
         # Customer will then drink
-        self.assertCanTickTillPatronTaskIs(patron, Drinking, 10)
+        self.assertCanTickTillTaskIs(patron, Drinking, 10)
         # Customer should still be in the list of tavern creatures
         self.assertIn(patron, self.tavern.creatures)
         # Wait for the customer to stop drinking and leave
@@ -54,12 +54,12 @@ class TestPatron(TavernTest):
         self.add_chair()
 
         # Customer will be waiting for someone to take his/her order.
-        self.assertCanTickTillPatronTaskIs(patron, TableOrder, 70)
+        self.assertCanTickTillTaskIs(patron, TableOrder, 70)
 
         # Customer will then leave...
         # (After a wait determined by the task + the time required
         # to move from the chair to the exit...)
-        self.assertCanTickTillPatronTaskIs(patron, Leaving,
+        self.assertCanTickTillTaskIs(patron, Leaving,
                                            TableOrder.ORDER_WAITING + 100)
 
     def test_order_food_complete(self):
@@ -68,10 +68,11 @@ class TestPatron(TavernTest):
         self._make_employee()
         # We need the kitchen for the test to work
         self.add_kitchen()
+        self.add_ingredients()
         # This one also wants to eat !
         patron = self._build_thirsty_customer()
         patron.needs.hunger = 1
         self.add_drinks()
         self.add_chair()
 
-        self.assertCanTickTillPatronTaskIs(patron, Eating, 300)
+        self.assertCanTickTillTaskIs(patron, Eating, 300)
