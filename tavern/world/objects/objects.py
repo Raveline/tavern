@@ -19,7 +19,7 @@ rooms_to_name = {Rooms.TAVERN: 'Tavern',
 
 class ObjectTemplate(object):
     """A template for an object in the tavern."""
-    def __init__(self, name, function, price, character,
+    def __init__(self, name, function, price, character, color,
                  blocks=False, rules=None, after_put=None, service_coords=None):
         """
         Name is self-explanatory.
@@ -39,6 +39,7 @@ class ObjectTemplate(object):
         self.price = price
         self.character = character
         self.name = name
+        self.color = color
         self.blocks = blocks
         if rules is None:
             rules = []
@@ -65,6 +66,7 @@ class TavernObject(object):
     def __init__(self, template):
         if template:
             self.blocks = template.blocks
+            self.color = template.color
             self.name = template.name
             self.character = template.character
             self.function = template.function

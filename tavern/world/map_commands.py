@@ -112,8 +112,10 @@ class PutCommand(MapCommand):
                 new_object = TavernObject(object_type)
                 does_block = object_type.blocks[relativey][relativex]
                 character = object_type.character[relativey][relativex]
+                color = object_type.color[relativey][relativex]
                 new_object.blocks = does_block
                 new_object.character = character
+                new_object.color = color
                 world_map.update_tile_walkability((x, y, z))
                 tile = world_map.tiles[z][y][x]
                 tile.tile_object = new_object

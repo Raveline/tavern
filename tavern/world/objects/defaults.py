@@ -5,6 +5,7 @@ from tavern.world.objects.rules import (
     RoomsRule, OrRule, NextToWallRule, ExteriorWallRule, NotWallRule
 )
 from tavern.people.tasks.tasks_employees import Serving
+import tavern.world.colors as Colors
 
 
 ###
@@ -50,61 +51,43 @@ def open_service(object_type, world, pos):
             # The object does not block : the service is on the tile itself
             world_map.open_service(object_type.function, pos)
 
-door = ObjectTemplate('Door',
-                      Functions.ROOM_SEPARATOR,
-                      15,
-                      '=', False,
-                      [OrRule(NextToWallRule(), ExteriorWallRule())],
-                      add_entry_point)
+door = ObjectTemplate(name='Door', function=Functions.ROOM_SEPARATOR, price=15,
+                      character='=', color=Colors.DOOR_MAHOGANY, blocks=False,
+                      rules=[OrRule(NextToWallRule(), ExteriorWallRule())],
+                      after_put=add_entry_point)
 
-chair = ObjectTemplate('Chair',
-                       Functions.SITTING,
-                       5,
-                       'o', False,
-                       [NotWallRule()],
-                       open_service)
+chair = ObjectTemplate(name='Chair', function=Functions.SITTING, price=5,
+                       character='o', color=Colors.CHAIR_WALNUT_STAIN,
+                       blocks=False, rules=[NotWallRule()],
+                       after_put=open_service)
 
-table = ObjectTemplate('Table',
-                       Functions.EATING,
-                       10,
-                       '*',
-                       True,
-                       [RoomsRule([Rooms.TAVERN]), NotWallRule()])
+table = ObjectTemplate(name='Table', function=Functions.EATING, price=10,
+                       character='*', color=Colors.TABLE_BROWN, blocks=True,
+                       rules=[RoomsRule([Rooms.TAVERN]), NotWallRule()])
 
-counter = ObjectTemplate('Counter',
-                         Functions.ORDERING,
-                         30,
-                         '+',
-                         True,
-                         [RoomsRule([Rooms.TAVERN]), NotWallRule()],
-                         add_counter_helping_task)
+counter = ObjectTemplate(name='Counter', function=Functions.ORDERING, price=30,
+                         character='+', blocks=True,
+                         color=Colors.COUNTER_LIGHT_WOOD,
+                         rules=[RoomsRule([Rooms.TAVERN]), NotWallRule()],
+                         after_put=add_counter_helping_task)
 
-oven = ObjectTemplate('Oven',
-                      Functions.COOKING,
-                      100,
-                      ['~~~',
-                       '~^~',
-                       '~ ~'],
-                      [[True, True, True],
-                       [True, True, True],
-                       [True, False, True]],
-                      [RoomsRule([Rooms.KITCHEN]), NotWallRule()],
-                      open_service,
-                      [(1, 2)])
+oven = ObjectTemplate(
+    name='Oven', function=Functions.COOKING, price=100,
+    character=['~~~', '~^~', '~ ~'],
+    color=[[Colors.OVEN_BRICK, Colors.OVEN_BRICK, Colors.OVEN_BRICK],
+           [Colors.OVEN_BRICK, Colors.FLAME_RED, Colors.OVEN_BRICK],
+           [Colors.OVEN_BRICK, Colors.OVEN_BRICK, Colors.OVEN_BRICK]],
+    blocks=[[True, True, True], [True, True, True], [True, False, True]],
+    rules=[RoomsRule([Rooms.KITCHEN]), NotWallRule()], after_put=open_service,
+    service_coords=[(1, 2)])
 
 
-work_station = ObjectTemplate('Work station',
-                              Functions.WORKSHOP,
-                              20,
-                              '=',
-                              True,
-                              [RoomsRule([Rooms.KITCHEN]), NotWallRule()],
-                              open_service)
+work_station = ObjectTemplate(
+    name='Work station', function=Functions.WORKSHOP, price=20, character='=',
+    color=Colors.WORKSHOP_ALBASTER, blocks=True,
+    rules=[RoomsRule([Rooms.KITCHEN]), NotWallRule()], after_put=open_service)
 
 
-beam = ObjectTemplate('Beam',
-                      Functions.SUPPORT,
-                      10,
-                      '^',
-                      True,
-                      [NotWallRule()])
+beam = ObjectTemplate(name='Beam', function=Functions.SUPPORT, price=10,
+                      character='^', color=Colors.BEAM_LIGHT_WOOD,
+                      blocks=True, rules=[NotWallRule()])
