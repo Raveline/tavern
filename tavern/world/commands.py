@@ -50,6 +50,7 @@ class OrderCommand(Command):
         for drink in drinks:
             if drink.selling_price <= self.creature.money:
                 world.store.take(drink, 1)
+                world.redispatch_store()
                 world.cash += drink.selling_price
                 self.creature.money -= drink.selling_price
                 self.creature.has_a_drink = True
@@ -70,6 +71,7 @@ class RemoveFromStore(Command):
     def execute(self, world):
         if world.store.can_take(self.goods, self.quantity):
             world.store.take(self.goods, self.quantity)
+            world.redispatch_store()
         elif self.linked_task:
             self.linked_task.fail()
 
@@ -100,10 +102,12 @@ class BuyCommand(Command):
             # Do the buy
             world.cash -= self.money_value
             world.store.add(self.goods, self.quantity)
+            world.redispatch_store()
         else:
             # Cancel a buy
             world.cash += self.money_value
             world.store.take(self.goods, self.quantity)
+            world.redispatch_store()
 
 
 class ReserveSeat(Command):
