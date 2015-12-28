@@ -1,5 +1,6 @@
 import math
 from collections import defaultdict
+from itertools import repeat
 
 
 class StorageException(Exception):
@@ -26,6 +27,7 @@ class StorageSystem(object):
         """
         if quantity <= self.current_available_cells():
             self.store[goods] += quantity
+            self.to_list_of_goods()
         else:
             raise StorageException('Adding %d of %s was too much. '
                                    'Not enough room in storage.'
@@ -38,6 +40,7 @@ class StorageSystem(object):
         Control of goods availability is left to the caller.
         """
         self.store[goods] -= quantity
+        self.to_list_of_goods()
         if self.store[goods] < 0:
             raise StorageException('Taking %d of %s was too much. '
                                    'Not enough wares in storage.'
@@ -103,7 +106,7 @@ class StorageSystem(object):
 
     def to_list_of_goods(self):
         as_cells = []
-        for goods_types, quantity in self.store.items():
-            cell_number = self.goods_quantity_to_cell(goods, amount)
-            as_cells += repeat(goods_types, cell_number)
+        for goods_type, quantity in self.store.items():
+            cell_number = self.goods_quantity_to_cell(goods_type, quantity)
+            as_cells += repeat(goods_type, cell_number)
         self.cell_representation = as_cells
