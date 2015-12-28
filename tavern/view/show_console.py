@@ -2,7 +2,7 @@ import libtcodpy as tcod
 from tavern.world.objects.objects import Materials
 from tavern.people.characters import Creature
 
-materials_to_colors = {Materials.WOOD: tcod.darker_sepia}
+materials_to_colors = {Materials.WOOD: tcod.sepia}
 
 
 def __get_color_scale(first, last, size):
