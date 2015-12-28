@@ -29,7 +29,8 @@ def display(grid, console):
             tile = grid[y][x]
             char = tile_to_char(tile)
             back = tile_to_colors(tile)
-            tcod.console_put_char_ex(console, x, y, char, tcod.white, back)
+            front = tile_to_front(tile)
+            tcod.console_put_char_ex(console, x, y, char, front, back)
 
 
 def print_selection(console, receiver):
@@ -84,6 +85,13 @@ def tile_to_colors(tile):
     else:
         back = materials_to_colors.get(tile.material, back)
     return back
+
+
+def tile_to_front(tile):
+    if tile.tile_object is not None:
+        return tile.tile_object.color
+    else:
+        return tcod.white
 
 
 def tile_to_char(tile):
