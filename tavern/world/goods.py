@@ -1,4 +1,5 @@
 from tavern.world.objects.functions import Functions
+import tavern.world.colors as Colors
 
 
 class GoodsType:
@@ -44,23 +45,28 @@ class Recipe(object):
 
 
 class Goods(object):
-    def __init__(self, name, goods_type, buying_price, selling_price):
+    def __init__(self, name, goods_type, buying_price, selling_price,
+                 character, color):
         self.name = name
         self.goods_type = goods_type
         self.buying_price = buying_price
         self.selling_price = selling_price
         self.store_cell_cost = goods_type_to_store_cell_cost[self.goods_type]
+        self.character = character
+        self.color = color
 
     def __str__(self):
         return self.name
 
 # Goods
-ale = Goods('Ale', GoodsType.CLASSIC_DRINKS, 10, 12)
-wine = Goods('Wine', GoodsType.FANCY_DRINKS, 15, 20)
-spirits = Goods('Spirits', GoodsType.CLASSIC_DRINKS, 10, 13)
-meat = Goods('Meat', GoodsType.MEAT, 4, 0)
-vegetables = Goods('Vegetables', GoodsType.VEGETABLES, 1, 0)
-basic_meal = Goods('Basic Meal', GoodsType.FOOD, 6, 0)
+ale = Goods('Ale', GoodsType.CLASSIC_DRINKS, 10, 12, '.', Colors.ALE_AMBER)
+wine = Goods('Wine', GoodsType.FANCY_DRINKS, 15, 20, '.', Colors.WINE_RED)
+spirits = Goods('Spirits', GoodsType.CLASSIC_DRINKS, 10, 13, '.',
+                Colors.SPIRITS_ABSINTH)
+meat = Goods('Meat', GoodsType.MEAT, 4, 0, ';', Colors.MEAT_BLOOD)
+vegetables = Goods('Vegetables', GoodsType.VEGETABLES, 1, 0, ':',
+                   Colors.VEGETABLES_APPLE)
+basic_meal = Goods('Basic Meal', GoodsType.FOOD, 6, 0, '^', Colors.MEAL_BUFF)
 
 # Goods type - TO PONDER : build this dynamically perhaps ?
 DRINKS = [ale, wine, spirits]
