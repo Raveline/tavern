@@ -1,3 +1,4 @@
+from itertools import chain
 from collections import defaultdict
 
 import libtcodpy as tcod
@@ -7,7 +8,7 @@ from groggy.utils.geom import manhattan
 from tavern.events.events import CUSTOMER_EVENT
 from tavern.world.objects.functions import Functions
 from tavern.world.task_list import TaskList
-from tavern.world.objects.objects import rooms_to_name
+from tavern.world.objects.objects import rooms_to_name, Rooms
 from tavern.world.store import StorageSystem
 from tavern.people.employees import make_recruit_out_of
 
@@ -65,6 +66,23 @@ class Tavern(object):
                if c.x == x and c.y == y and c.z == z]
         if cre:
             return cre[0]
+
+    def redispatch_store(self):
+        """
+        Storage is not, like in other kind of games (city builders like,
+        Dwarf Fortress, etc.) really a place where thing is stored. When
+        an employee need something from storage, he "magically" gets it.
+        But we need to recompute the way it is displayed each time storage
+        change so that it is properly shown to the player.
+        """
+        all_storage_tiles = list(chain(*self.tavern_map.rooms[Rooms.STORAGE]))
+        all_storage_cells = self.store.cell_representation
+        number_of_cells = len(all_storage_cells)
+        for idx, tile in enumerate(all_storage_tiles):
+            if idx < number_of_cells:
+                self.tavern_map[tile].tile_object = all_storage_cells[idx]
+            else:
+                self.tavern_map[tile].tile_object = None
 
 
 class TavernMap():
