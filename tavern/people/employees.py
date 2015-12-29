@@ -6,6 +6,17 @@ from tavern.people.characters import Creature
 TAVERN_WAITER = [Functions.ORDERING, Functions.WORKSHOP, Functions.COOKING,
                  Functions.ORDER_TAKING, Functions.DELIVERING]
 
+TAVERN_COOK = [Functions.WORKSHOP, Functions.COOKING]
+TAVERN_CLEANER = [Functions.CLEANING]
+TAVERN_BREWER = [Functions.BREWING]
+TAVERN_MERCHANT = [Functions.SELLING]
+
+JOBS = {'Waiter': TAVERN_WAITER,
+        'Cook': TAVERN_COOK,
+        'Cleaner': TAVERN_CLEANER,
+        'Brewer': TAVERN_BREWER,
+        'Merchant': TAVERN_MERCHANT}
+
 
 class Employee(Creature):
     """An employee of the tavern."""
