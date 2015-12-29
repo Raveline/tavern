@@ -1,6 +1,6 @@
 from groggy.events import bus
 from groggy.utils.dict_path import read_path_dict
-from groggy.ui.component_builder import make_questionbox
+from groggy.ui.component_builder import make_choice_box
 from groggy.inputs.input import Inputs
 from groggy.ui.state import ScapeState, MenuState
 
@@ -9,7 +9,7 @@ from tavern.world.actions import Actions
 from tavern.world.commands import BuyCommand
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
 from tavern.world.goods import SELLABLES, SUPPLIES
-from tavern.people.employees import TAVERN_WAITER
+from tavern.people.employees import JOBS
 NEW_STATE = 0
 
 
@@ -166,13 +166,15 @@ class ExamineMenu(MenuState):
             state_tree, root_component, parent_state, self.build_data())
 
     def receive_model_event(self, event_data):
-        box = make_questionbox(5, 5, 60, 10,
-                               'Recruit ?',
-                               'Are you sure you want to recruit this '
-                               'customer ?', self, [{'recruit': self.creature,
-                                                     'profile': TAVERN_WAITER},
-                                                    self.parent_state],
-                               [CUSTOMER_EVENT, bus.PREVIOUS_STATE])
+        events = []
+        for profile in JOBS.values():
+            events.append([{'recruit': self.creature,
+                           'profile': profile},
+                           self.parent_state])
+        box = make_choice_box(
+            5, 5, 60, 'Recruit ?',
+            'What job would you give this person ?', self,
+            JOBS.keys(), events, [CUSTOMER_EVENT, bus.PREVIOUS_STATE])
         bus.bus.publish({'type': 'box', 'box': box}, bus.NEW_STATE)
 
     def build_data(self):
