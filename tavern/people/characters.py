@@ -1,5 +1,4 @@
 import random
-from tavern.world.goods import FOOD
 from tavern.world.objects.functions import Functions
 from tavern.people.tasks.tasks import ImpossibleTask, Wandering, Walking
 from tavern.people.tasks.tasks_patron import (
@@ -87,11 +86,11 @@ class Creature(object):
                 or_acts = [Wandering()]
             self.add_activities(or_acts)
 
-    def tick(self, world_map, tasks_list):
+    def tick(self, world):
         if not self.current_activity:
-            self.find_activity(world_map, tasks_list)
+            self.find_activity(world)
         if self.current_activity:
-            self.current_activity.tick(world_map, self)
+            self.current_activity.tick(world.tavern_map, self)
             if self.current_activity.failed:
                 # Empty the activity list
                 for activity in self.activity_list:
@@ -100,20 +99,20 @@ class Creature(object):
                 self.current_activity.finished = True
             if self.current_activity.finished:
                 self.current_activity = None
-                self.next_activity(world_map, tasks_list)
+                self.next_activity(world.tavern_map)
 
     def move(self, pos):
         self.x = pos[0]
         self.y = pos[1]
         self.z = pos[2]
 
-    def next_activity(self, world_map, tasks_list):
+    def next_activity(self, world_map):
         # If we had a to-do list, go on the next item
         if self.activity_list:
             self.current_activity = self.activity_list[0]
             self.activity_list = self.activity_list[1:]
         else:
-            self.find_activity(world_map, tasks_list)
+            self.find_activity(world_map)
 
     def __str__(self):
         if self.current_activity:
@@ -147,13 +146,13 @@ class Patron(Creature):
         exit = random.choice(world_map.entry_points)
         self.add_walking_then_or(world_map, exit, [Leaving()])
 
-    def fetch_a_drink(self, world_map):
+    def fetch_a_drink(self, world):
         # Let's try to find an open counter
-        counter = world_map.find_closest_object(self.to_pos(),
-                                                Functions.ORDERING)
+        counter = world.tavern_map.find_closest_object(self.to_pos(),
+                                                       Functions.ORDERING)
         if counter:
-            self.add_walking_then_or(world_map, counter,
-                                     [Ordering()])
+            self.add_walking_then_or(world.tavern_map, counter,
+                                     [Ordering(world.goods.drinks)])
 
     def find_a_seat_and(self, world_map, actions):
         available = world_map.service_list(Functions.SITTING)
@@ -168,21 +167,21 @@ class Patron(Creature):
             # For the moment, just wait
             self.add_activity(Wandering())
 
-    def find_activity(self, world_map, tasks_list):
+    def find_activity(self, world):
         if not self.needs.has_needs():
-            self.leave(world_map)
+            self.leave(world.tavern_map)
         elif not self.has_a_drink:
             # We do not have a drink, we want to get one
-            self.fetch_a_drink(world_map)
+            self.fetch_a_drink(world)
         elif self.has_a_drink:
-            potential_order = FOOD[0]
+            potential_order = world.goods.food[0]
             if self.needs.hunger > 0 and self.money >= potential_order.selling_price:
-                self.find_a_seat_and(world_map, [Drinking(),
-                                                 TableOrder(potential_order),
-                                                 WaitForOrder(), Eating()])
+                self.find_a_seat_and(world.tavern_map,
+                                     [Drinking(), TableOrder(potential_order),
+                                      WaitForOrder(), Eating()])
             else:
                 # We have a drink, we'd just like to seat
-                self.find_a_seat_and(world_map, [Drinking()])
+                self.find_a_seat_and(world.tavern_map, [Drinking()])
         else:
             self.add_activity(Wandering())
 

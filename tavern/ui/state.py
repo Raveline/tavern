@@ -8,7 +8,6 @@ from tavern.events.events import CUSTOMER_EVENT
 from tavern.world.actions import Actions
 from tavern.world.commands import BuyCommand
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
-from tavern.world.goods import SELLABLES, SUPPLIES
 from tavern.people.employees import JOBS
 NEW_STATE = 0
 
@@ -68,7 +67,7 @@ class StoreMenuState(MenuState):
                  parent_state=None, world=None):
         self.world = world
         super(StoreMenuState, self).__init__(
-            state_tree, root_component, parent_state, self.build_data()
+            state_tree, root_component, parent_state, self.build_data(world)
         )
 
     def receive_model_event(self, event_data):
@@ -78,19 +77,19 @@ class StoreMenuState(MenuState):
 
 class BuyMenuState(StoreMenuState):
     def __init__(self, state_tree, root_component,
-                 parent_state=None, world=None):
+                 parent_state=None, data=None):
         self.initial_data = {}
         super(BuyMenuState, self).__init__(state_tree, root_component,
-                                           parent_state, world)
+                                           parent_state, data)
 
-    def build_data(self):
+    def build_data(self, context):
         data = {}
-        store = self.world.store
-        cash = self.world.cash
+        store = self.world.tavern.store
+        cash = self.world.tavern.cash
         available_room = store.current_available_cells()
         # Currently, we will do this only for drinks, but chances are
         # this will need to be abstracted
-        for goods in SUPPLIES:
+        for goods in self.world.goods.supplies:
             quantity = store.amount_of(goods)
             storable = store.cell_to_goods_quantity(available_room, goods)
             affordable = int(cash / goods.buying_price)
@@ -127,9 +126,9 @@ class BuyMenuState(StoreMenuState):
 
 
 class PricesMenuState(StoreMenuState):
-    def build_data(self):
+    def build_data(self, context):
         data = {}
-        for goods in SELLABLES:
+        for goods in self.world.goods.sellables:
             data[goods.name] = {
                 'obj': goods,
                 'minimum': 0,
