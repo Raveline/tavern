@@ -59,6 +59,7 @@ class Goods(object):
     def __str__(self):
         return self.name
 
+
 # Goods
 ale = Goods('Ale', GoodsType.CLASSIC_DRINKS, 10, 12, '.', Colors.ALE_AMBER)
 wine = Goods('Wine', GoodsType.FANCY_DRINKS, 15, 20, '.', Colors.WINE_RED)
@@ -69,12 +70,23 @@ vegetables = Goods('Vegetables', GoodsType.VEGETABLES, 1, 0, ':',
                    Colors.VEGETABLES_APPLE)
 basic_meal = Goods('Basic Meal', GoodsType.FOOD, 6, 0, '^', Colors.MEAL_BUFF)
 
-# Goods type - TO PONDER : build this dynamically perhaps ?
-DRINKS = [ale, wine, spirits]
-PRIMARY = [meat, vegetables]
-FOOD = [basic_meal]
-SUPPLIES = DRINKS + PRIMARY
-SELLABLES = DRINKS + FOOD
+
+class GoodsList(object):
+    """
+    A class to list accessible goods and store them by type.
+    """
+    def __init__(self):
+        self.drinks = [ale, wine, spirits]
+        self.primary_materials = [meat, vegetables]
+        self.food = [basic_meal]
+
+    @property
+    def supplies(self):
+        return self.drinks + self.primary_materials
+
+    @property
+    def sellables(self):
+        return self.drinks + self.food
 
 # Process step
 vegetable_preparation = Processing((vegetables, 1), Functions.WORKSHOP, 10,
