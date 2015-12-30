@@ -16,6 +16,10 @@ class World(object):
         self.goods = goods
         self.jobs = jobs
 
+    def tick(self):
+        for crea in self.tavern.creatures:
+            crea.tick(self)
+
     # For now, we will redefine common Tavern
     # accessors as property of the world to
     # avoid long accesses
@@ -30,3 +34,7 @@ class World(object):
     @property
     def tasks(self):
         return self.tavern.tasks
+
+    @property
+    def cash(self):
+        return self.tavern.cash

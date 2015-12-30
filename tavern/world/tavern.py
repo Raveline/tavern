@@ -30,10 +30,6 @@ class Tavern(object):
     def remove_creature(self, creature):
         self.creatures.remove(creature)
 
-    def tick(self):
-        for crea in self.creatures:
-            crea.tick(self.tavern_map, self.tasks)
-
     def handle_customer_event(self, event_data):
         if event_data.get('customer'):
             self.creatures.append(event_data.get('customer'))
