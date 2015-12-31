@@ -41,7 +41,7 @@ class TestPatron(TavernTest):
         # Customer should still be in the list of tavern creatures
         self.assertIn(patron, self.tavern.creatures)
         # Wait for the customer to stop drinking and leave
-        self.tick_for(100)
+        self.assertCanTickTillTaskIs(patron, Leaving, 100)
         # Customer should not be in the list of tavern creatures
         self.assertNotIn(patron, self.tavern.creatures)
 
@@ -60,7 +60,7 @@ class TestPatron(TavernTest):
         # (After a wait determined by the task + the time required
         # to move from the chair to the exit...)
         self.assertCanTickTillTaskIs(patron, Leaving,
-                                           TableOrder.ORDER_WAITING + 100)
+                                     TableOrder.ORDER_WAITING + 100)
 
     def test_order_food_complete(self):
         """Customers should be able to order (and eat !) food."""
