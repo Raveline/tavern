@@ -138,6 +138,19 @@ class Patron(Creature):
         self.needs = needs
         self.has_a_drink = False
 
+    def money_for_drinks(self):
+        """
+        Deciding how to spend the Patron's money is a complex problem,
+        probably NP actually.
+        So we do this differently. If a customer has various needs,
+        drinks cannot go above 20% of his budget. If he only wants
+        to drink, however, his full budget will be devoted to this !
+        """
+        if self.needs.thirst == self.needs.sum_needs:
+            return self.money
+        else:
+            return self.money * .20
+
     def class_string(self):
         return creature_class_to_string[self.creature_class]
 
@@ -152,7 +165,7 @@ class Patron(Creature):
                                                        Functions.ORDERING)
         if counter:
             self.add_walking_then_or(world.tavern_map, counter,
-                                     [Ordering(world.goods.drinks)])
+                                     [Ordering()])
 
     def find_a_seat_and(self, world_map, actions):
         available = world_map.service_list(Functions.SITTING)

@@ -1,6 +1,8 @@
 from groggy.events.bus import bus
 from tavern.events.events import STATUS_EVENT
 from tavern.world.objects.functions import Functions
+from tavern.world.goods import sort_by_quality_and_price
+from tavern.world.goods import sort_by_price
 
 
 class Command(object):
@@ -40,23 +42,50 @@ class AttendToCommand(Command):
 
 
 class OrderCommand(Command):
-    def __init__(self, drink_type, creature):
-        self.drink_type = drink_type
+    def __init__(self, creature):
         self.creature = creature
+
+    def find_best_suited_drink(self, drinks):
+        """
+        This is, in the big picture, a knapsack problem...
+        Our solution here is a bit of a hack, but it should be "good enough".
+        As long as a patron has enough money to drink the lowest
+        potential quality drinks to quench his thirst, he will
+        buy the best quality drink possible.
+        """
+        available_money = self.create.money
+        drinks_by_price = sort_by_price(drinks)
+        drinks_by_quality = sort_by_quality_and_price(drinks)
+        minimum_price = drinks_by_price[0]
+        must_keep_amount = (minimum_price * self.creature.thirst)
+        if must_keep_amount < minimum_price:
+            # Can't even afford the minimum drink
+            return None
+        if must_keep_amount >= available_money:
+            # Has not enough (or just enough) to pay for
+            # all the drinks he'd like to drink
+            return [drinks_by_price[0]]
+        else:
+            max_price = available_money - (must_keep_amount - minimum_price)
+            potential_drinks = [d for d in drinks_by_quality
+                                if d.price <= max_price]
+            return potential_drinks
 
     def execute(self, world):
         # For now, we'll take the first available and affordable drink
         drinks = world.store.available_products_of_kind(self.drink_type)
-        for drink in drinks:
-            if drink.selling_price <= self.creature.money:
-                world.store.take(drink, 1)
-                world.redispatch_store()
-                world.cash += drink.selling_price
-                self.creature.money -= drink.selling_price
-                self.creature.has_a_drink = True
-                bus.publish({'status': 'drinks',
-                             'flag': True}, STATUS_EVENT)
-                return
+        choice = self.find_best_suited_drink(drinks)
+        if choice:
+            for drink in drinks:
+                if world.store.can_take(drink, 1):
+                    world.store.take(drink, 1)
+                    world.redispatch_store()
+                    world.cash += drink.selling_price
+                    self.creature.money -= drink.selling_price
+                    self.creature.has_a_drink = True
+                    bus.publish({'status': 'drinks',
+                                 'flag': True}, STATUS_EVENT)
+                    return
         if not drinks:
             bus.publish({'status': 'drinks',
                          'flag': False}, STATUS_EVENT)

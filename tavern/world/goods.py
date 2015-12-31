@@ -100,3 +100,18 @@ r_basic_meal = Recipe([vegetable_preparation, meat_preparation, meal_finish],
                       basic_meal)
 
 recipes = {basic_meal: r_basic_meal}
+
+
+def sort_by_price(iterable):
+    """
+    Return a collection sorted by ascending prices
+    """
+    return sorted(iterable, key=lambda i: i.price)
+
+
+def sort_by_quality_and_price(iterable):
+    """
+    Return a collection sorted by descending quality and ascending prices
+    """
+    return sorted(iterable, key=lambda i: (i.quality, -i.price),
+                  reversed=True)
