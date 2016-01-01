@@ -1,7 +1,7 @@
 import random
 from tavern.world.objects.functions import Functions
 from tavern.people.tasks.tasks import ImpossibleTask, Wandering, Walking
-from tavern.people.tasks.tasks_patron import (
+from tavern.people.tasks.patron import (
     Drinking, Ordering, Leaving, Seating, StandingUp, ReserveSeat, OpenSeat,
     TableOrder, WaitForOrder, Eating)
 

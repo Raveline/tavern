@@ -1,5 +1,5 @@
 from tests import TavernTest
-from tavern.people.tasks.tasks_patron import (
+from tavern.people.tasks.patron import (
     Ordering, Leaving, Drinking, Eating, TableOrder)
 from tavern.world.objects.functions import Functions
 
@@ -41,7 +41,7 @@ class TestPatron(TavernTest):
         # Customer should still be in the list of tavern creatures
         self.assertIn(patron, self.tavern.creatures)
         # Wait for the customer to stop drinking and leave
-        self.assertCanTickTillTaskIs(patron, Leaving, 100)
+        self.assertCanTickTillTaskIs(patron, Leaving, 30)
         # Customer should not be in the list of tavern creatures
         self.assertNotIn(patron, self.tavern.creatures)
 

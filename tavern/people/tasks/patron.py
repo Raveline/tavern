@@ -1,5 +1,5 @@
 from tavern.people.tasks.tasks import Task
-from tavern.people.tasks.tasks_employees import TakeOrder
+from tavern.people.tasks.employee import TakeOrder
 from tavern.world.commands import OrderCommand, CreatureExit
 from tavern.world.commands import ReserveSeat as ReserveCommand
 from tavern.world.commands import AddTask, RemoveTask
