@@ -140,7 +140,7 @@ class PricesMenuState(StoreMenuState):
     def update_data(self, source, new_value):
         goods = read_path_dict(self.data, source + ".obj")
         goods.selling_price = new_value
-        self.set_data(self.build_data())
+        self.set_data(self.build_data(self.world))
 
 
 class HelpMenuState(MenuState):
