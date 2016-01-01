@@ -54,7 +54,7 @@ class Goods(object):
         self.store_cell_cost = goods_type_to_store_cell_cost[self.goods_type]
         self.character = character
         self.color = color
-        self.block = False
+        self.blocks = False
         self.quality = quality
 
     def __str__(self):
