@@ -42,6 +42,8 @@ class TestPatron(TavernTest):
         self.assertIn(patron, self.tavern.creatures)
         # Wait for the customer to stop drinking and leave
         self.assertCanTickTillTaskIs(patron, Leaving, 30)
+        # Let one tick for the Leaving task to work...
+        self.tick_for()
         # Customer should not be in the list of tavern creatures
         self.assertNotIn(patron, self.tavern.creatures)
 
