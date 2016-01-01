@@ -104,8 +104,8 @@ class TavernGame(Game):
     def initialize_world(self):
         self.tavern = Tavern(MAP_WIDTH, MAP_HEIGHT)
         self.world = World(self.tavern, GoodsList(), JOBS)
-        bus.bus.subscribe(self.tavern, bus.WORLD_EVENT)
-        bus.bus.subscribe(self.tavern, CUSTOMER_EVENT)
+        bus.bus.subscribe(self.world, bus.WORLD_EVENT)
+        bus.bus.subscribe(self.world, CUSTOMER_EVENT)
         self.customers = Customers(self.tavern)
 
         self.informer = Informer()
