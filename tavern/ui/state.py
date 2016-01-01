@@ -122,7 +122,7 @@ class BuyMenuState(StoreMenuState):
             else:
                 command = BuyCommand(goods, quantity_diff, True)
             command.execute(self.world)
-            self.set_data(self.build_data())
+            self.set_data(self.build_data(self.world))
 
 
 class PricesMenuState(StoreMenuState):
