@@ -2,9 +2,7 @@ from tavern.world.tavern_map import TavernMap
 from tavern.world.store import StorageSystem
 from tavern.world.task_list import TaskList
 from tavern.people.employees import make_recruit_out_of
-from tavern.events.events import CUSTOMER_EVENT
 from itertools import chain
-from groggy.events import bus
 from tavern.world.objects.objects import Rooms
 
 
@@ -42,15 +40,6 @@ class Tavern(object):
                                                event_data.get('profile'))
             # ... and we add it back to the list of creatures !
             self.creatures.append(new_creature)
-
-    def receive(self, event):
-        event_data = event.get('data')
-        if event.get('type') == CUSTOMER_EVENT:
-            self.handle_customer_event(event_data)
-        elif event.get('type') == bus.WORLD_EVENT:
-            command = event_data.get('command')
-            if command:
-                command.execute(self)
 
     def creature_at(self, x, y, z):
         cre = [c for c in self.creatures
