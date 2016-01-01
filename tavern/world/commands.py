@@ -86,9 +86,9 @@ class OrderCommand(Command):
                     bus.publish({'status': 'drinks',
                                  'flag': True}, STATUS_EVENT)
                     return
-        if not choices:
-            bus.publish({'status': 'drinks',
-                         'flag': False}, STATUS_EVENT)
+            if not self.creature.has_a_drink:
+                bus.publish({'status': 'drinks',
+                             'flag': False}, STATUS_EVENT)
 
 
 class RemoveFromStore(Command):
