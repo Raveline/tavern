@@ -4,6 +4,7 @@ class Rooms(object):
     KITCHEN = 2
     MEETING_ROOM = 3
     ROOM = 4
+    BREWERY = 5
 
 
 class Materials(object):
@@ -19,22 +20,29 @@ rooms_to_name = {Rooms.TAVERN: 'Tavern',
 
 class ObjectTemplate(object):
     """A template for an object in the tavern."""
-    def __init__(self, name, function, price, character, color,
-                 blocks=False, rules=None, after_put=None, service_coords=None):
+    def __init__(self, name, function, price, character, color, blocks=False,
+                 rules=None, after_put=None, service_coords=None):
         """
-        Name is self-explanatory.
-        Function must be a constant in Functions, indicates what the object
-        is used for.
-        Price is the price to buy this object.
-        Character is the way it is printed.
-        Blocks indicates if this objects means a tile is non-walkable.
-        Rules is a list, a set of rules to follow when trying to put this object
-        some where.
-        After_put is a function (or None) to call after putting the object.
-        This function should ALWAYS take the object and the world_map as
-        parameter. It is generally used to add constant tasks.
-        Service coords is only used for multi-tiled object, and indicates
-        which tile should offer a service."""
+        This template is used each time an object is really created,
+        put somewhere in the tavern name.
+
+        Args:
+            Name: A name for the object, used to display it for the player
+            Function: A constant from Functions, gives an idea of what the
+                      object is used for, is used for recipes, jobs, and so on.
+            Price: How much it costs to put this object on the map.
+            Character: The way it is printed. If this is a multi-tiled object,
+                       should be a list. If not, should be a single char.
+            Blocks: Is the tile on which the object is put non-walkable ?
+                    List if multi-tiled, bool if not.
+            Rules: A set of rules to follow when trying to put this object
+                   somewhere.
+            After_put: a function (or None) to call after putting the object.
+                       This function should ALWAYS take the object and the
+                       world as parameter.
+                       It is generally used to add constant tasks.
+            Service_coords: used for multi-tiled object, indicates
+                            which tile should offer a service."""
         self.function = function
         self.price = price
         self.character = character
