@@ -1,3 +1,6 @@
+from tavern.events.events import CUSTOMER_EVENT
+from groggy.events import bus
+
 
 class World(object):
     '''
@@ -7,7 +10,7 @@ class World(object):
         - the tavern itself (of course !)
         - the "inventions" linked to this world, such as beers and objects
           created by the player, and also all existing jobs (things the player
-          should not be able to modify, but who "belong" to the very idea
+          should not be able to modify, but that "belongs" to the very idea
           of context associated to the world).
     '''
 
@@ -19,6 +22,15 @@ class World(object):
     def tick(self):
         for crea in self.tavern.creatures:
             crea.tick(self)
+
+    def receive(self, event):
+        event_data = event.get('data')
+        if event.get('type') == CUSTOMER_EVENT:
+            self.tavern.handle_customer_event(event_data)
+        elif event.get('type') == bus.WORLD_EVENT:
+            command = event_data.get('command')
+            if command:
+                command.execute(self)
 
     # For now, we will redefine common Tavern
     # accessors as property of the world to
