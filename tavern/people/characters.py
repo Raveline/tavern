@@ -99,20 +99,20 @@ class Creature(object):
                 self.current_activity.finished = True
             if self.current_activity.finished:
                 self.current_activity = None
-                self.next_activity(world.tavern_map)
+                self.next_activity(world)
 
     def move(self, pos):
         self.x = pos[0]
         self.y = pos[1]
         self.z = pos[2]
 
-    def next_activity(self, world_map):
+    def next_activity(self, world):
         # If we had a to-do list, go on the next item
         if self.activity_list:
             self.current_activity = self.activity_list[0]
             self.activity_list = self.activity_list[1:]
         else:
-            self.find_activity(world_map)
+            self.find_activity(world)
 
     def __str__(self):
         if self.current_activity:
@@ -188,7 +188,8 @@ class Patron(Creature):
             self.fetch_a_drink(world)
         elif self.has_a_drink:
             potential_order = world.goods.food[0]
-            if self.needs.hunger > 0 and self.money >= potential_order.selling_price:
+            if self.needs.hunger > 0\
+                    and self.money >= potential_order.selling_price:
                 self.find_a_seat_and(world.tavern_map,
                                      [Drinking(), TableOrder(potential_order),
                                       WaitForOrder(), Eating()])
