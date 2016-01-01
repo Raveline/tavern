@@ -1,5 +1,5 @@
 from tests import TavernTest
-from tavern.people.tasks.tasks_employees import (
+from tavern.people.tasks.employee import (
     Serving, TakeOrder, FollowRecipe, FollowProcess, HaveSomethingDelivered,
     DeliverTask
 )

@@ -4,11 +4,14 @@ from collections import defaultdict
 import groggy.events.bus as bus
 from groggy.viewport.scape import Selection
 from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT
-from tavern.world.world import Tavern
+
+from tavern.people.employees import JOBS
+from tavern.world.world import World
+from tavern.world.tavern import Tavern
 from tavern.world.customers import Customers
+from tavern.world.goods import GoodsList
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
 from tavern.world.actions import door, counter, chair, oven, work_station
-from tavern.world.goods import DRINKS, PRIMARY
 from tavern.people.employees import TAVERN_WAITER
 
 
@@ -21,7 +24,7 @@ class TavernTest(unittest.TestCase):
 
     def tick_for(self, l=1):
         for i in range(1, l + 1):
-            self.tavern.tick()
+            self.world.tick()
 
     def tearDown(self):
         # Reset the bus
@@ -43,13 +46,14 @@ class TavernTest(unittest.TestCase):
                                          'becoming true.' % (tick_number)))
 
     def assertCanTickTillTaskIs(self, creature, task_type, tick_number,
-                                      msg=None):
+                                msg=None):
         counter = 0
         task_list = []
         while not isinstance(creature.current_activity, task_type):
             current_type = type(creature.current_activity)
             if not len(task_list) or current_type != task_list[-1][1]:
-                task_list.append((counter, current_type, creature.activity_list))
+                task_list.append((counter, current_type,
+                                  creature.activity_list))
             counter += 1
             self.tick_for()
             if counter > tick_number:
@@ -74,8 +78,9 @@ class TavernTest(unittest.TestCase):
         self.tavern = Tavern(TavernTest.TEST_WORLD_WIDTH,
                              TavernTest.TEST_WORLD_HEIGHT)
         self.tavern_map = self.tavern.tavern_map
-        bus.bus.subscribe(self.tavern, bus.WORLD_EVENT)
-        bus.bus.subscribe(self.tavern, CUSTOMER_EVENT)
+        self.world = World(self.tavern, GoodsList(), JOBS)
+        bus.bus.subscribe(self.world, bus.WORLD_EVENT)
+        bus.bus.subscribe(self.world, CUSTOMER_EVENT)
         self.customers = Customers(self.tavern)
         self.bootstrap()
         self.received_events = defaultdict(list)
@@ -95,11 +100,11 @@ class TavernTest(unittest.TestCase):
         return area
 
     def add_drinks(self):
-        self.tavern.store.add(DRINKS[0], 10)
+        self.tavern.store.add(self.world.goods.drinks[0], 10)
 
     def add_ingredients(self):
-        self.tavern.store.add(PRIMARY[0], 10)
-        self.tavern.store.add(PRIMARY[1], 10)
+        self.tavern.store.add(self.world.goods.primary_materials[0], 10)
+        self.tavern.store.add(self.world.goods.primary_materials[1], 10)
 
     def add_chair(self):
         self.add_object(chair, 9, 6)

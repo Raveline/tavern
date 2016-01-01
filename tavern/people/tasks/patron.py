@@ -1,5 +1,5 @@
 from tavern.people.tasks.tasks import Task
-from tavern.people.tasks.tasks_employees import TakeOrder
+from tavern.people.tasks.employee import TakeOrder
 from tavern.world.commands import OrderCommand, CreatureExit
 from tavern.world.commands import ReserveSeat as ReserveCommand
 from tavern.world.commands import AddTask, RemoveTask
@@ -127,7 +127,7 @@ class Ordering(Task):
             creature.renounce("%s waited too long for being served.")
         elif not self.order_placed:
             if world_map.can_serve_at(Functions.ORDERING, creature.to_pos()):
-                command = OrderCommand(self.pick_a_drink(creature), creature)
+                command = OrderCommand(creature)
                 self.call_command(command)
                 self.order_placed = True
             else:

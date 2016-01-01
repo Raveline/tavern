@@ -1,6 +1,8 @@
 from groggy.events.bus import bus
 from tavern.events.events import STATUS_EVENT
 from tavern.world.objects.functions import Functions
+from tavern.world.goods import sort_by_quality_and_price
+from tavern.world.goods import sort_by_price
 
 
 class Command(object):
@@ -40,26 +42,53 @@ class AttendToCommand(Command):
 
 
 class OrderCommand(Command):
-    def __init__(self, drink_type, creature):
-        self.drink_type = drink_type
+    def __init__(self, creature):
         self.creature = creature
+
+    def find_best_suited_drink(self, drinks):
+        """
+        This is, in the big picture, a knapsack problem...
+        Our solution here is a bit of a hack, but it should be "good enough".
+        As long as a patron has enough money to drink the lowest
+        potential quality drinks to quench his thirst, he will
+        buy the best quality drink possible.
+        """
+        available_money = self.creature.money
+        drinks_by_price = sort_by_price(drinks)
+        drinks_by_quality = sort_by_quality_and_price(drinks)
+        minimum_price = drinks_by_price[0].selling_price
+        must_keep_amount = (minimum_price * self.creature.needs.thirst)
+        if must_keep_amount < minimum_price:
+            # Can't even afford the minimum drink
+            return None
+        if must_keep_amount >= available_money:
+            # Has not enough (or just enough) to pay for
+            # all the drinks he'd like to drink
+            return [drinks_by_price[0]]
+        else:
+            max_price = available_money - (must_keep_amount - minimum_price)
+            potential_drinks = [d for d in drinks_by_quality
+                                if d.selling_price <= max_price]
+            return potential_drinks
 
     def execute(self, world):
         # For now, we'll take the first available and affordable drink
-        drinks = world.store.available_products_of_kind(self.drink_type)
-        for drink in drinks:
-            if drink.selling_price <= self.creature.money:
-                world.store.take(drink, 1)
-                world.redispatch_store()
-                world.cash += drink.selling_price
-                self.creature.money -= drink.selling_price
-                self.creature.has_a_drink = True
+        choices = self.find_best_suited_drink(world.goods.drinks)
+        tavern = world.tavern
+        if choices:
+            for drink in choices:
+                if tavern.store.can_take(drink, 1):
+                    tavern.store.take(drink, 1)
+                    tavern.redispatch_store()
+                    tavern.cash += drink.selling_price
+                    self.creature.money -= drink.selling_price
+                    self.creature.has_a_drink = True
+                    bus.publish({'status': 'drinks',
+                                 'flag': True}, STATUS_EVENT)
+                    return
+            if not self.creature.has_a_drink:
                 bus.publish({'status': 'drinks',
-                             'flag': True}, STATUS_EVENT)
-                return
-        if not drinks:
-            bus.publish({'status': 'drinks',
-                         'flag': False}, STATUS_EVENT)
+                             'flag': False}, STATUS_EVENT)
 
 
 class RemoveFromStore(Command):
@@ -71,7 +100,7 @@ class RemoveFromStore(Command):
     def execute(self, world):
         if world.store.can_take(self.goods, self.quantity):
             world.store.take(self.goods, self.quantity)
-            world.redispatch_store()
+            world.tavern.redispatch_store()
         elif self.linked_task:
             self.linked_task.fail()
 
@@ -85,7 +114,7 @@ class CreatureExit(Command):
         # just when he was leaving. So this would fail. Let's add a bit
         # of safety here.
         try:
-            world.remove_creature(self.creature)
+            world.tavern.remove_creature(self.creature)
         except:
             pass
 
@@ -100,14 +129,14 @@ class BuyCommand(Command):
     def execute(self, world):
         if not self.cancel:
             # Do the buy
-            world.cash -= self.money_value
-            world.store.add(self.goods, self.quantity)
-            world.redispatch_store()
+            world.tavern.cash -= self.money_value
+            world.tavern.store.add(self.goods, self.quantity)
+            world.tavern.redispatch_store()
         else:
             # Cancel a buy
-            world.cash += self.money_value
-            world.store.take(self.goods, self.quantity)
-            world.redispatch_store()
+            world.tavern.cash += self.money_value
+            world.tavern.store.take(self.goods, self.quantity)
+            world.tavern.redispatch_store()
 
 
 class ReserveSeat(Command):

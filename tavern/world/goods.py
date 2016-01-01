@@ -46,7 +46,7 @@ class Recipe(object):
 
 class Goods(object):
     def __init__(self, name, goods_type, buying_price, selling_price,
-                 character, color):
+                 character, color, quality=1):
         self.name = name
         self.goods_type = goods_type
         self.buying_price = buying_price
@@ -54,10 +54,12 @@ class Goods(object):
         self.store_cell_cost = goods_type_to_store_cell_cost[self.goods_type]
         self.character = character
         self.color = color
-        self.block = False
+        self.blocks = False
+        self.quality = quality
 
     def __str__(self):
         return self.name
+
 
 # Goods
 ale = Goods('Ale', GoodsType.CLASSIC_DRINKS, 10, 12, '.', Colors.ALE_AMBER)
@@ -69,12 +71,23 @@ vegetables = Goods('Vegetables', GoodsType.VEGETABLES, 1, 0, ':',
                    Colors.VEGETABLES_APPLE)
 basic_meal = Goods('Basic Meal', GoodsType.FOOD, 6, 0, '^', Colors.MEAL_BUFF)
 
-# Goods type - TO PONDER : build this dynamically perhaps ?
-DRINKS = [ale, wine, spirits]
-PRIMARY = [meat, vegetables]
-FOOD = [basic_meal]
-SUPPLIES = DRINKS + PRIMARY
-SELLABLES = DRINKS + FOOD
+
+class GoodsList(object):
+    """
+    A class to list accessible goods and store them by type.
+    """
+    def __init__(self):
+        self.drinks = [ale, wine, spirits]
+        self.primary_materials = [meat, vegetables]
+        self.food = [basic_meal]
+
+    @property
+    def supplies(self):
+        return self.drinks + self.primary_materials
+
+    @property
+    def sellables(self):
+        return self.drinks + self.food
 
 # Process step
 vegetable_preparation = Processing((vegetables, 1), Functions.WORKSHOP, 10,
@@ -88,3 +101,18 @@ r_basic_meal = Recipe([vegetable_preparation, meat_preparation, meal_finish],
                       basic_meal)
 
 recipes = {basic_meal: r_basic_meal}
+
+
+def sort_by_price(iterable):
+    """
+    Return a collection sorted by ascending prices
+    """
+    return sorted(iterable, key=lambda i: i.selling_price)
+
+
+def sort_by_quality_and_price(iterable):
+    """
+    Return a collection sorted by descending quality and ascending prices
+    """
+    return sorted(iterable, key=lambda i: (i.quality, -i.selling_price),
+                  reverse=True)

@@ -6,7 +6,6 @@ from tavern.world.objects.functions import Functions
 from tavern.world.objects.defaults import chair
 from tavern.world.commands import AttendToCommand, OrderCommand, CreatureExit
 from tavern.world.commands import BuyCommand, ReserveSeat
-from tavern.world.goods import GoodsType, DRINKS
 
 
 class TestAttendTo(TavernTest):
@@ -53,7 +52,8 @@ class TestAttendTo(TavernTest):
         """
         self.attend_to_counter()
         available = self.tavern_map.available_services[Functions.ORDERING]
-        tested_destination = (TavernTest.COUNTER_X, TavernTest.COUNTER_Y - 1, 0)
+        tested_destination = (TavernTest.COUNTER_X, TavernTest.COUNTER_Y - 1,
+                              0)
         self.assertEqual(tested_destination, available[0],
                          'AttendingTo did not open the proper coords.')
 
@@ -67,8 +67,9 @@ class TestOrder(TavernTest):
         """A failure to meet a customer order should send the drinks
         trouble flag."""
         patron = self.get_patron()
-        self.assertEqual(0, self.tavern.store.amount_of(DRINKS[0]))
-        self.call_command(OrderCommand(GoodsType.CLASSIC_DRINKS, patron))
+        drink_stock = self.tavern.store.amount_of(self.world.goods.drinks[0])
+        self.assertEqual(0, drink_stock)
+        self.call_command(OrderCommand(patron))
         self.assertReceived(STATUS_EVENT,
                             {'status': 'drinks', 'flag': False})
         self.assertFalse(patron.has_a_drink)
@@ -76,14 +77,15 @@ class TestOrder(TavernTest):
     def test_successful_order(self):
         """A successful order should reduce cash, storage and
         put the flag "has a drink" on patron."""
-        self.tavern.store.add(DRINKS[0], 1)
+        basic_drink = self.world.goods.drinks[0]
+        self.tavern.store.add(basic_drink, 1)
         patron = self.get_patron()
-        self.call_command(OrderCommand(GoodsType.CLASSIC_DRINKS, patron))
+        self.call_command(OrderCommand(patron))
         self.assertReceived(STATUS_EVENT,
                             {'status': 'drinks', 'flag': True})
         self.assertTrue(patron.has_a_drink)
-        self.assertEqual(patron.money, 20 - DRINKS[0].selling_price)
-        self.assertEqual(self.tavern.store.amount_of(DRINKS[0]), 0)
+        self.assertEqual(patron.money, 20 - basic_drink.selling_price)
+        self.assertEqual(self.tavern.store.amount_of(basic_drink), 0)
 
 
 class TestCreatureExit(TavernTest):
@@ -98,18 +100,20 @@ class TestCreatureExit(TavernTest):
 
 class TestBuy(TavernTest):
     def make_transaction(self, cancel=False):
-        self.call_command(BuyCommand(DRINKS[0], 1, cancel))
+        self.call_command(BuyCommand(self.world.goods.drinks[0], 1, cancel))
 
     def test_buy(self):
         """Buying something should add it in the store and
         remove its cost from cash."""
         cash_at_fist = self.tavern.cash
         self.make_transaction()
-        self.assertEqual(self.tavern.store.amount_of(DRINKS[0]),
-                         1, 'Buying did not update stocks.')
-        self.assertEqual(self.tavern.cash,
-                         cash_at_fist - DRINKS[0].buying_price,
-                         'Buying did not update cash.')
+        self.assertEqual(
+            self.tavern.store.amount_of(self.world.goods.drinks[0]),
+            1, 'Buying did not update stocks.')
+        self.assertEqual(
+            self.tavern.cash,
+            cash_at_fist - self.world.goods.drinks[0].buying_price,
+            'Buying did not update cash.')
 
     def test_cancel(self):
         """Canceling a buy should remove buying goods from the
@@ -117,7 +121,8 @@ class TestBuy(TavernTest):
         cash_at_first = self.tavern.cash
         self.make_transaction()
         self.make_transaction(True)
-        self.assertEqual(self.tavern.store.amount_of(DRINKS[0]), 0)
+        self.assertEqual(
+            self.tavern.store.amount_of(self.world.goods.drinks[0]), 0)
         self.assertEqual(self.tavern.cash, cash_at_first)
 
 

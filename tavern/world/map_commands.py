@@ -36,15 +36,16 @@ class BuildCommand(MapCommand):
 
     def execute(self, world):
         previewed_cost = self.get_area_size(self.area) * BuildCommand.COST
-        if world.cash < previewed_cost:
+        if world.tavern.cash < previewed_cost:
             bus.bus.publish('Not enough money to do this !')
             return
         real_cost = self.apply_to_area(self.area, self.build,
                                        world.tavern_map) * BuildCommand.COST
-        world.cash -= real_cost
+        world.tavern.cash -= real_cost
         # If this is the first build, add a Publican
-        if not world.creatures:
-            world.add_creature(Publican(self.area.x, self.area.y, self.area.z))
+        if not world.tavern.creatures:
+            world.tavern.add_creature(
+                Publican(self.area.x, self.area.y, self.area.z))
 
     def build(self, pos, tavern_map):
         """
@@ -84,13 +85,14 @@ class PutCommand(MapCommand):
             self.put_multi_objects(world, self.object_type)
             counter = 1
         else:
-            preview_cost = self.get_area_size(self.area) * self.object_type.price
-            if world.cash < preview_cost:
+            preview_cost =\
+                self.get_area_size(self.area) * self.object_type.price
+            if world.tavern.cash < preview_cost:
                 bus.bus.publish('Not enough money to do this !')
                 return
             counter = self.apply_to_area(self.area, self.put_object,
                                          world, self.object_type)
-        world.cash -= (counter * self.object_type.price)
+        world.tavern.cash -= (counter * self.object_type.price)
 
     def put_multi_objects(self, world, object_type):
         rules = object_type.rules + [DefaultRule()]

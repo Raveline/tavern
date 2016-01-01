@@ -5,6 +5,9 @@ class Needs(object):
         self.gamble = gamble
         self.sleep = sleep
 
+    def sum_needs(self):
+        return self.thirst + self.hunger + self.gamble + self.sleep
+
     def has_needs(self):
         return self.thirst > 0 or self.hunger > 0 or self.gamble > 0\
             or self.sleep > 0

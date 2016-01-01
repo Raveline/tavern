@@ -16,8 +16,9 @@ from groggy.ui.informer import Informer
 from tavern.view.displayer import (
     STATUS_CONSOLE, WORLD_CONSOLE, TEXT_CONSOLE, TavernDisplayer
 )
-from tavern.world.goods import SUPPLIES, SELLABLES
+from tavern.people.employees import JOBS
 from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT
+from tavern.world.goods import GoodsList
 from tavern.ui.status import Status
 from tavern.ui.state import (
     TavernGameState, BuyMenuState, HelpMenuState, PricesMenuState,
@@ -25,7 +26,8 @@ from tavern.ui.state import (
 from tavern.world.customers import Customers
 from tavern.world.actions import door, counter, chair, oven, work_station
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
-from tavern.world.world import Tavern
+from tavern.world.tavern import Tavern
+from tavern.world.world import World
 from tavern.world.actions import action_tree
 from tavern.world import actions
 
@@ -101,8 +103,9 @@ class TavernGame(Game):
 
     def initialize_world(self):
         self.tavern = Tavern(MAP_WIDTH, MAP_HEIGHT)
-        bus.bus.subscribe(self.tavern, bus.WORLD_EVENT)
-        bus.bus.subscribe(self.tavern, CUSTOMER_EVENT)
+        self.world = World(self.tavern, GoodsList(), JOBS)
+        bus.bus.subscribe(self.world, bus.WORLD_EVENT)
+        bus.bus.subscribe(self.world, CUSTOMER_EVENT)
         self.customers = Customers(self.tavern)
 
         self.informer = Informer()
@@ -123,7 +126,7 @@ class TavernGame(Game):
         self.continue_game = True
 
     def model_tick(self):
-        self.tavern.tick()
+        self.world.tick()
         self.customers.tick()
         self.update_status()
 
@@ -143,14 +146,14 @@ class TavernGame(Game):
         context = {'width': self.width,
                    'height': self.height}
         clazz = MenuState
-        data = self.tavern
+        data = self.world
         menu_type = tree.get('menu_type')
         if menu_type == 'BuyMenu':
             clazz = BuyMenuState
-            context['goods'] = {'supplies': SUPPLIES}
+            context['goods'] = {'supplies': self.world.goods.supplies}
         elif menu_type == 'PricesMenu':
             clazz = PricesMenuState
-            context['goods'] = {'supplies': SELLABLES}
+            context['goods'] = {'supplies': self.world.goods.sellables}
         elif menu_type == 'Help':
             clazz = HelpMenuState
             data = self.state

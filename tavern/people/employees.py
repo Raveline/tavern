@@ -31,10 +31,10 @@ class Employee(Creature):
         self.z = z
         self.functions = functions
 
-    def find_activity(self, world_map, tasks_list):
+    def find_activity(self, world):
         # For the moment, just wander !
         for f in self.functions:
-            tasks = tasks_list.employee_tasks[f]
+            tasks = world.tavern.tasks.employee_tasks[f]
             if tasks:
                 # For the moment, let's take the last opened task...
                 task = tasks.pop()
@@ -42,7 +42,7 @@ class Employee(Creature):
                     position = task[0]
                     task = task[1]
                     # TODO : Replace this "Wandering" taks by a Resting one.
-                    self.add_walking_then_or(world_map, position,
+                    self.add_walking_then_or(world.tavern_map, position,
                                              [task, Wandering()])
                 else:
                     self.add_activity(task[1])
