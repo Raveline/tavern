@@ -46,7 +46,7 @@ class Recipe(object):
 
 class Goods(object):
     def __init__(self, name, goods_type, buying_price, selling_price,
-                 character, color):
+                 character, color, quality=1):
         self.name = name
         self.goods_type = goods_type
         self.buying_price = buying_price
@@ -55,6 +55,7 @@ class Goods(object):
         self.character = character
         self.color = color
         self.block = False
+        self.quality = quality
 
     def __str__(self):
         return self.name
@@ -106,12 +107,12 @@ def sort_by_price(iterable):
     """
     Return a collection sorted by ascending prices
     """
-    return sorted(iterable, key=lambda i: i.price)
+    return sorted(iterable, key=lambda i: i.selling_price)
 
 
 def sort_by_quality_and_price(iterable):
     """
     Return a collection sorted by descending quality and ascending prices
     """
-    return sorted(iterable, key=lambda i: (i.quality, -i.price),
-                  reversed=True)
+    return sorted(iterable, key=lambda i: (i.quality, -i.selling_price),
+                  reverse=True)
