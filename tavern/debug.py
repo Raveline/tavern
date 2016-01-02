@@ -17,6 +17,7 @@ def test_bootstrap(game):
         area.y2 = y2
         return area
     # Build a storage area
+    game.tavern.cash = 6000
     commands = []
     commands.append(BuildCommand(build_area(2, 2, 0, 5, 5)))
     # build a corridor to a tavern room
