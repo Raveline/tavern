@@ -81,7 +81,7 @@ oven = ObjectTemplate(
     rules=[RoomsRule([Rooms.KITCHEN]), NotWallRule()], after_put=open_service,
     service_coords=[(1, 2)])
 
-brewing_vats = ObjectTemplate(
+brewing_vat = ObjectTemplate(
     name='Brewing vat', function=Functions.BREWING, price=2000,
     character=['/-\\', '|o|', '\+/'],
     color=[[Colors.VAT_COPPER, Colors.VAT_COPPER, Colors.VAT_COPPER],
