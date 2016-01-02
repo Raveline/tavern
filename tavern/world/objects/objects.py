@@ -15,6 +15,7 @@ rooms_to_name = {Rooms.TAVERN: 'Tavern',
                  Rooms.STORAGE: 'Storage',
                  Rooms.KITCHEN: 'Kitchen',
                  Rooms.MEETING_ROOM: 'Meeting room',
+                 Rooms.BREWERY: 'Brewery',
                  Rooms.ROOM: 'Room'}
 
 
