@@ -1,7 +1,6 @@
 from groggy.events import bus
-from tavern.world.objects.defaults import (door, chair, table,
-                                           counter, beam, oven,
-                                           work_station)
+from tavern.world.objects.defaults import (
+    door, chair, table, counter, beam, oven, work_station, brewing_vat)
 from tavern.world.objects.objects import Rooms
 
 CROSSHAIR = 0
@@ -20,13 +19,16 @@ objects_tree = {'d': {'display': 'Door', 'subobject': door},
                 'o': {'display': 'Counter', 'subobject': counter},
                 'b': {'display': 'Beam', 'subobject': beam},
                 'v': {'display': 'Oven', 'subobject': oven},
+                'b': {'display': 'Brewing vat', 'subobject': brewing_vat},
                 'w': {'display': 'Workstation', 'subobject': work_station}}
 
 
 room_types = {'t': {'display': 'Tavern', 'subobject': Rooms.TAVERN},
+              'b': {'display': 'Brewery', 'subobject': Rooms.BREWERY},
               's': {'display': 'Storage', 'subobject': Rooms.STORAGE},
               'r': {'display': 'Inn room', 'subobject': Rooms.ROOM},
               'k': {'display': 'Kitchen', 'subobject': Rooms.KITCHEN}}
+
 
 supplies_menu = {'type': 'RootComponent',
                  'template': 'centered 5',
@@ -167,21 +169,21 @@ examine_menu = {'type': 'RootComponent',
                      'event': 'recruit',
                      'event_type': bus.MENU_MODEL_EVENT}]}
 
-task_menu= {'type': 'RootComponent',
-            'template': 'centered 5',
-            'title': 'Tasks',
-            'children': [
-                {'type': 'Line',
-                 'x': 0,
-                 'w': '100%',
-                 'y': 3},
-                {'type': 'Foreach',
-                 'source': 'tasks',
-                 'do': [{'type': 'StaticText',
-                         'x': 5}]
-                 }
-            ]
-            }
+
+task_menu = {'type': 'RootComponent',
+             'template': 'centered 5',
+             'title': 'Tasks',
+             'children': [
+                 {'type': 'Line',
+                  'x': 0,
+                  'w': '100%',
+                  'y': 3},
+                 {'type': 'Foreach',
+                  'source': 'tasks',
+                  'do': [{'type': 'StaticText',
+                          'x': 5}]}
+             ]
+             }
 
 action_tree = {'name': 'Main mode',
                'pauses_game': False,
