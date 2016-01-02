@@ -81,12 +81,20 @@ oven = ObjectTemplate(
     rules=[RoomsRule([Rooms.KITCHEN]), NotWallRule()], after_put=open_service,
     service_coords=[(1, 2)])
 
+brewing_vats = ObjectTemplate(
+    name='Brewing vat', function=Functions.BREWING, price=2000,
+    character=['/-\\', '|o|', '\+/'],
+    color=[[Colors.VAT_COPPER, Colors.VAT_COPPER, Colors.VAT_COPPER],
+           [Colors.VAT_COPPER, Colors.VAT_COPPER, Colors.VAT_COPPER],
+           [Colors.VAT_COPPER, Colors.VAT_COPPER, Colors.VAT_COPPER]],
+    blocks=[[True, True, True], [True, True, True], [True, False, True]],
+    rules=[RoomsRule([Rooms.BREWERY]), NotWallRule()], after_put=open_service,
+    service_coords=[(1, 2)])
 
 work_station = ObjectTemplate(
     name='Work station', function=Functions.WORKSHOP, price=20, character='=',
     color=Colors.WORKSHOP_ALBASTER, blocks=True,
     rules=[RoomsRule([Rooms.KITCHEN]), NotWallRule()], after_put=open_service)
-
 
 beam = ObjectTemplate(name='Beam', function=Functions.SUPPORT, price=10,
                       character='^', color=Colors.BEAM_LIGHT_WOOD,
