@@ -22,7 +22,8 @@ from tavern.world.goods import GoodsList
 from tavern.ui.status import Status
 from tavern.ui.state import (
     TavernGameState, BuyMenuState, HelpMenuState, PricesMenuState,
-    ExamineMenu)
+    ExamineMenu, NewBrewMenu
+)
 from tavern.world.customers import Customers
 from tavern.world.tavern import Tavern
 from tavern.world.world import World
@@ -117,6 +118,11 @@ class TavernGame(Game):
         elif menu_type == 'TaskMenu':
             clazz = MenuState
             context['tasks'] = self.tavern.tasks.current_task_list()
+        elif menu_type == 'NewBrewMenu':
+            clazz = NewBrewMenu
+            data = self.world.goods
+            context['grains'] = self.world.goods.grains
+            context['aromas'] = self.world.goods.aromas
         elif menu_type == 'ExamineMenu':
             examined = self.displayer.get_selected_customer(self.state)
             if examined and examined.examinable:

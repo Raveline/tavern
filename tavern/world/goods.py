@@ -8,13 +8,17 @@ class GoodsType:
     FOOD = 2
     VEGETABLES = 3
     MEAT = 4
+    GRAINS = 5
+    AROMA = 6
 
 goods_type_to_store_cell_cost = {
     GoodsType.CLASSIC_DRINKS: .01,
     GoodsType.FANCY_DRINKS: .01,
     GoodsType.FOOD: .1,
     GoodsType.VEGETABLES: .1,
-    GoodsType.MEAT: .1
+    GoodsType.MEAT: .1,
+    GoodsType.GRAINS: .01,
+    GoodsType.AROMA: .01
 }
 
 
@@ -62,14 +66,23 @@ class Goods(object):
 
 
 # Goods
-ale = Goods('Ale', GoodsType.CLASSIC_DRINKS, 10, 12, '.', Colors.ALE_AMBER)
-wine = Goods('Wine', GoodsType.FANCY_DRINKS, 15, 20, '.', Colors.WINE_RED)
-spirits = Goods('Spirits', GoodsType.CLASSIC_DRINKS, 10, 13, '.',
+ale = Goods('Ale', GoodsType.CLASSIC_DRINKS, 10, 12, 'O', Colors.ALE_AMBER)
+wine = Goods('Wine', GoodsType.FANCY_DRINKS, 15, 20, 'O', Colors.WINE_RED)
+spirits = Goods('Spirits', GoodsType.CLASSIC_DRINKS, 10, 13, 'O',
                 Colors.SPIRITS_ABSINTH)
 meat = Goods('Meat', GoodsType.MEAT, 4, 0, ';', Colors.MEAT_BLOOD)
 vegetables = Goods('Vegetables', GoodsType.VEGETABLES, 1, 0, ':',
                    Colors.VEGETABLES_APPLE)
 basic_meal = Goods('Basic Meal', GoodsType.FOOD, 6, 0, '^', Colors.MEAL_BUFF)
+
+# Grains
+malt = Goods('Malt', GoodsType.GRAINS, 2, 0, 'm', Colors.MALT_BROWN)
+hop = Goods('Hop', GoodsType.GRAINS, 2, 0, 'h', Colors.VEGETABLES_APPLE)
+
+# Aromas
+mint = Goods('Mint', GoodsType.AROMA, 1, 0, 'i', Colors.VEGETABLES_APPLE)
+nuts = Goods('Nuts', GoodsType.AROMA, 1, 0, 'n', Colors.CHAIR_WALNUT_STAIN)
+herbs = Goods('Herbs', GoodsType.AROMA, 1, 0, '.', Colors.VEGETABLES_APPLE)
 
 
 class GoodsList(object):
@@ -80,6 +93,8 @@ class GoodsList(object):
         self.drinks = [ale, wine, spirits]
         self.primary_materials = [meat, vegetables]
         self.food = [basic_meal]
+        self.grains = [malt, hop]
+        self.aromas = [vegetables]
 
     @property
     def supplies(self):

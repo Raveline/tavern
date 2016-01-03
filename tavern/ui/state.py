@@ -143,6 +143,18 @@ class PricesMenuState(StoreMenuState):
         self.set_data(self.build_data(self.world))
 
 
+class NewBrewMenu(MenuState):
+    def __init__(self, state_tree, root_component, parent_state, goods):
+        super(NewBrewMenu, self).__init__(
+            state_tree, root_component, parent_state, self.build_data(goods)
+        )
+        self.goods = goods
+
+    def build_data(self, goods):
+        return {'grains': goods.grains,
+                'aromas': goods.aromas}
+
+
 class HelpMenuState(MenuState):
     def __init__(self, state_tree, root_component,
                  parent_state=None, informed_state=None):
