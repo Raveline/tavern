@@ -94,7 +94,7 @@ class GoodsList(object):
         self.primary_materials = [meat, vegetables]
         self.food = [basic_meal]
         self.grains = [malt, hop]
-        self.aromas = [vegetables]
+        self.aromas = [vegetables, mint, nuts, herbs]
 
     @property
     def supplies(self):
