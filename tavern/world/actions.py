@@ -215,7 +215,15 @@ new_brew = {'name': 'Create brew',
                 {'type': 'Checkbox',
                  'label': 'Roast grains ?',
                  'x': 2,
-                 'y': 10}]
+                 'y': 10},
+                {'type': 'StaticText',
+                 'content': 'Name your brew : ',
+                 'x': 2,
+                 'y': 12},
+                {'type': 'Input',
+                 'x': 20,
+                 'y': 12}
+            ]
             }
 
 action_tree = {'name': 'Main mode',
