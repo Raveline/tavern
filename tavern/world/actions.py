@@ -222,7 +222,13 @@ new_brew = {'name': 'Create brew',
                  'y': 12},
                 {'type': 'Input',
                  'x': 20,
-                 'y': 12}
+                 'y': 12},
+                {'type': 'Button',
+                 'x': 20,
+                 'y': 15,
+                 'text': 'Create new brew',
+                 'event': 'create',
+                 'event_type': bus.MENU_MODEL_EVENT}
             ]
             }
 
