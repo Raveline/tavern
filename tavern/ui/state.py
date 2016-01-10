@@ -6,6 +6,7 @@ from groggy.ui.state import ScapeState, MenuState
 
 from tavern.events.events import CUSTOMER_EVENT
 from tavern.world.actions import Actions
+from tavern.world.goods import build_beer
 from tavern.world.commands import BuyCommand
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
 from tavern.people.employees import JOBS
@@ -161,18 +162,27 @@ class NewBrewMenu(MenuState):
         row['selected'] = not row['selected']
 
     def update_data(self, source, new_value):
-        if source in ('grains', 'aromas'):
-            self.find_in_list_and_update(self.data[source], new_value)
-        else:
+        if source not in ('grains', 'aromas'):
             self.source = self.data[source] = new_value
-        self.set_data(self.data)
+            self.set_data(self.data)
 
     def receive_model_event(self, event_data):
         if event_data.get('source'):
             self.update_data(event_data.get('source'),
                              event_data.get('new_value'))
         else:
-            print("Received button event ! Creating brew with %s" % self.data)
+            self.create_beer_and_leave(self.data)
+
+    def create_beer_and_leave(self, data):
+        grains = [g['object'] for g in self.data['grains'] if g['selected']]
+        aromas = [a['object'] for a in self.data['aromas'] if a['selected']]
+        if not grains:
+            bus.bus.publish('Cannot make a beer without any grains')
+            return
+        beer, recipe = build_beer(grains, aromas, self.data['roasted'],
+                                  self.data['name'])
+        self.goods.add_drink(beer, recipe)
+        self.call_previous_state()
 
 
 class HelpMenuState(MenuState):

@@ -95,6 +95,11 @@ class GoodsList(object):
         self.food = [basic_meal]
         self.grains = [malt, hop]
         self.aromas = [vegetables, mint, nuts, herbs]
+        self.recipes = {}
+
+    def add_drink(self, drink, recipe):
+        self.drinks.append(drink)
+        self.recipes[drink] = recipe
 
     @property
     def supplies(self):
@@ -131,3 +136,22 @@ def sort_by_quality_and_price(iterable):
     """
     return sorted(iterable, key=lambda i: (i.quality, -i.selling_price),
                   reverse=True)
+
+
+def build_beer(grains, aromas, roasted, name):
+    beerTasks = []
+    processable_grains = [(g, 1) for g in grains]
+    processable_aromas = [(a, 1) for a in aromas]
+    all_processable = processable_grains + processable_aromas
+    if roasted:
+        p = Processing(processable_grains, Functions.COOKING,
+                       100, "Roasting grains")
+        beerTasks.append(p)
+    vat = Processing(all_processable, Functions.BREWING,
+                     len(all_processable) * 30, "Brewing")
+    beerTasks.append(vat)
+    selling_price = sum([ing.buying_price
+                         for ing in aromas + grains]) + 2
+    beer = Goods(name, GoodsType.CLASSIC_DRINKS,
+                 0, selling_price, '0', Colors.ALE_AMBER)
+    return beer, Recipe(beerTasks, beer)
