@@ -78,3 +78,15 @@ class TestPatron(TavernTest):
         self.add_chair()
 
         self.assertCanTickTillTaskIs(patron, Eating, 300)
+
+    def test_multiple_customers(self):
+        """See if there is no crash on a 5,000 tick-long crowded,
+        equipped tavern."""
+        self._make_employee()
+        self.add_chair()
+        self.add_kitchen()
+        self.add_ingredients()
+        self.add_drinks()
+        for n in range(0, 30):
+            self._build_thirsty_customer()
+        self.tick_for(15000)
