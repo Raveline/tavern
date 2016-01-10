@@ -1,3 +1,4 @@
+from collections import defaultdict
 from tavern.world.objects.functions import Functions
 import tavern.world.colors as Colors
 
@@ -89,17 +90,18 @@ class GoodsList(object):
     """
     A class to list accessible goods and store them by type.
     """
+
     def __init__(self):
         self.drinks = [ale, wine, spirits]
         self.primary_materials = [meat, vegetables]
         self.food = [basic_meal]
         self.grains = [malt, hop]
         self.aromas = [vegetables, mint, nuts, herbs]
-        self.recipes = {}
+        self.recipes = defaultdict(list)
 
     def add_drink(self, drink, recipe):
         self.drinks.append(drink)
-        self.recipes[drink] = recipe
+        self.recipes[GoodsType.CLASSIC_DRINKS][drink] = recipe
 
     @property
     def supplies(self):

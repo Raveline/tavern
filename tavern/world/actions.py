@@ -185,6 +185,28 @@ task_menu = {'type': 'RootComponent',
              ]
              }
 
+order_menu = {'type': 'RootComponent',
+              'template': 'centered 5',
+              'title': 'Order',
+              'children': [
+                  {'type': 'Line',
+                   'x': 0,
+                   'w': '100%',
+                   'y': 3},
+                  {'type': 'Foreach',
+                   'source': 'recipes.drinks',
+                   'do': [{'type': 'Statictext',
+                           'x': 5,
+                           'eat_line': False},
+                          {'type': 'NumberPicker',
+                           'minimum': 1,
+                           'maximum': 100,
+                           'x': 20,
+                           'w': '80%'}]}
+              ]
+              }
+
+
 new_brew = {'name': 'Create brew',
             'template': 'centered 5',
             'title': 'Design a brew',
@@ -258,6 +280,10 @@ action_tree = {'name': 'Main mode',
                          'name': 'Fix prices',
                          'menu_type': 'PricesMenu',
                          'content': prices_menu},
+                   'o': {'type': 'menu',
+                         'name': 'Order menu',
+                         'menu_type': 'OrderMenu',
+                         'content': order_menu},
                    't': {'type': 'menu',
                          'name': 'Task menu',
                          'menu_type': 'TaskMenu',

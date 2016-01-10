@@ -199,6 +199,17 @@ class HelpMenuState(MenuState):
         return data
 
 
+class OrderMenu(MenuState):
+    def __init__(self, state_tree, root_component, parent_state=None,
+                 goods=None):
+        self.goods = goods
+        super(OrderMenu, self).__init__(state_tree, root_component,
+                                        parent_state, self.build_data)
+
+    def build_data(self):
+        return {'recipes': self.goods.recipes}
+
+
 class ExamineMenu(MenuState):
     def __init__(self, state_tree, root_component,
                  parent_state=None, creature=None):

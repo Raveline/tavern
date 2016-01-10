@@ -22,7 +22,7 @@ from tavern.world.goods import GoodsList
 from tavern.ui.status import Status
 from tavern.ui.state import (
     TavernGameState, BuyMenuState, HelpMenuState, PricesMenuState,
-    ExamineMenu, NewBrewMenu
+    ExamineMenu, NewBrewMenu, OrderMenu
 )
 from tavern.world.customers import Customers
 from tavern.world.tavern import Tavern
@@ -115,6 +115,10 @@ class TavernGame(Game):
             clazz = HelpMenuState
             data = self.state
             context['state'] = self.state.to_keys_array()
+        elif menu_type == 'OrderMenu':
+            clazz = OrderMenu
+            data = self.world.goods
+            context['recipes'] = self.world.goods.recipes
         elif menu_type == 'TaskMenu':
             clazz = MenuState
             context['tasks'] = self.tavern.tasks.current_task_list()
