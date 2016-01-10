@@ -87,6 +87,25 @@ class Creature(object):
             self.add_activities(or_acts)
 
     def tick(self, world):
+        """
+        At each tick, we'll try to do the current activity.
+        If there is no current activity, we'll first try and find one,
+        and then tick that new activity, ALL IN THE SAME TICK (see the
+        warning at the end).
+
+        Doing the current activity means calling the tick method of the
+        ongoing task.
+        - After a tick, the task might be flagged as failed: we then fail
+          all the listed activities after this one, since task are most of
+          the time connected together.
+        - If the task is marked as "finished", we'll start the next activity
+          on the list if any.
+
+        BEWARE: there should never be a turn when someone "gets an activity"
+        and does not tick it. If we do not do this, we will meet race
+        conditions, simultaneous attempt to access the same service, and be
+        in a very, very dark place. Don't go in a dark place.
+        """
         if not self.current_activity:
             self.find_activity(world)
         if self.current_activity:
@@ -111,8 +130,6 @@ class Creature(object):
         if self.activity_list:
             self.current_activity = self.activity_list[0]
             self.activity_list = self.activity_list[1:]
-        else:
-            self.find_activity(world)
 
     def __str__(self):
         if self.current_activity:
