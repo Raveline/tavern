@@ -99,12 +99,12 @@ class TavernTest(unittest.TestCase):
         area.z2 = z2
         return area
 
-    def add_drinks(self):
-        self.tavern.store.add(self.world.goods.drinks[0], 10)
+    def add_drinks(self, num=10):
+        self.tavern.store.add(self.world.goods.drinks[0], num)
 
-    def add_ingredients(self):
-        self.tavern.store.add(self.world.goods.primary_materials[0], 10)
-        self.tavern.store.add(self.world.goods.primary_materials[1], 10)
+    def add_ingredients(self, num=10):
+        self.tavern.store.add(self.world.goods.primary_materials[0], num)
+        self.tavern.store.add(self.world.goods.primary_materials[1], num)
 
     def add_chair(self):
         self.add_object(chair, 9, 6)
