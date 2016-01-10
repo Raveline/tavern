@@ -97,7 +97,7 @@ class GoodsList(object):
         self.food = [basic_meal]
         self.grains = [malt, hop]
         self.aromas = [vegetables, mint, nuts, herbs]
-        self.recipes = defaultdict(list)
+        self.recipes = defaultdict(lambda: defaultdict(list))
 
     def add_drink(self, drink, recipe):
         self.drinks.append(drink)
