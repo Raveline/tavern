@@ -87,8 +87,6 @@ class BuyMenuState(StoreMenuState):
         store = self.world.tavern.store
         cash = self.world.tavern.cash
         available_room = store.current_available_cells()
-        # Currently, we will do this only for drinks, but chances are
-        # this will need to be abstracted
         for goods in self.world.goods.supplies:
             quantity = store.amount_of(goods)
             storable = store.cell_to_goods_quantity(available_room, goods)
@@ -151,8 +149,30 @@ class NewBrewMenu(MenuState):
         self.goods = goods
 
     def build_data(self, goods):
-        return {'grains': goods.grains,
-                'aromas': goods.aromas}
+        return {'grains': [{'object': g, 'selected': False}
+                           for g in goods.grains],
+                'aromas': [{'object': g, 'selected': False}
+                           for g in goods.aromas],
+                'roasted': False,
+                'name': ''}
+
+    def find_in_list_and_update(self, list_, element):
+        row = next(r for r in list_ if r['object'] == element)
+        row['selected'] = not row['selected']
+
+    def update_data(self, source, new_value):
+        if source in ('grains', 'aromas'):
+            self.find_in_list_and_update(self.data[source], new_value)
+        else:
+            self.source = self.data[source] = new_value
+        self.set_data(self.data)
+
+    def receive_model_event(self, event_data):
+        if event_data.get('source'):
+            self.update_data(event_data.get('source'),
+                             event_data.get('new_value'))
+        else:
+            print("Received button event ! Creating brew with %s" % self.data)
 
 
 class HelpMenuState(MenuState):
