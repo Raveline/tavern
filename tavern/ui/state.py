@@ -204,10 +204,19 @@ class OrderMenu(MenuState):
                  goods=None):
         self.goods = goods
         super(OrderMenu, self).__init__(state_tree, root_component,
-                                        parent_state, self.build_data)
+                                        parent_state, self.build_data())
 
     def build_data(self):
-        return {'recipes': self.goods.recipes}
+        data = {}
+        for good_type, dic in self.goods.recipes.items():
+            for goods, recipe in dic.items():
+                data[goods.name] = {
+                    'obj': goods,
+                    'minimum': 0,
+                    'current': 0,
+                    'maximum': 100
+                }
+        return data
 
 
 class ExamineMenu(MenuState):

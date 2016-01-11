@@ -4,6 +4,8 @@ an extension of groggy's Game class).
 This is still a dev / sandbox version, and is bloated with testing utilities,
 unperfect process, etc.
 '''
+from itertools import chain
+
 import groggy.events.bus as bus
 from groggy.game.game import Game
 from groggy.viewport.scape import Crosshair, Fillhair
@@ -118,7 +120,9 @@ class TavernGame(Game):
         elif menu_type == 'OrderMenu':
             clazz = OrderMenu
             data = self.world.goods
-            context['recipes'] = self.world.goods.recipes
+            context['recipes'] = {
+                'drinks': chain(*self.world.goods.recipes.values())
+            }
         elif menu_type == 'TaskMenu':
             clazz = MenuState
             context['tasks'] = self.tavern.tasks.current_task_list()
