@@ -66,8 +66,6 @@ class Goods(object):
         return self.name
 
 
-# Goods
-ale = Goods('Ale', GoodsType.CLASSIC_DRINKS, 10, 12, 'O', Colors.ALE_AMBER)
 wine = Goods('Wine', GoodsType.FANCY_DRINKS, 15, 20, 'O', Colors.WINE_RED)
 spirits = Goods('Spirits', GoodsType.CLASSIC_DRINKS, 10, 13, 'O',
                 Colors.SPIRITS_ABSINTH)
@@ -78,38 +76,13 @@ basic_meal = Goods('Basic Meal', GoodsType.FOOD, 6, 0, '^', Colors.MEAL_BUFF)
 
 # Grains
 malt = Goods('Malt', GoodsType.GRAINS, 2, 0, 'm', Colors.MALT_BROWN)
-hop = Goods('Hop', GoodsType.GRAINS, 2, 0, 'h', Colors.VEGETABLES_APPLE)
 
 # Aromas
 mint = Goods('Mint', GoodsType.AROMA, 1, 0, 'i', Colors.VEGETABLES_APPLE)
+hop = Goods('Hop', GoodsType.AROMA, 2, 0, 'h', Colors.VEGETABLES_APPLE)
 nuts = Goods('Nuts', GoodsType.AROMA, 1, 0, 'n', Colors.CHAIR_WALNUT_STAIN)
 herbs = Goods('Herbs', GoodsType.AROMA, 1, 0, '.', Colors.VEGETABLES_APPLE)
 
-
-class GoodsList(object):
-    """
-    A class to list accessible goods and store them by type.
-    """
-
-    def __init__(self):
-        self.drinks = [ale, wine, spirits]
-        self.primary_materials = [meat, vegetables]
-        self.food = [basic_meal]
-        self.grains = [malt, hop]
-        self.aromas = [vegetables, mint, nuts, herbs]
-        self.recipes = defaultdict(lambda: defaultdict(list))
-
-    def add_drink(self, drink, recipe):
-        self.drinks.append(drink)
-        self.recipes[GoodsType.CLASSIC_DRINKS][drink] = recipe
-
-    @property
-    def supplies(self):
-        return self.drinks + self.primary_materials
-
-    @property
-    def sellables(self):
-        return self.drinks + self.food
 
 # Process step
 vegetable_preparation = Processing((vegetables, 1), Functions.WORKSHOP, 10,
@@ -157,3 +130,35 @@ def build_beer(grains, aromas, roasted, name):
     beer = Goods(name, GoodsType.CLASSIC_DRINKS,
                  0, selling_price, '0', Colors.ALE_AMBER)
     return beer, Recipe(beerTasks, beer)
+
+# Goods
+ale, ale_recipe = build_beer([malt], [hop], False, 'Ale')
+ale.buying_price = 10
+ale.selling_price = 12
+
+
+class GoodsList(object):
+    """
+    A class to list accessible goods and store them by type.
+    """
+
+    def __init__(self):
+        self.drinks = [ale, wine, spirits]
+        self.primary_materials = [meat, vegetables]
+        self.food = [basic_meal]
+        self.grains = [malt]
+        self.aromas = [hop, vegetables, mint, nuts, herbs]
+        self.recipes = defaultdict(lambda: defaultdict(list))
+        self.recipes[GoodsType.CLASSIC_DRINKS][ale] = ale_recipe
+
+    def add_drink(self, drink, recipe):
+        self.drinks.append(drink)
+        self.recipes[GoodsType.CLASSIC_DRINKS][drink] = recipe
+
+    @property
+    def supplies(self):
+        return self.drinks + self.primary_materials
+
+    @property
+    def sellables(self):
+        return self.drinks + self.food
