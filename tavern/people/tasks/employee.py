@@ -76,10 +76,10 @@ class TakeOrder(Task):
 
 
 class FollowRecipe(Task):
-    def __init__(self, recipe, recipient):
-        # The meal to prepare
+    def __init__(self, recipe, recipient=None):
+        # The thing to prepare
         self.recipe = recipe
-        # The person that will receive this meal
+        # The person that will receive this meal if any
         self.recipient = recipient
         super(FollowRecipe, self).__init__()
 
