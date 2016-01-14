@@ -119,7 +119,7 @@ class TavernGame(Game):
             context['state'] = self.state.to_keys_array()
         elif menu_type == 'OrderMenu':
             clazz = OrderMenu
-            data = self.world.goods
+            data = self.world
             context['recipes'] = {
                 'drinks': chain(*self.world.goods.recipes.values())
             }
@@ -128,7 +128,7 @@ class TavernGame(Game):
             context['tasks'] = self.tavern.tasks.current_task_list()
         elif menu_type == 'NewBrewMenu':
             clazz = NewBrewMenu
-            data = self.world.goods
+            data = self.goods
             context['grains'] = self.world.goods.grains
             context['aromas'] = self.world.goods.aromas
         elif menu_type == 'ExamineMenu':

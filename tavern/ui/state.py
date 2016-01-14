@@ -6,10 +6,12 @@ from groggy.ui.state import ScapeState, MenuState
 
 from tavern.events.events import CUSTOMER_EVENT
 from tavern.world.actions import Actions
-from tavern.world.goods import build_beer
+from tavern.world.objects.functions import Functions
+from tavern.world.goods import build_beer, GoodsType
 from tavern.world.commands import BuyCommand
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
 from tavern.people.employees import JOBS
+from tavern.people.tasks.employee import FollowRecipe
 NEW_STATE = 0
 
 
@@ -201,8 +203,9 @@ class HelpMenuState(MenuState):
 
 class OrderMenu(MenuState):
     def __init__(self, state_tree, root_component, parent_state=None,
-                 goods=None):
-        self.goods = goods
+                 world=None):
+        self.goods = world.goods
+        self.world = world
         super(OrderMenu, self).__init__(state_tree, root_component,
                                         parent_state, self.build_data())
 
@@ -217,6 +220,24 @@ class OrderMenu(MenuState):
                     'maximum': 100
                 }
         return data
+
+    def receive_model_event(self, event_data):
+        if event_data.get('source'):
+            source = event_data.get('source')
+            self.data[source]['current'] = event_data.get('new_value')
+
+    def deactivate(self):
+        """
+        On leaving, we need to make sure to call all necessary
+        tasks.
+        """
+        super(OrderMenu, self).deactivate()
+        for goods in self.data.values():
+            if goods['current'] > 0:
+                recipe = self.goods.recipes[GoodsType.CLASSIC_DRINKS][goods['obj']]
+                for i in range(goods['current']):
+                    self.world.tasks.add_task(Functions.BREWING, None,
+                                              FollowRecipe(recipe))
 
 
 class ExamineMenu(MenuState):
