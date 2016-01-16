@@ -1,7 +1,7 @@
 from tavern.people.tasks.tasks import Task
 from tavern.world.commands import AttendToCommand
 from tavern.world.commands import AddTask
-from tavern.world.commands import RemoveFromStore
+from tavern.world.commands import AddToStore, RemoveFromStore
 from tavern.world.objects.functions import Functions
 from tavern.world.goods import recipes
 
@@ -89,7 +89,8 @@ class FollowRecipe(Task):
                                                         process.function)
             if destination:
                 creature.add_walking_then_or(world_map, destination,
-                                             [FollowProcess(process)])
+                                             [FollowProcess(process),
+                                              GenerateGoods(self.recipe.output)])
             else:
                 self.fail()
                 return
@@ -100,6 +101,18 @@ class FollowRecipe(Task):
 
     def __str__(self):
         return "Starting a meal"
+
+
+class GenerateGoods(Task):
+    def __init__(self, goods, amount=1):
+        self.goods = goods
+        self.quantity = amount
+        super(GenerateGoods, self).__init__()
+
+    def tick(self, wolrd_map, creature):
+        command = AddToStore(self.goods, self.quantity)
+        self.call_command(command)
+        self.check_length()
 
 
 class FollowProcess(Task):

@@ -105,6 +105,21 @@ class RemoveFromStore(Command):
             self.linked_task.fail()
 
 
+class AddToStore(Command):
+    def __init__(self, goods, quantity, linked_task=None):
+        self.goods = goods
+        self.quantity = quantity
+        self.linked_task = linked_task
+
+    def execute(self, world):
+        if world.store.can_store(self.goods, self.quantity):
+            world.store.add(self.goods, self.quantity)
+            world.tavern.redispatch_store()
+        else:
+            bus.bus.publish('Not enough room to store %s' % self.goods)
+            self.linked_task.fail()
+
+
 class CreatureExit(Command):
     def __init__(self, creature):
         self.creature = creature
@@ -159,7 +174,6 @@ class AddTask(Command):
 
     def execute(self, world):
         world.tasks.add_task(self.nature, self.position, self.task)
-
 
 class RemoveTask(Command):
     def __init__(self, nature, position, task):
