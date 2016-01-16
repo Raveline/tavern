@@ -32,7 +32,6 @@ class Employee(Creature):
         self.functions = functions
 
     def find_activity(self, world):
-        # For the moment, just wander !
         for f in self.functions:
             tasks = world.tavern.tasks.employee_tasks[f]
             if tasks:
@@ -48,6 +47,7 @@ class Employee(Creature):
                     self.add_activity(task[1])
                 return
         # If we are here, we didn't find a single task to do
+        # For the moment, just wander !
         self.add_activity(Wandering())
 
 
