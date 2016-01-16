@@ -157,7 +157,7 @@ class GoodsList(object):
 
     @property
     def supplies(self):
-        return self.drinks + self.primary_materials
+        return self.drinks + self.primary_materials + self.grains + self.aromas
 
     @property
     def sellables(self):
