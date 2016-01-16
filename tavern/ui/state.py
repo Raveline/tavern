@@ -100,6 +100,8 @@ class BuyMenuState(StoreMenuState):
                 'obj': goods,
                 'minimum': minimum,
                 'current': quantity,
+                'price': (str(goods.get_real_price()) +
+                          " by " + str(goods.get_container())),
                 'maximum': quantity + min(storable, affordable)}
         data['storage'] = {
             'minimum': 0,

@@ -22,6 +22,16 @@ goods_type_to_store_cell_cost = {
     GoodsType.AROMA: .01
 }
 
+goods_type_to_container_name = {
+    GoodsType.CLASSIC_DRINKS: 'barrel',
+    GoodsType.FANCY_DRINKS: 'crate',
+    GoodsType.FOOD: 'crate',
+    GoodsType.VEGETABLES: 'bag',
+    GoodsType.MEAT: 'bag',
+    GoodsType.GRAINS: 'bag',
+    GoodsType.AROMA: 'bag'
+}
+
 
 class Processing(object):
     """The general notion of having to handle one or several GOODS,
@@ -61,6 +71,21 @@ class Goods(object):
         self.color = color
         self.blocks = False
         self.quality = quality
+
+    def get_real_quantity(self):
+        """One only buy buy bulk, to the extend of one cell
+        storage of any goods. This function compute the "real"
+        amount of produce this represents."""
+        return 1.0 / goods_type_to_store_cell_cost[self.goods_type]
+
+    def get_real_price(self):
+        """One only buy buy bulk, to the extend of one cell
+        storage of any goods. This function compute the "real"
+        price this represents."""
+        return self.get_real_quantity() * self.buying_price
+
+    def get_container(self):
+        """The type of container used to store this."""
 
     def __str__(self):
         return self.name
@@ -133,8 +158,8 @@ def build_beer(grains, aromas, roasted, name):
 
 # Goods
 ale, ale_recipe = build_beer([malt], [hop], False, 'Ale')
-ale.buying_price = 10
-ale.selling_price = 12
+ale.buying_price = 5
+ale.selling_price = 6
 
 
 class GoodsList(object):
