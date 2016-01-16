@@ -118,9 +118,9 @@ class PutCommand(MapCommand):
                 new_object.blocks = does_block
                 new_object.character = character
                 new_object.color = color
-                world_map.update_tile_walkability((x, y, z))
                 tile = world_map.tiles[z][y][x]
                 tile.tile_object = new_object
+                world_map.update_tile_walkability((x, y, z))
         after_put = object_type.after_put
         if after_put is not None:
             after_put(object_type, world, (rect.x, rect.y, z))
