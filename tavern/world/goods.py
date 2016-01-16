@@ -26,9 +26,9 @@ goods_type_to_store_cell_cost = {
 class Processing(object):
     """The general notion of having to handle one or several GOODS,
     at a particular object having a FUNCTION for a given TIME."""
-    def __init__(self, goods_and_quantity, function, time, name):
+    def __init__(self, goods_and_quantities, function, time, name):
         # A list of pair (goods, quantity)
-        self.goods_and_quantity = goods_and_quantity
+        self.goods_and_quantities = goods_and_quantities
         self.function = function
         self.time = time
         self.name = name
@@ -85,9 +85,9 @@ herbs = Goods('Herbs', GoodsType.AROMA, 1, 0, '.', Colors.VEGETABLES_APPLE)
 
 
 # Process step
-vegetable_preparation = Processing((vegetables, 1), Functions.WORKSHOP, 10,
+vegetable_preparation = Processing([(vegetables, 1)], Functions.WORKSHOP, 10,
                                    "Cutting ingredients")
-meat_preparation = Processing((meat, 1), Functions.COOKING, 15, "Cooking meat")
+meat_preparation = Processing([(meat, 1)], Functions.COOKING, 15, "Cooking meat")
 meal_finish = Processing((), Functions.WORKSHOP, 1,
                          "Finishing to prepare a meal")
 

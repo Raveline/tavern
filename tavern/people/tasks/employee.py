@@ -110,8 +110,7 @@ class FollowProcess(Task):
     def tick(self, world, creature):
         # Consumation of ingredients the first tick
         if self.tick_time == 0:
-            if self.process.goods_and_quantity:
-                goods, quantity = self.process.goods_and_quantity
+            for goods, quantity in self.process.goods_and_quantities:
                 command = RemoveFromStore(goods, quantity, self)
                 self.call_command(command)
         self.check_length()
