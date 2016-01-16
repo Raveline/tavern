@@ -109,4 +109,4 @@ class Walking(Task):
             self.path = None
 
     def __str__(self):
-        return "Going somewhere"
+        return "Going to %s, %s, %s" % self.dest
