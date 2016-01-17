@@ -1,3 +1,4 @@
+import math
 from collections import defaultdict
 from tavern.world.objects.functions import Functions
 import tavern.world.colors as Colors
@@ -76,7 +77,7 @@ class Goods(object):
         """One only buy buy bulk, to the extend of one cell
         storage of any goods. This function compute the "real"
         amount of produce this represents."""
-        return 1.0 / goods_type_to_store_cell_cost[self.goods_type]
+        return math.ceil(1.0 / goods_type_to_store_cell_cost[self.goods_type])
 
     def get_bulk_price(self):
         """One only buy buy bulk, to the extend of one cell
