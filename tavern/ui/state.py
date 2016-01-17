@@ -218,6 +218,7 @@ class OrderMenu(MenuState):
             for goods, recipe in dic.items():
                 data[goods.name] = {
                     'obj': goods,
+                    'step': goods.get_quantity_for_a_cell(),
                     'minimum': 0,
                     'current': 0,
                     'maximum': 100
@@ -238,7 +239,8 @@ class OrderMenu(MenuState):
         for goods in self.data.values():
             if goods['current'] > 0:
                 recipe = self.goods.recipes[GoodsType.CLASSIC_DRINKS][goods['obj']]
-                for i in range(goods['current']):
+                batches = goods['current'] / goods.get_quantity_for_a_cell()
+                for i in range(batches):
                     self.world.tasks.add_task(Functions.BREWING, None,
                                               FollowRecipe(recipe))
 
