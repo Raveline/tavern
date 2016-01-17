@@ -138,7 +138,7 @@ class BuyCommand(Command):
     def __init__(self, goods, quantity, cancel=False):
         self.goods = goods
         self.quantity = abs(quantity)
-        self.money_value = goods.buying_price
+        self.money_value = goods.buying_price * self.quantity
         self.cancel = cancel
 
     def execute(self, world):
@@ -174,6 +174,7 @@ class AddTask(Command):
 
     def execute(self, world):
         world.tasks.add_task(self.nature, self.position, self.task)
+
 
 class RemoveTask(Command):
     def __init__(self, nature, position, task):
