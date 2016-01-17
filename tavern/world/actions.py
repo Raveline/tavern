@@ -1,6 +1,6 @@
 from groggy.events import bus
 from tavern.world.objects.defaults import (
-    door, chair, table, counter, beam, oven, work_station, brewing_vat)
+    bed, door, chair, table, counter, beam, oven, work_station, brewing_vat)
 from tavern.world.objects.objects import Rooms
 
 CROSSHAIR = 0
@@ -18,8 +18,9 @@ objects_tree = {'d': {'display': 'Door', 'subobject': door},
                 't': {'display': 'Table', 'subobject': table},
                 'o': {'display': 'Counter', 'subobject': counter},
                 'b': {'display': 'Beam', 'subobject': beam},
+                'e': {'display': 'Bed', 'subobject': bed},
                 'v': {'display': 'Oven', 'subobject': oven},
-                'b': {'display': 'Brewing vat', 'subobject': brewing_vat},
+                'a': {'display': 'Brewing vat', 'subobject': brewing_vat},
                 'w': {'display': 'Workstation', 'subobject': work_station}}
 
 

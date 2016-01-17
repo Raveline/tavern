@@ -50,12 +50,14 @@ class TavernMap():
 
         param pos: A set of 3D coords
         type pos: A tuple (int, int, int)
+
+        returns: The room_type and all associated tiles
         """
         for room_type, lists in self.rooms.items():
             for one_list in lists:
                 if pos in one_list:
-                    return room_type
-        return None
+                    return room_type, one_list
+        return None, None
 
     def take_service(self, function, pos):
         """

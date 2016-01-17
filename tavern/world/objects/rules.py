@@ -13,11 +13,31 @@ class RoomsRule(Rule):
         self.rooms = rooms
 
     def check(self, world_map, pos):
-        room_type = world_map.get_room_at(pos)
-        return room_type in self.rooms
+        room_type, _ = world_map.get_room_at(pos)
+        return room_type and room_type in self.rooms
 
     def get_error_message(self):
         return "Can only be put in certain rooms"
+
+
+class OnlyOneInRoomRule(Rule):
+    """
+    This rule makes sure there is not already an object with
+    the given function.
+    """
+    def __init__(self, function):
+        self.function = function
+
+    def check(self, world_map, pos):
+        _, tiles = world_map.get_room_at(pos)
+        as_tiles = [world_map[pos] for pos in tiles]
+        objects = [t.tile_object for t in as_tiles if t.tile_object is not None]
+        objects_with_function = [o for o in objects
+                                 if o.function == self.function]
+        return not objects_with_function
+
+    def get_error_message(self):
+        return "Can only put one in each room"
 
 
 class NotWallRule(Rule):

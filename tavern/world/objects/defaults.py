@@ -2,7 +2,8 @@ from tavern.world.objects.functions import Functions
 from tavern.world.objects.objects import ObjectTemplate
 from tavern.world.objects.objects import Rooms
 from tavern.world.objects.rules import (
-    RoomsRule, OrRule, NextToWallRule, ExteriorWallRule, NotWallRule
+    RoomsRule, OrRule, NextToWallRule, ExteriorWallRule, NotWallRule,
+    OnlyOneInRoomRule
 )
 from tavern.people.tasks.employee import Serving
 import tavern.world.colors as Colors
@@ -70,6 +71,14 @@ counter = ObjectTemplate(name='Counter', function=Functions.ORDERING, price=30,
                          color=Colors.COUNTER_LIGHT_WOOD,
                          rules=[RoomsRule([Rooms.TAVERN]), NotWallRule()],
                          after_put=add_counter_helping_task)
+
+bed = ObjectTemplate(name='Bed', function=Functions.SLEEPING, price=50,
+                     character=chr(245), blocks=False,
+                     color=Colors.CHAIR_WALNUT_STAIN,
+                     rules=[RoomsRule([Rooms.ROOM]),
+                            OnlyOneInRoomRule(Functions.SLEEPING),
+                            NotWallRule()],
+                     after_put=open_service)
 
 oven = ObjectTemplate(
     name='Oven', function=Functions.COOKING, price=100,

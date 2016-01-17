@@ -11,3 +11,4 @@ class Functions:
     CLEANING = 9            # Cleaning rooms
     BREWING = 10            # Preparing beer
     SELLING = 11            # Selling stuff in a shop
+    SLEEPING = 12           # A place to sleep in
