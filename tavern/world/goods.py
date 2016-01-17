@@ -86,6 +86,7 @@ class Goods(object):
 
     def get_container(self):
         """The type of container used to store this."""
+        return goods_type_to_container_name[self.goods_type]
 
     def __str__(self):
         return self.name
