@@ -106,7 +106,7 @@ class FollowRecipe(Task):
 class GenerateGoods(Task):
     def __init__(self, goods, amount=1):
         self.goods = goods
-        self.quantity = amount
+        self.quantity = amount * goods.get_quantity_for_a_cell()
         super(GenerateGoods, self).__init__()
 
     def tick(self, wolrd_map, creature):
