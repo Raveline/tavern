@@ -25,7 +25,8 @@ class StorageSystem(object):
         If there is not enough room, raise an exception.
         Control of room availability is left to the caller.
         """
-        if quantity <= self.current_available_cells():
+        as_cell = self.goods_quantity_to_cell(goods, quantity)
+        if as_cell <= self.current_available_cells():
             self.store[goods] += quantity
             self.to_list_of_goods()
         else:
