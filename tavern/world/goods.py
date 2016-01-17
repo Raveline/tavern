@@ -72,17 +72,17 @@ class Goods(object):
         self.blocks = False
         self.quality = quality
 
-    def get_real_quantity(self):
+    def get_quantity_for_a_cell(self):
         """One only buy buy bulk, to the extend of one cell
         storage of any goods. This function compute the "real"
         amount of produce this represents."""
         return 1.0 / goods_type_to_store_cell_cost[self.goods_type]
 
-    def get_real_price(self):
+    def get_bulk_price(self):
         """One only buy buy bulk, to the extend of one cell
         storage of any goods. This function compute the "real"
         price this represents."""
-        return self.get_real_quantity() * self.buying_price
+        return self.get_quantity_for_a_cell() * self.buying_price
 
     def get_container(self):
         """The type of container used to store this."""
@@ -141,8 +141,8 @@ def sort_by_quality_and_price(iterable):
 
 def build_beer(grains, aromas, roasted, name):
     beerTasks = []
-    processable_grains = [(g, 1) for g in grains]
-    processable_aromas = [(a, 1) for a in aromas]
+    processable_grains = [(g, 50) for g in grains]
+    processable_aromas = [(a, 50) for a in aromas]
     all_processable = processable_grains + processable_aromas
     if roasted:
         p = Processing(processable_grains, Functions.COOKING,
