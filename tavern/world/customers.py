@@ -58,7 +58,11 @@ class Customers(object):
         thirst = random.randint(1, 3)
         hunger = random.randint(0, 1)
         gamble = 0  # Will be random.randint(0,10)
-        sleep = 0   # Will be random.randint(0,0)
+        sleep = 0
+        # Commoners are locals. They have their own rooms.
+        # However, other classes could want to spend the night.
+        if creature_class != CreatureClass.COMMON:
+            sleep = random.randint(0, 1)
         needs = Needs(thirst, hunger, gamble, sleep)
         name = races_to_names_generator[race].generate()
         new_customer = Patron(creature_class, race, level, name, money, needs)
