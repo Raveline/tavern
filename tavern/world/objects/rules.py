@@ -14,7 +14,7 @@ class RoomsRule(Rule):
 
     def check(self, world_map, pos):
         room_type, _ = world_map.get_room_at(pos)
-        return room_type and room_type in self.rooms
+        return room_type is not None and room_type in self.rooms
 
     def get_error_message(self):
         return "Can only be put in certain rooms"
