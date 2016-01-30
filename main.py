@@ -6,6 +6,9 @@ unperfect process, etc.
 '''
 from itertools import chain
 
+
+import libtcodpy as tcod
+
 import groggy.events.bus as bus
 from groggy.game.game import Game
 from groggy.viewport.scape import Crosshair, Fillhair
@@ -41,6 +44,8 @@ TITLE = b'The Tavern'
 
 def main():
     bus.bus.activate_debug_mode(True, [bus.INPUT_EVENT])
+    tcod.console_set_custom_font(b'terminal.png',
+                                 tcod.FONT_LAYOUT_ASCII_INROW)
     game = TavernGame(TITLE, 80, 60)
     game.start_loop()
 
