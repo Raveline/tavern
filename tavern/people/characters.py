@@ -1,5 +1,6 @@
 import random
 from tavern.world.objects.functions import Functions
+from tavern.people.needs import Needs
 from tavern.people.tasks.tasks import ImpossibleTask, Wandering, Walking
 from tavern.people.tasks.patron import (
     Drinking, Ordering, Leaving, Seating, StandingUp, ReserveSeat, OpenSeat,
@@ -198,23 +199,26 @@ class Patron(Creature):
             self.add_activity(Wandering())
 
     def find_activity(self, world):
+        """Tasks priority."""
         if not self.needs.has_needs():
             self.leave(world.tavern_map)
-        elif not self.has_a_drink:
-            # We do not have a drink, we want to get one
-            self.fetch_a_drink(world)
-        elif self.has_a_drink:
-            potential_order = world.goods.food[0]
-            if self.needs.hunger > 0\
-                    and self.money >= potential_order.selling_price:
-                self.find_a_seat_and(world.tavern_map,
-                                     [Drinking(), TableOrder(potential_order),
-                                      WaitForOrder(), Eating()])
-            else:
-                # We have a drink, we'd just like to seat
-                self.find_a_seat_and(world.tavern_map, [Drinking()])
         else:
-            self.add_activity(Wandering())
+            need = self.needs.get_priority_needs()
+            if need == Needs.THIRST:
+                # TODO: simplify this in one single chain of tasks
+                if not self.has_a_drink:
+                    return self.fetch_a_drink(world)
+                else:
+                    return self.find_a_seat_and(world.tavern_map, [Drinking()])
+            elif need == Needs.HUNGER:
+                # TODO: make customer pick food, not this default one
+                potential_order = world.goods.food[0]
+                if self.potential_order.selling_price <= self.money:
+                    self.find_a_seat_and(world.tavern_map,
+                                         [TableOrder(potential_order),
+                                          WaitForOrder(), Eating()])
+            else:
+                self.add_activity(Wandering())
 
     def renounce(self, reason):
         # Called when a creature cannot find something in the tavern
