@@ -26,10 +26,10 @@ from tavern.people.employees import JOBS
 from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT
 from tavern.world.goods import GoodsList
 from tavern.ui.status import Status
-from tavern.ui.state import (
-    TavernGameState, BuyMenuState, HelpMenuState, PricesMenuState,
-    ExamineMenu, NewBrewMenu, OrderMenu
-)
+from tavern.ui.states.game import TavernGameState
+from tavern.ui.states.menus import (
+    BuyMenuState, HelpMenuState, PricesMenuState,
+    ExamineMenu, NewBrewMenu, OrderMenu)
 from tavern.world.customers import Customers
 from tavern.world.tavern import Tavern
 from tavern.world.world import World
