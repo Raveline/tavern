@@ -2,7 +2,7 @@ import libtcodpy as tcod
 from groggy.view.displayer import Displayer
 from tavern.view.show_console import display, print_selection, display_text
 from tavern.view.show_console import display_creatures
-from tavern.view.show_console import display_text, display_highlighted_text
+from tavern.view.show_console import display_highlighted_text
 
 
 STATUS_CONSOLE = 1
@@ -24,7 +24,8 @@ class TavernDisplayer(Displayer):
             self.display_characters(state, world_console)
             self.display_status(state, consoles[STATUS_CONSOLE])
             if not blink:
-                print_selection(world_console.console, state.scape)
+                print_selection(world_console.console,
+                                state.viewport, state.selection)
             cre = self.get_selected_customer(state)
             text_console = consoles[TEXT_CONSOLE]
             self.display_informer(text_console)
@@ -37,20 +38,20 @@ class TavernDisplayer(Displayer):
             state.root_component.display(world_console)
 
     def get_selected_customer(self, state):
-        return self.tavern.creature_at(state.scape.getX(),
-                                       state.scape.getY(),
+        return self.tavern.creature_at(state.selection.getX(),
+                                       state.selection.getY(),
                                        0)
 
     def display_background(self, state, console):
         display(self.clip_world(self.tavern.tavern_map.tiles[0],
-                                state.scape.frame),
+                                state.viewport.frame),
                 console.console)
 
     def display_characters(self, state, console):
         display_list = [crea for crea in self.tavern.creatures
-                        if state.scape.frame.contains(crea.x, crea.y)]
+                        if state.viewport.frame.contains(crea.x, crea.y)]
         display_creatures(console.console, display_list,
-                          state.scape.global_to_local)
+                          state.viewport.global_to_local)
 
     def display_status(self, state, console):
         tcod.console_clear(console.console)
@@ -71,8 +72,8 @@ class TavernDisplayer(Displayer):
         display_text(console.console, str(creature), 0, 0)
 
     def describe_area(self, state, console):
-        x, y = state.scape.getX(), state.scape.getY()
-        pos = (x, y, state.scape.getZ())
+        x, y = state.selection.getX(), state.selection.getY()
+        pos = (x, y, state.selection.getZ())
         tile = self.tavern.tavern_map[pos]
         text = "(%d, %d) - %s" % (x, y, tile.describe())
         display_text(console.console, text, 0, 0)

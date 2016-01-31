@@ -1,5 +1,5 @@
 import groggy.events.bus as bus
-from groggy.viewport.scape import Selection
+from groggy.ui.selection import Selection
 from tavern.world.actions import (
     door, counter, chair, oven, work_station, brewing_vat
 )

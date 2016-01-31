@@ -33,11 +33,11 @@ def display(grid, console):
             tcod.console_put_char_ex(console, x, y, char, front, back)
 
 
-def print_selection(console, receiver):
-    display_list = receiver.get_selected_tiles()
-    characters = receiver.get_characters()
+def print_selection(console, viewport, selection):
+    display_list = selection.get_selected_tiles()
+    characters = selection.get_characters()
     for (char, (x, y, _)) in zip(characters, display_list):
-        x_, y_ = receiver.global_to_local(x, y)
+        x_, y_ = viewport.global_to_local(x, y)
         print_char(console, char, x_, y_, tcod.yellow)
 
 

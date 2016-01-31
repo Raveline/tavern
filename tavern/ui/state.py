@@ -2,7 +2,7 @@ from groggy.events import bus
 from groggy.utils.dict_path import read_path_dict
 from groggy.ui.component_builder import make_choice_box
 from groggy.inputs.input import Inputs
-from groggy.ui.state import ScapeState, MenuState
+from groggy.ui.state import ViewportState, MenuState
 
 from tavern.events.events import CUSTOMER_EVENT
 from tavern.world.actions import Actions
@@ -15,9 +15,11 @@ from tavern.people.tasks.employee import FollowRecipe
 NEW_STATE = 0
 
 
-class TavernGameState(ScapeState):
-    def __init__(self, state_tree, parent_state=None, scape=None):
-        super(TavernGameState, self).__init__(state_tree, parent_state, scape)
+class TavernGameState(ViewportState):
+    def __init__(self, state_tree, parent_state=None,
+                 viewport=None, selection=None):
+        super(TavernGameState, self).__init__(state_tree, parent_state,
+                                              viewport, selection)
         self.sub_object = None
         self.sub_object_display = None
         """This sub_object should also have a way to be displayed."""
@@ -50,7 +52,7 @@ class TavernGameState(ScapeState):
         if not (self.pick_substate(event_data) or
                 self.pick_subobject(event_data) or
                 self.check_pause(event_data)):
-            self.scape.receive(event_data)
+            self.handle_selection_move(event_data)
 
     def send_command(self, area):
         command = None

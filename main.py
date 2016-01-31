@@ -11,7 +11,8 @@ import libtcodpy as tcod
 
 import groggy.events.bus as bus
 from groggy.game.game import Game
-from groggy.viewport.scape import Crosshair, Fillhair
+from groggy.viewport.scape import Viewport
+from groggy.ui.selection import Crosshair, Fillhair
 from groggy.utils.tcod_wrapper import Console
 from groggy.utils.geom import Frame
 from groggy.ui.state import MenuState
@@ -78,12 +79,13 @@ class TavernGame(Game):
         bus.bus.subscribe(self.status, STATUS_EVENT)
 
         self.world_frame = Frame(0, 0, MAP_WIDTH, MAP_HEIGHT)
-        self.cross = Crosshair(self.width, self.height, self.world_frame)
-        self.filler = Fillhair(self.width, self.height, self.world_frame,
-                               self.tavern.tavern_map.fill_from)
+        self.viewport = Viewport(self.width, self.height, self.world_frame)
+        self.cross = Crosshair()
+        self.filler = Fillhair(self.tavern.tavern_map.fill_from)
 
     def setup_first_state(self):
-        self.change_state(TavernGameState(action_tree, scape=self.cross))
+        self.change_state(TavernGameState(action_tree, viewport=self.viewport,
+                                          selection=self.cross))
 
         self.receiver = self.cross
         self.continue_game = True
