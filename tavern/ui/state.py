@@ -42,11 +42,11 @@ class TavernGameState(ViewportState):
     def change_sub_object_display(self):
         if not isinstance(self.sub_object, int):
             if self.sub_object.is_multi_tile():
-                self.scape.set_multi_char(self.sub_object.character,
-                                          self.sub_object.width,
-                                          self.sub_object.height)
+                self.selection.set_multi_char(self.sub_object.character,
+                                              self.sub_object.width,
+                                              self.sub_object.height)
             else:
-                self.scape.set_char(self.sub_object.character)
+                self.selection.set_char(self.sub_object.character)
 
     def dispatch_input_event(self, event_data):
         if not (self.pick_substate(event_data) or
