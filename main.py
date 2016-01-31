@@ -159,8 +159,8 @@ class TavernGame(Game):
                 navigator = self.cross
             elif tree.get('selector', actions.FILLER) == actions.FILLER:
                 navigator = self.filler
-            navigator.set_coords(self.state.scape)
-            return TavernGameState(tree, self.state, navigator)
+            navigator.set_coords(self.state.selection)
+            return TavernGameState(tree, self.state, self.viewport, navigator)
 
     def __repr__(self):
         return "Main"
