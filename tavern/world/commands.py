@@ -1,6 +1,5 @@
 from groggy.events.bus import bus
 from tavern.events.events import STATUS_EVENT
-from tavern.world.objects.functions import Functions
 from tavern.world.goods import sort_by_quality_and_price
 from tavern.world.goods import sort_by_price
 
@@ -154,16 +153,17 @@ class BuyCommand(Command):
             world.tavern.redispatch_store()
 
 
-class ReserveSeat(Command):
-    def __init__(self, position, cancel=False):
+class ReserveCommand(Command):
+    def __init__(self, position, function, cancel=False):
         self.position = position
+        self.function = function
         self.cancel = cancel
 
     def execute(self, world):
         if self.cancel:
-            world.tavern_map.open_service(Functions.SITTING, self.position)
+            world.tavern_map.open_service(self.function, self.position)
         else:
-            world.tavern_map.take_service(Functions.SITTING, self.position)
+            world.tavern_map.take_service(self.function, self.position)
 
 
 class AddTask(Command):

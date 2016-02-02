@@ -3,8 +3,9 @@ from tavern.world.objects.functions import Functions
 from tavern.people.needs import Needs
 from tavern.people.tasks.tasks import ImpossibleTask, Wandering, Walking
 from tavern.people.tasks.patron import (
-    Drinking, Ordering, Leaving, Seating, StandingUp, ReserveSeat, OpenSeat,
-    TableOrder, WaitForOrder, Eating)
+    Drinking, Ordering, Leaving, Seating, StandingUp, ReserveService,
+    OpenService, TableOrder, WaitForOrder, Eating, Sleeping
+)
 
 
 class CreatureClass(object):
@@ -185,15 +186,25 @@ class Patron(Creature):
             self.add_walking_then_or(world.tavern_map, counter,
                                      [Ordering()])
 
+    def find_a_room(self, world_map, actions):
+        available = world_map.service_list(Functions.SLEEPING)
+        if available:
+            pos = world_map.find_closest_in(available, self.to_pos())
+            self.add_activity(ReserveService(pos, Functions.SLEEPING))
+            self.add_walking_then_or(
+                world_map, pos,
+                [Sleeping(), OpenService(pos, Functions.SLEEPING)],
+                [OpenService(pos, Functions.SLEEPING), Wandering()])
+
     def find_a_seat_and(self, world_map, actions):
         available = world_map.service_list(Functions.SITTING)
         if available:
             pos = world_map.find_closest_in(available, self.to_pos())
-            self.add_activity(ReserveSeat(pos))
-            self.add_walking_then_or(world_map, pos,
-                                     [Seating()] + actions +
-                                     [StandingUp(), OpenSeat(pos)],
-                                     [OpenSeat(pos), Wandering()])
+            self.add_activity(ReserveService(pos, Functions.SITTING))
+            self.add_walking_then_or(
+                world_map, pos, [Seating()] + actions +
+                [StandingUp(), OpenService(pos, Functions.SITTING)],
+                [OpenService(pos, Functions.SITTING), Wandering()])
         else:
             # For the moment, just wait
             self.add_activity(Wandering())
@@ -217,6 +228,8 @@ class Patron(Creature):
                     self.find_a_seat_and(world.tavern_map,
                                          [TableOrder(potential_order),
                                           WaitForOrder(), Eating()])
+            elif need == Needs.SLEEP:
+                    return self.find_a_room(world.tavern_map)
             else:
                 self.add_activity(Wandering())
 
