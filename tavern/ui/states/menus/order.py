@@ -39,7 +39,7 @@ class OrderMenu(MenuState):
         for goods in self.data.values():
             if goods['current'] > 0:
                 recipe = self.goods.recipes[GoodsType.CLASSIC_DRINKS][goods['obj']]
-                batches = goods['current'] / goods.get_quantity_for_a_cell()
+                batches = goods['current'] // goods['obj'].get_quantity_for_a_cell()
                 for i in range(batches):
                     self.world.tasks.add_task(Functions.BREWING, None,
                                               FollowRecipe(recipe))
