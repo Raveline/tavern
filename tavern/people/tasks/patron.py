@@ -1,7 +1,7 @@
 from tavern.people.tasks.tasks import Task
 from tavern.people.tasks.employee import TakeOrder
 from tavern.world.commands import OrderCommand, CreatureExit
-from tavern.world.commands import ReserveSeat as ReserveCommand
+from tavern.world.commands import ReserveCommand
 from tavern.world.commands import AddTask, RemoveTask
 from tavern.world.objects.functions import Functions
 from tavern.world.goods import GoodsType
@@ -11,35 +11,37 @@ class ImpossibleTask(Exception):
     pass
 
 
-class ReserveSeat(Task):
-    def __init__(self, pos):
+class ReserveService(Task):
+    def __init__(self, pos, function):
         self.pos = pos
-        super(ReserveSeat, self).__init__()
+        self.function = function
+        super(ReserveService, self).__init__()
 
     def tick(self, world_map, creature):
         self.finish()
 
     def finish(self):
-        command = ReserveCommand(self.pos)
+        command = ReserveCommand(self.pos, self.function)
         self.call_command(command)
-        super(ReserveSeat, self).finish()
+        super(ReserveService, self).finish()
 
     def __str__(self):
         return "Picking a seat"
 
 
-class OpenSeat(Task):
-    def __init__(self, pos):
+class OpenService(Task):
+    def __init__(self, pos, function):
         self.pos = pos
-        super(OpenSeat, self).__init__()
+        self.function = function
+        super(OpenService, self).__init__()
 
     def tick(self, world_map, creature):
         self.finish()
 
     def finish(self):
-        command = ReserveCommand(self.pos, True)
+        command = ReserveCommand(self.pos, self.function, True)
         self.call_command(command)
-        super(OpenSeat, self).finish()
+        super(OpenService, self).finish()
 
     def __str__(self):
         return "Leaving his seat"
@@ -96,6 +98,17 @@ class Leaving(Task):
 
     def __str__(self):
         return "Leaving"
+
+
+class Sleeping(Consuming):
+    def __init__(self, length=600):
+        super(Sleeping, self).__init__(length)
+
+    def __str__(self):
+        return "Sleeping"
+
+    def after(self, creature):
+        creature.needs.sleep = 0
 
 
 class Seating(Task):
