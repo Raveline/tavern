@@ -25,6 +25,16 @@ class Needs(object):
             or self.sleep > 0
 
     def get_priority_needs(self):
+        """
+        Returns the type of the highest need.
+
+        >>> n = Needs(1, 1, 1, 3)
+        >>> n.get_priority_needs() == Needs.SLEEP
+        True
+        >>> n2 = Needs(3, 1, 0, 2)
+        >>> n2.get_priority_needs() == Needs.THIRST
+        True
+        """
         return max(self.as_dict.items(), key=itemgetter(1))[0]
 
     def cancel_needs(self):
