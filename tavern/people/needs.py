@@ -12,10 +12,12 @@ class Needs(object):
         self.hunger = hunger
         self.gamble = gamble
         self.sleep = sleep
-        self.as_dict = {Needs.THIRST: self.thirst,
-                        Needs.HUNGER: self.hunger,
-                        Needs.GAMBLE: self.gamble,
-                        Needs.SLEEP: self.sleep}
+
+    def as_dict(self):
+        return {Needs.THIRST: self.thirst,
+                Needs.HUNGER: self.hunger,
+                Needs.GAMBLE: self.gamble,
+                Needs.SLEEP: self.sleep}
 
     def sum_needs(self):
         return self.thirst + self.hunger + self.gamble + self.sleep
@@ -35,7 +37,7 @@ class Needs(object):
         >>> n2.get_priority_needs() == Needs.THIRST
         True
         """
-        return max(self.as_dict.items(), key=itemgetter(1))[0]
+        return max(self.as_dict().items(), key=itemgetter(1))[0]
 
     def cancel_needs(self):
         self.thirst = 0
