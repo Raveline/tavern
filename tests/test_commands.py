@@ -5,7 +5,7 @@ from tavern.people.needs import Needs
 from tavern.world.objects.functions import Functions
 from tavern.world.objects.defaults import chair
 from tavern.world.commands import AttendToCommand, OrderCommand, CreatureExit
-from tavern.world.commands import BuyCommand, ReserveSeat
+from tavern.world.commands import BuyCommand, ReserveCommand
 
 
 class TestAttendTo(TavernTest):
@@ -137,7 +137,7 @@ class TestReserveSeat(TavernTest):
         self.add_object(chair, self.CHAIR_X, self.CHAIR_Y)
         seatings = self.tavern_map.used_services[Functions.SITTING]
         self.assertNotIn(self.chair_pos, seatings)
-        self.call_command(ReserveSeat(self.chair_pos))
+        self.call_command(ReserveCommand(self.chair_pos, Functions.SITTING))
         self.assertIn(self.chair_pos, seatings)
 
     def test_cancel_reservation(self):
@@ -147,8 +147,9 @@ class TestReserveSeat(TavernTest):
         # There must be an existing service first
         self.add_object(chair, self.CHAIR_X, self.CHAIR_Y)
         # Reserve it then unreseve it
-        self.call_command(ReserveSeat(self.chair_pos))
-        self.call_command(ReserveSeat(self.chair_pos, True))
+        self.call_command(ReserveCommand(self.chair_pos, Functions.SITTING))
+        self.call_command(
+            ReserveCommand(self.chair_pos, Functions.SITTING, True))
         busy_seatings = self.tavern_map.used_services[Functions.SITTING]
         self.assertNotIn((self.chair_pos), busy_seatings)
         free_seatings = self.tavern_map.available_services[Functions.SITTING]

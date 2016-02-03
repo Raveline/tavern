@@ -2,7 +2,7 @@ import unittest
 from collections import defaultdict
 
 import groggy.events.bus as bus
-from groggy.viewport.scape import Selection
+from groggy.ui.selection import Selection
 from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT
 
 from tavern.people.employees import JOBS
