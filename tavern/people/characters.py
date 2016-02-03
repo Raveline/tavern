@@ -224,7 +224,7 @@ class Patron(Creature):
             elif need == Needs.HUNGER:
                 # TODO: make customer pick food, not this default one
                 potential_order = world.goods.food[0]
-                if self.potential_order.selling_price <= self.money:
+                if potential_order.selling_price <= self.money:
                     self.find_a_seat_and(world.tavern_map,
                                          [TableOrder(potential_order),
                                           WaitForOrder(), Eating()])

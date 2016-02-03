@@ -34,8 +34,8 @@ class Task(object):
     def finish(self):
         self.finished = True
 
-    def __repr__(self):
-        return self.__str__()
+    def __str__(self):
+        return "Doing something"
 
 
 class Wandering(Task):

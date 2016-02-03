@@ -1,8 +1,9 @@
 from tests import TavernTest
 from tavern.people.tasks.employee import (
-    Serving, TakeOrder, FollowRecipe, FollowProcess, HaveSomethingDelivered,
+    Serving, TakeOrder, FollowProcess, HaveSomethingDelivered,
     DeliverTask
 )
+from tavern.people.employees import TAVERN_COOK, TAVERN_WAITER
 
 
 class TestEmployees(TavernTest):
@@ -44,26 +45,15 @@ class TestEmployees(TavernTest):
     def test_cook_order(self):
         """If a hungry patron has ordered food, employees should
         go, prepare it."""
-        employee = self._make_employee()
+        waiter = self._make_employee(TAVERN_WAITER)
+        cook = self._make_employee(TAVERN_COOK)
+
         self.base_conditions()
         # We need the kitchen for the test to work
         self.add_kitchen()
         # And kitchen ingredients in storage !
         self.add_ingredients()
 
-        def employee_is_preparing_food():
-            return isinstance(employee.current_activity, FollowRecipe)
-
-        def employee_is_cutting_food():
-            return isinstance(employee.current_activity, FollowProcess)
-
-        def employee_is_creating_meal():
-            return isinstance(employee.current_activity, HaveSomethingDelivered)
-
-        def employee_is_delivering():
-            return isinstance(employee.current_activity, DeliverTask)
-
-        self.assertCanTickTillTaskIs(employee, FollowRecipe, 100)
-        self.assertCanTickTillTaskIs(employee, FollowProcess, 80)
-        self.assertCanTickTillTaskIs(employee, HaveSomethingDelivered, 80)
-        self.assertCanTickTillTaskIs(employee, DeliverTask, 200)
+        self.assertCanTickTillTaskIs(cook, FollowProcess, 280)
+        self.assertCanTickTillTaskIs(cook, HaveSomethingDelivered, 80)
+        self.assertCanTickTillTaskIs(waiter, DeliverTask, 200)

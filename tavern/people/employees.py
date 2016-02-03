@@ -3,7 +3,7 @@ from tavern.world.objects.functions import Functions
 from tavern.people.characters import Creature
 
 
-TAVERN_WAITER = [Functions.ORDERING, Functions.WORKSHOP, Functions.COOKING,
+TAVERN_WAITER = [Functions.ORDERING,
                  Functions.ORDER_TAKING, Functions.DELIVERING]
 
 TAVERN_COOK = [Functions.WORKSHOP, Functions.COOKING]

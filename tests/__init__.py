@@ -112,12 +112,12 @@ class TavernTest(unittest.TestCase):
     def add_object(self, obj, x, y):
         self.call_command(PutCommand(self._build_area(x, y), obj))
 
-    def _make_employee(self):
+    def _make_employee(self, profile=TAVERN_WAITER):
         self.customers.make_customer()
         patron = self.tavern.creatures[-1]
         bus.bus.publish({'recruit': patron,
-                         'profile': TAVERN_WAITER}, CUSTOMER_EVENT)
-        return self.tavern.creatures[1]
+                         'profile': profile}, CUSTOMER_EVENT)
+        return self.tavern.creatures[-1]
 
     def bootstrap(self):
         # Build a storage area

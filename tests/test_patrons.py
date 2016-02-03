@@ -2,6 +2,7 @@ from tests import TavernTest
 from tavern.people.tasks.patron import (
     Ordering, Leaving, Drinking, Eating, TableOrder)
 from tavern.world.objects.functions import Functions
+from tavern.people.employees import TAVERN_COOK, TAVERN_WAITER
 
 
 class TestPatron(TavernTest):
@@ -67,7 +68,8 @@ class TestPatron(TavernTest):
     def test_order_food_complete(self):
         """Customers should be able to order (and eat !) food."""
         # An employee to take care of orders
-        self._make_employee()
+        self._make_employee(TAVERN_WAITER)
+        self._make_employee(TAVERN_COOK)
         # We need the kitchen for the test to work
         self.add_kitchen()
         self.add_ingredients()
