@@ -186,7 +186,7 @@ class Patron(Creature):
             self.add_walking_then_or(world.tavern_map, counter,
                                      [Ordering()])
 
-    def find_a_room(self, world_map, actions):
+    def find_a_room(self, world_map):
         available = world_map.service_list(Functions.SLEEPING)
         if available:
             pos = world_map.find_closest_in(available, self.to_pos())
