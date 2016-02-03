@@ -88,9 +88,12 @@ class FollowRecipe(Task):
             destination = world_map.find_closest_object(creature.to_pos(),
                                                         process.function)
             if destination:
-                creature.add_walking_then_or(world_map, destination,
-                                             [FollowProcess(process),
-                                              GenerateGoods(self.recipe.output)])
+                then = [FollowProcess(process)]
+                # Only produce and store something if there is no recipient
+                if not self.recipient:
+                    then.append(GenerateGoods(self.recipe.output))
+                creature.add_walking_then_or(world_map, destination, then)
+
             else:
                 self.fail()
                 return
@@ -130,7 +133,7 @@ class FollowProcess(Task):
         super(FollowProcess, self).tick(world, creature)
 
     def __str__(self):
-        return "Cutting ingredients"
+        return self.process.name or "Preparing something"
 
 
 class CookFood(Task):
