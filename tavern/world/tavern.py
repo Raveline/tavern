@@ -19,6 +19,7 @@ class Tavern(object):
         self.cash = cash
         # Creatures
         self.creatures = []
+        self.employees = []
         # Task list
         self.tasks = TaskList()
 
@@ -40,6 +41,7 @@ class Tavern(object):
                                                event_data.get('profile'))
             # ... and we add it back to the list of creatures !
             self.creatures.append(new_creature)
+            self.employees.append(new_creature)
 
     def creature_at(self, x, y, z):
         cre = [c for c in self.creatures
