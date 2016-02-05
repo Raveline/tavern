@@ -28,9 +28,9 @@ class TaskList(object):
             raise Exception('Bad bad bad')
 
     def current_task_list(self):
-        return [{'name': t[1], 'status': 'To Do', 'owner': 'Nobody'} for t
+        return [{'name': str(t[1]), 'status': 'To Do', 'owner': 'Nobody'} for t
                 in chain.from_iterable(self.employee_tasks.values())]
 
     def previous_task_list(self):
-        return [{'name': t[1], 'status': 'Done', 'owner': 'Nobody'} for t
+        return [{'name': str(t[1]), 'status': 'Done', 'owner': 'Nobody'} for t
                 in self.task_history]
