@@ -132,7 +132,8 @@ class TavernGame(Game):
             }
         elif menu_type == 'TaskMenu':
             clazz = MenuState
-            context['tasks'] = self.tavern.tasks.current_task_list()
+            data = self.tavern.tasks.current_task_list()
+            context['tasks'] = data
         elif menu_type == 'NewBrewMenu':
             clazz = NewBrewMenu
             data = self.goods
