@@ -190,7 +190,16 @@ task_menu = {'type': 'RootComponent',
                  {'type': 'Foreach',
                   'source': 'tasks',
                   'do': [{'type': 'StaticText',
-                          'x': 5}]}
+                          'source': 'name',
+                          'x': 5,
+                          'eat_line': False},
+                         {'type': 'StaticText',
+                          'source': 'status',
+                          'x': 30,
+                          },
+                         {'type': 'StaticText',
+                          'source': 'owner',
+                          'x': 50}]}
              ]
              }
 
