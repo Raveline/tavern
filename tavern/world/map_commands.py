@@ -42,6 +42,7 @@ class BuildCommand(MapCommand):
         real_cost = self.apply_to_area(self.area, self.build,
                                        world.tavern_map) * BuildCommand.COST
         world.tavern.cash -= real_cost
+        self.money_exchange(-real_cost, 'Construction costs')
         # If this is the first build, add a Publican
         if not world.tavern.creatures:
             world.tavern.add_creature(
@@ -92,7 +93,9 @@ class PutCommand(MapCommand):
                 return
             counter = self.apply_to_area(self.area, self.put_object,
                                          world, self.object_type)
-        world.tavern.cash -= (counter * self.object_type.price)
+        cost = (counter * self.object_type.price)
+        world.tavern.cash -= cost
+        self.money_exchange(-cost, 'Bought %s' % self.object_type.name)
 
     def put_multi_objects(self, world, object_type):
         rules = object_type.rules + [DefaultRule()]

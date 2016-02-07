@@ -1,5 +1,5 @@
 from groggy.events.bus import bus
-from tavern.events.events import STATUS_EVENT
+from tavern.events.events import STATUS_EVENT, MONEY_EVENT
 from tavern.world.goods import sort_by_quality_and_price
 from tavern.world.goods import sort_by_price
 
@@ -9,6 +9,14 @@ class Command(object):
     """
     def execute(self, obj):
         pass
+
+    def money_exchange(self, amount, label):
+        """
+        Commands are likely to produce incomes or expenses.
+        Those should be briefly displayed and kept in a ledger,
+        so we'll fire an event each time money changes hand.
+        """
+        bus.publish({'amount': amount, 'label': label}, MONEY_EVENT)
 
 
 class AttendToCommand(Command):
@@ -81,6 +89,7 @@ class OrderCommand(Command):
                     tavern.redispatch_store()
                     tavern.cash += drink.selling_price
                     self.creature.money -= drink.selling_price
+                    self.money_exchange(drink.selling_price, drink.name)
                     self.creature.has_a_drink = True
                     bus.publish({'status': 'drinks',
                                  'flag': True}, STATUS_EVENT)
@@ -145,11 +154,17 @@ class BuyCommand(Command):
             # Do the buy
             world.tavern.cash -= self.money_value
             world.tavern.store.add(self.goods, self.quantity)
+            self.money_exchange(
+                -self.money_value,
+                'Bought %d %s' % (self.quantity, self.goods.name))
             world.tavern.redispatch_store()
         else:
             # Cancel a buy
             world.tavern.cash += self.money_value
             world.tavern.store.take(self.goods, self.quantity)
+            self.money_exchange(
+                self.money_value,
+                'Sold %d %s' % (self.quantity, self.goods.name))
             world.tavern.redispatch_store()
 
 
