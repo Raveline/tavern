@@ -1,6 +1,6 @@
 from tavern.people.tasks.tasks import Task
 from tavern.world.commands import AttendToCommand
-from tavern.world.commands import AddTask
+from tavern.world.commands import AddTask, RemoveTask
 from tavern.world.commands import AddToStore, RemoveFromStore
 from tavern.world.objects.functions import Functions
 from tavern.world.goods import recipes
@@ -196,3 +196,24 @@ class ServeMealTask(Task):
 
     def __str__(self):
         return "Serving customer"
+
+
+class EndTask(Task):
+    def __init__(self, nature, position, task):
+        self.nature = nature
+        self.position = position
+        self.task = task
+        super(EndTask, self).__init__()
+
+    def tick(self, world_map, creature):
+        self.call_command(RemoveTask(self.nature, self.position,
+                                     self.task, creature, True))
+        self.finish()
+
+    def fail(self, world):
+        world.tasks.remove_task(self.nature, self.position,
+                                self.tasks, self.employee, False)
+        super(EndTask, self).fail()
+
+    def __str__(self):
+        return ""

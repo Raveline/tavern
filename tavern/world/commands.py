@@ -192,10 +192,13 @@ class AddTask(Command):
 
 
 class RemoveTask(Command):
-    def __init__(self, nature, position, task):
+    def __init__(self, nature, position, task, employee=None, success=False):
         self.position = position
         self.nature = nature
         self.task = task
+        self.employee = employee
+        self.success = success
 
     def execute(self, world):
-        world.tasks.remove_task(self.nature, self.position, self.task)
+        world.tasks.remove_task(self.nature, self.position,
+                                self.task, self.success, self.employee)

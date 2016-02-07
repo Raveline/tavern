@@ -1,6 +1,7 @@
 from tavern.people.tasks.tasks import Wandering
 from tavern.world.objects.functions import Functions
 from tavern.people.characters import Creature
+from tavern.people.tasks.employee import EndTask
 
 
 TAVERN_WAITER = [Functions.ORDERING,
@@ -33,18 +34,18 @@ class Employee(Creature):
 
     def find_activity(self, world):
         for f in self.functions:
-            tasks = world.tavern.tasks.employee_tasks[f]
-            if tasks:
+            if world.tavern.tasks.has_task(f):
                 # For the moment, let's take the last opened task...
-                task = tasks.pop()
+                task = world.tavern.tasks.start_task(f, self)
                 if task[0] is not None:
                     position = task[0]
                     task = task[1]
                     # TODO : Replace this "Wandering" taks by a Resting one.
                     self.add_walking_then_or(world.tavern_map, position,
-                                             [task, Wandering()])
+                                             [task, EndTask(f, position, task)])
                 else:
-                    self.add_activity(task[1])
+                    self.add_activities([task[1],
+                                         EndTask(f, None, task[1])])
                 return
         # If we are here, we didn't find a single task to do
         # For the moment, just wander !
