@@ -23,7 +23,7 @@ from tavern.view.displayer import (
     STATUS_CONSOLE, WORLD_CONSOLE, TEXT_CONSOLE, TavernDisplayer
 )
 from tavern.people.employees import JOBS
-from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT
+from tavern.events.events import CUSTOMER_EVENT, STATUS_EVENT, MONEY_EVENT
 from tavern.world.goods import GoodsList
 from tavern.ui.status import Status
 from tavern.ui.states.game import TavernGameState
@@ -77,6 +77,7 @@ class TavernGame(Game):
 
         self.status = Status()
         bus.bus.subscribe(self.status, STATUS_EVENT)
+        bus.bus.subscribe(self.status, MONEY_EVENT)
 
         self.world_frame = Frame(0, 0, MAP_WIDTH, MAP_HEIGHT)
         self.viewport = Viewport(self.width, self.height, self.world_frame)

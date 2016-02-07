@@ -59,7 +59,18 @@ class TavernDisplayer(Displayer):
             display_text(console.console, "*PAUSED*", 0, 0)
         display_text(console.console, str(tcod.sys_get_fps()), 10, 0)
         display_text(console.console, self.status.current_state, 15, 0)
-        display_text(console.console, ("Cash : %s" % self.status.money), 50, 0)
+        cash_display = 'Cash: %s' % self.status.money
+        display_text(console.console, cash_display, 50, 0)
+        if self.status.last_money_movement:
+            color = tcod.red
+            to_display = str(self.status.last_money_movement)
+            if self.status.last_money_movement > 0:
+                color = tcod.yellow
+                to_display = '+ %s' % to_display
+            display_text(
+                console.console, to_display, 52 + len(cash_display), 0, color
+            )
+            self.status.delta_increment()
         for idx, f in enumerate(self.status.flags):
             display_highlighted_text(console.console, f,
                                      console.w - idx - 1, 0)
