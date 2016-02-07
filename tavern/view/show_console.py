@@ -57,19 +57,19 @@ def display_creatures(console, creatures, func):
                                  to_display, color_front, color_back)
 
 
-def display_text(console, text, x=0, y=0):
+def display_text(console, text, x=0, y=0, front=tcod.white, back=tcod.black):
+    previous_back = tcod.console_get_default_background(console)
+    previous_fore = tcod.console_get_default_foreground(console)
+    tcod.console_set_default_background(console, back)
+    tcod.console_set_default_foreground(console, front)
     tcod.console_print_ex(console, x, y,
                           tcod.BKGND_SET, tcod.LEFT, text)
+    tcod.console_set_default_background(console, previous_back)
+    tcod.console_set_default_foreground(console, previous_fore)
 
 
 def display_highlighted_text(console, text, x=0, y=0):
-    previous_back = tcod.console_get_default_background(console)
-    previous_fore = tcod.console_get_default_foreground(console)
-    tcod.console_set_default_background(console, tcod.white)
-    tcod.console_set_default_foreground(console, tcod.black)
-    tcod.console_print_ex(console, x, y, tcod.BKGND_SET, tcod.LEFT, text)
-    tcod.console_set_default_background(console, previous_back)
-    tcod.console_set_default_foreground(console, previous_fore)
+    display_text(console, text, x, y, tcod.black, tcod.white)
 
 
 def print_char(console, char, x, y, foreground):
