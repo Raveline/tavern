@@ -4,13 +4,23 @@ from tavern.people.characters import Creature
 from tavern.people.tasks.employee import EndTask
 
 
+class Job(object):
+    def __init__(self, name, functions):
+        self.name = name
+        self.functions = functions
+
+
 TAVERN_WAITER = [Functions.ORDERING,
                  Functions.ORDER_TAKING, Functions.DELIVERING]
-
+WAITER = Job('Waiter', TAVERN_WAITER)
 TAVERN_COOK = [Functions.WORKSHOP, Functions.COOKING]
+COOK = Job('Cook', TAVERN_COOK)
 TAVERN_CLEANER = [Functions.CLEANING]
+CLEANER = Job('Cleaner', TAVERN_CLEANER)
 TAVERN_BREWER = [Functions.BREWING]
+BREWER = Job('Brewer', TAVERN_BREWER)
 TAVERN_MERCHANT = [Functions.SELLING]
+MERCHANT = Job('Merchant', TAVERN_MERCHANT)
 
 JOBS = {'Waiter': TAVERN_WAITER,
         'Cook': TAVERN_COOK,
