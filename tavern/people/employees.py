@@ -58,6 +58,11 @@ class Employee(Creature):
         # For the moment, just wander !
         self.add_activity(Wandering())
 
+    def __str__(self):
+        basic_display = "%s --- %s" %\
+            (self.name, self.job.name)
+        return ' --- '.join([basic_display, super(Employee, self).__str__()])
+
 
 class Publican(Employee):
     """The avatar of the player."""
