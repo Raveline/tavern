@@ -3,7 +3,7 @@ from tavern.people.tasks.employee import (
     Serving, TakeOrder, FollowProcess, HaveSomethingDelivered,
     DeliverTask
 )
-from tavern.people.employees import TAVERN_COOK, TAVERN_WAITER
+from tavern.people.employees import COOK, WAITER
 
 
 class TestEmployees(TavernTest):
@@ -45,8 +45,8 @@ class TestEmployees(TavernTest):
     def test_cook_order(self):
         """If a hungry patron has ordered food, employees should
         go, prepare it."""
-        waiter = self._make_employee(TAVERN_WAITER)
-        cook = self._make_employee(TAVERN_COOK)
+        waiter = self._make_employee(WAITER)
+        cook = self._make_employee(COOK)
 
         self.base_conditions()
         # We need the kitchen for the test to work

@@ -12,7 +12,7 @@ from tavern.world.customers import Customers
 from tavern.world.goods import GoodsList
 from tavern.world.map_commands import BuildCommand, PutCommand, RoomCommand
 from tavern.world.actions import door, counter, chair, oven, work_station
-from tavern.people.employees import TAVERN_WAITER
+from tavern.people.employees import WAITER
 
 
 class TavernTest(unittest.TestCase):
@@ -112,7 +112,7 @@ class TavernTest(unittest.TestCase):
     def add_object(self, obj, x, y):
         self.call_command(PutCommand(self._build_area(x, y), obj))
 
-    def _make_employee(self, profile=TAVERN_WAITER):
+    def _make_employee(self, profile=WAITER):
         self.customers.make_customer()
         patron = self.tavern.creatures[-1]
         bus.bus.publish({'recruit': patron,
