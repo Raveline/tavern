@@ -30,6 +30,30 @@ room_types = {'t': {'display': 'Tavern', 'subobject': Rooms.TAVERN},
               'r': {'display': 'Inn room', 'subobject': Rooms.ROOM},
               'k': {'display': 'Kitchen', 'subobject': Rooms.KITCHEN}}
 
+main_menu = {'type': 'RootComponent',
+             'template': 'centered 5',
+             'title': 'Tavern',
+             'children': [
+                 {'type': 'Button',
+                  'x': 5,
+                  'y': 1,
+                  'text': 'Start new game',
+                  'event': {'action': 'new_game'},
+                  'event_type': bus.MAIN_MENU_EVENT},
+                 {'type': 'Button',
+                  'x': 5,
+                  'y': 2,
+                  'text': 'Load game',
+                  'event': {'action': 'load_game'},
+                  'event_type': bus.MAIN_MENU_EVENT},
+                 {'type': 'Button',
+                  'x': 5,
+                  'y': 3,
+                  'text': 'Quit game',
+                  'event': {'action': 'quit_game'},
+                  'event_type': bus.MAIN_MENU_EVENT}]
+             }
+
 
 supplies_menu = {'type': 'RootComponent',
                  'template': 'centered 5',
