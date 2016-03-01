@@ -1,4 +1,5 @@
 from groggy.events import bus
+from tavern.events.events import MAIN_MENU_EVENT
 from tavern.world.objects.defaults import (
     bed, door, chair, table, counter, beam, oven, work_station, brewing_vat)
 from tavern.world.objects.objects import Rooms
@@ -39,19 +40,19 @@ main_menu = {'type': 'RootComponent',
                   'y': 1,
                   'text': 'Start new game',
                   'event': {'action': 'new_game'},
-                  'event_type': bus.MAIN_MENU_EVENT},
+                  'event_type': MAIN_MENU_EVENT},
                  {'type': 'Button',
                   'x': 5,
                   'y': 2,
                   'text': 'Load game',
                   'event': {'action': 'load_game'},
-                  'event_type': bus.MAIN_MENU_EVENT},
+                  'event_type': MAIN_MENU_EVENT},
                  {'type': 'Button',
                   'x': 5,
                   'y': 3,
                   'text': 'Quit game',
                   'event': {'action': 'quit_game'},
-                  'event_type': bus.MAIN_MENU_EVENT}]
+                  'event_type': MAIN_MENU_EVENT}]
              }
 
 
