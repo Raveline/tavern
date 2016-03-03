@@ -81,8 +81,8 @@ class TavernGame(Game):
 
         self.world_frame = Frame(0, 0, MAP_WIDTH, MAP_HEIGHT)
         self.viewport = Viewport(self.width, self.height, self.world_frame)
-        self.cross = Crosshair()
-        self.filler = Fillhair(self.tavern.tavern_map.fill_from)
+        self.cross = Crosshair(0, 1)
+        self.filler = Fillhair(self.tavern.tavern_map.fill_from, 0, 1)
 
     def setup_first_state(self):
         self.change_state(TavernGameState(action_tree, viewport=self.viewport,
